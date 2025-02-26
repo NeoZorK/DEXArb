@@ -1,0 +1,18 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "macos-xcode",
+      "generator": "Xcode",
+      "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "linux-make",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build"
+    }
+  ]
+}
+
+# use: cmake --preset macos-xcode 
+#   or cmake --preset linux-make.
