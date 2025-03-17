@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
     // Check Input
         if (flags.showDEXES) {
-            std::cout << "showDEX is enabled\n";
+            std::cout << "showDEXES is enabled\n";
         }
         if (flags.showPOOLS) {
             std::cout << "showPOOLS is enabled\n";
