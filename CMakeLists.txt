@@ -11,6 +11,7 @@ add_executable(NeoZorKDEXArb
     src/main.cpp
     src/arbitrage.cpp
     src/MeasureRunTime.cpp
+    src/input.cpp
 )
 
 # Header Folders
