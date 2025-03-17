@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(NeoZorKDEXArb LANGUAGES CXX)
 
 # Install Standard C++
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(NeoZorKDEXArb
     src/main.cpp
     src/arbitrage.cpp
+    src/MeasureRunTime.cpp
 )
 
 # Header Folders
