@@ -7,7 +7,7 @@
 #include "main.h"
 
 // Global Project Version
-const std::string VERSION = "100";
+const std::string VERSION = "101";
 
 
 
