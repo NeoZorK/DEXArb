@@ -10,85 +10,141 @@
 #include <iostream>         // For console output
 #include <thread>           // For std::this_thread::sleep_for
 
+// Callback function to handle data received from CURL
+// Parameters:
+// - data: Pointer to the received data
+// - size: Size of each data element
+// - nmemb: Number of data elements
+// - buffer: Reference to the string buffer to store the data
+// Returns: Number of bytes processed
 size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer) {
-    // Calculate the real size of the data received
+    // Calculate the total size of the received data
     size_t real_size = size * nmemb;
-    // Append the received data to the buffer
+    // Append the data to the buffer
     buffer.append(data, real_size);
-    return real_size;   // Return the size processed
+    // Return the number of bytes processed
+    return real_size;
 }
 
+// Function to extract the "result" field from a JSON RPC response
+// Parameters:
+// - json: The JSON string to parse
+// Returns: The value of the "result" field or an empty string if not found
 std::string parse_json_result(const std::string& json) {
     // Define the key to search for in the JSON
     std::string result_key = "\"result\":\"";
-    // Find the position of the result field
+    // Find the position of the result key
     size_t start = json.find(result_key);
-    if (start == std::string::npos) return ""; // Return empty if not found
-    start += result_key.length(); // Move to the start of the result value
+    // Return empty string if the key is not found
+    if (start == std::string::npos) return "";
+    // Move past the key to the value
+    start += result_key.length();
     // Find the end of the result value
     size_t end = json.find('"', start);
-    if (end == std::string::npos) return ""; // Return empty if no closing quote
-    return json.substr(start, end - start); // Extract and return the result
+    // Return empty string if the end is not found
+    if (end == std::string::npos) return "";
+    // Extract and return the result value
+    return json.substr(start, end - start);
 }
 
-void print_progress_bar(int current, int total, const std::string& label) {
-    // Calculate progress percentage
+// Function to display a progress bar in the console
+// Parameters:
+// - current: Current progress value
+// - total: Total value to reach
+// - label: Descriptive label for the progress bar
+void print_progress_bar(uint64_t current, uint64_t total, const std::string& label) {
+    // Calculate the progress as a fraction
     float progress = static_cast<float>(current) / total;
-    int bar_width = 50; // Set the width of the progress bar
-    int pos = static_cast<int>(bar_width * progress); // Calculate filled portion
-    std::cout << CYAN << label << ": [" << GREEN; // Start progress bar with label
-    for (int i = 0; i < bar_width; ++i) { // Loop through bar width
-        if (i < pos) std::cout << "=";    // Filled part
-        else if (i == pos) std::cout << ">"; // Current position
-        else std::cout << " ";            // Empty part
+    // Define the width of the progress bar
+    int bar_width = 50;
+    // Calculate the position of the progress indicator
+    int pos = static_cast<int>(bar_width * progress);
+    // Print the label and start of the bar
+    std::cout << CYAN << label << ": [" << GREEN;
+    // Draw the progress bar
+    for (int i = 0; i < bar_width; ++i) {
+        // Fill completed portion with "="
+        if (i < pos) std::cout << "=";
+        // Mark the current position with ">"
+        else if (i == pos) std::cout << ">";
+        // Fill remaining portion with spaces
+        else std::cout << " ";
     }
-    std::cout << RESET << "] " << YELLOW << int(progress * 100.0) << "%" << RESET << "\r"; // Show percentage
-    std::cout.flush(); // Flush output to ensure it displays immediately
-    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Small delay for visibility
+    // Close the bar and print the percentage
+    std::cout << RESET << "] " << YELLOW << int(progress * 100.0) << "%" << RESET << "\r";
+    // Flush the output to update the display
+    std::cout.flush();
+    // Delay to make the progress bar visible
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
+// Function to fetch the latest block number from a blockchain
+// Parameters:
+// - rpc_url: URL of the RPC endpoint
+// - request_limit: Maximum requests per second allowed by the endpoint
+// - stats: Reference to FunctionStats for performance tracking
+// Returns: Latest block number in hex format or empty string if failed
 std::string get_latest_block_number(const std::string& rpc_url, int request_limit, FunctionStats& stats) {
-    // Prepare JSON RPC payload to get the latest block number
+    // Define the RPC payload to fetch the block number
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}";
-    return make_rpc_call(rpc_url, payload, request_limit, stats); // Make the RPC call
+    // Perform the RPC call and return the result
+    return make_rpc_call(rpc_url, payload, request_limit, stats);
 }
 
+// Function to perform a generic RPC call to a blockchain
+// Parameters:
+// - rpc_url: URL of the RPC endpoint
+// - payload: JSON payload for the RPC request
+// - request_limit: Maximum requests per second allowed by the endpoint
+// - stats: Reference to FunctionStats for performance tracking
+// Returns: Parsed result from the RPC response
 std::string make_rpc_call(const std::string& rpc_url, const std::string& payload, int request_limit, FunctionStats& stats) {
-    // Start timing the RPC call
+    // Record the start time for performance measurement
     auto start = std::chrono::high_resolution_clock::now();
-    CURL* curl = curl_easy_init(); // Initialize CURL handle
-    std::string read_buffer;       // Buffer to store response
-    size_t outbound_size = payload.size(); // Size of the outgoing payload
+    // Initialize CURL handle for the HTTP request
+    CURL* curl = curl_easy_init();
+    // Buffer to store the RPC response
+    std::string read_buffer;
+    // Record the size of the outbound payload
+    size_t outbound_size = payload.size();
 
-    if (curl) { // Check if CURL initialized successfully
-        // Set the RPC URL
+    // Check if CURL initialization succeeded
+    if (curl) {
+        // Set the RPC URL for the request
         curl_easy_setopt(curl, CURLOPT_URL, rpc_url.c_str());
         // Set the payload for the POST request
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-        // Set the write callback to handle response
+        // Set the callback function to handle response data
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        // Set the buffer to write the response into
+        // Set the buffer to write response data into
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
-        // Set content type header
+        // Set HTTP headers for JSON content type
         curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json");
+        // Apply the headers to the CURL request
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-        // Perform the RPC call
+        // Perform the RPC request
         CURLcode res = curl_easy_perform(curl);
-        if (res != CURLE_OK) { // Check for errors
-            std::cerr << RED << "RPC call failed: " << curl_easy_strerror(res) << RESET << '\n'; // Report error
+        // Check if the request failed
+        if (res != CURLE_OK) {
+            // Print error message with CURL error details
+            std::cerr << RED << "RPC call failed: " << curl_easy_strerror(res) << RESET << '\n';
         }
 
-        // Clean up CURL resources
+        // Free the CURL headers
         curl_slist_free_all(headers);
+        // Clean up the CURL handle
         curl_easy_cleanup(curl);
-        // Respect the request limit by pausing
+        // Throttle requests to respect the RPC limit
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / request_limit));
     }
 
-    // Update performance stats
+    // Record the end time for performance measurement
     auto end = std::chrono::high_resolution_clock::now();
-    update_stats(stats, start, end, outbound_size, read_buffer.size()); // Record timing and traffic
-    stats.latency_ms = stats.execution_time_ms - (1000.0 / request_limit); // Adjust latency
-    return parse_json_result(read_buffer); // Return parsed result
+    // Update performance stats with timing and traffic data
+    update_stats(stats, start, end, outbound_size, read_buffer.size());
+    // Calculate and set the network latency
+    stats.latency_ms = stats.execution_time_ms - (1000.0 / request_limit);
+    // Parse and return the result from the response
+    return parse_json_result(read_buffer);
 }
