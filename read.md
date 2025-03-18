@@ -1,4 +1,12 @@
 **NeoZorKDEXArb** — это консольное приложение на C++, разработанное для сканирования, анализа и потенциального использования возможностей арбитража на децентрализованных биржах (DEX) в различных блокчейнах, таких как Ethereum, Fantom, Binance Smart Chain (BSC), Polygon, Avalanche и Solana. Программа предоставляет пользователям инструменты для обнаружения заводских контрактов DEX, анализа пулов ликвидности, токенов, статистики торгов, а также выполнения запросов к блокчейнам через бесплатные RPC-узлы. Проект ориентирован на кроссплатформенность, производительность и минимальные зависимости, что делает его легким для развертывания и тестирования.
+Все платные ноды (например, Infura) исключены, заменены на бесплатные общедоступные RPC-узлы:
+
+Ethereum: rpc.ankr.com/eth, eth.llamarpc.com
+Fantom: rpc.ftm.tools, rpc.ankr.com/fantom
+BSC: bsc-dataseed.binance.org, rpc.ankr.com/bsc
+Polygon: polygon-rpc.com, rpc.ankr.com/polygon
+Avalanche: rpc.ankr.com/avalanche, api.avax.network/ext/bc/C/rpc
+Solana: api.mainnet-beta.solana.com, solana-mainnet.rpc.extrnode.com
 
 #### Основные функции
 1. **Сканирование блокчейна**:
