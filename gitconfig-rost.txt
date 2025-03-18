@@ -1,3 +1,0 @@
-[user]
-	name = Ростислав Щербина
-	email = neozork@protonmail.com
