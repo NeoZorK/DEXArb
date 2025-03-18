@@ -5,8 +5,7 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 
-#include "blockchain.h"     // Include blockchain header
-#include <algorithm>        // Include algorithm for string transformation
+#include "main.h"
 
 std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
     // Return free RPC endpoints based on blockchain type

@@ -5,12 +5,7 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 
-#include "dex_pools.h"      // Include DEX pools header
-#include "rpc_core.h"       // Include RPC core functions
-#include "measure.h"        // Include measurement functions
-#include <iostream>         // Include iostream for console output
-#include <sstream>          // Include stringstream for string building
-#include <iomanip>          // Include iomanip for formatting
+#include "main.h"
 
 uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int request_limit, FunctionStats& stats) {
     // Start timing the function

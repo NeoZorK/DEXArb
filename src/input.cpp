@@ -4,16 +4,7 @@
 //
 //  Created by Rostyslav S. on 17.03.2025.
 //
-
-#include "input.h"          // Include input header
-#include "blockchain.h"     // Include blockchain-specific functions
-#include <iostream>         // Include iostream for console output
-#include <fstream>          // Include fstream for file I/O
-#include <sstream>          // Include stringstream for string manipulation
-#include <sys/stat.h>       // Include stat for file size on Unix-like systems
-#ifdef _WIN32
-#include <windows.h>        // Include Windows API for file size on Windows
-#endif
+#include "main.h"
 
 void create_config_file(int thread_count, FunctionStats& stats) {
     // Start timing the function

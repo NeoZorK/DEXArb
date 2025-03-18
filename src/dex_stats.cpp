@@ -5,11 +5,7 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 
-#include "dex_stats.h"      // Include DEX stats header
-#include "rpc_core.h"       // Include RPC core functions
-#include "measure.h"        // Include measurement functions
-#include <curl/curl.h>      // Include CURL for HTTP requests
-#include <sstream>          // Include stringstream for string building
+#include "main.h"
 
 void get_pool_swap_stats_thread(const std::string& rpc_url, const std::string& pool_address, uint64_t from_block, uint64_t to_block,
                                 int request_limit, uint64_t& volume, uint64_t& tx_count, std::mutex& mtx, std::atomic<int>& progress, int total_pools) {

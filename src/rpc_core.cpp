@@ -5,11 +5,7 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 
-#include "rpc_core.h"       // Include RPC core header
-#include "measure.h"        // Include measurement functions
-#include <curl/curl.h>      // Include CURL for HTTP requests
-#include <iostream>         // Include iostream for console output
-#include <thread>           // Include thread for sleep functionality
+#include "main.h"
 
 size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer) {
     // Calculate the real size of the data received

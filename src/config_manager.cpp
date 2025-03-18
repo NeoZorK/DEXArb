@@ -4,20 +4,7 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "config_manager.h" // Include config manager header
-#include "rpc_core.h"       // Include RPC core functions
-#include "dex_pools.h"      // Include pool-related functions
-#include "dex_tokens.h"     // Include token-related functions
-#include "dex_stats.h"      // Include stats-related functions
-#include "measure.h"        // Include measurement functions
-#include <fstream>          // Include fstream for file I/O
-#include <sstream>          // Include stringstream for string manipulation
-#include <thread>           // Include thread for parallelism
-#ifdef _WIN32
-#include <windows.h>        // Include Windows API for file size on Windows
-#else
-#include <sys/stat.h>       // Include stat for file size on Unix-like systems
-#endif
+#include "main.h"
 
 std::vector<DexInfo> load_dexes_from_config() {
     // Open the config file

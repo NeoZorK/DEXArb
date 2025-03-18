@@ -7,9 +7,29 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <string>           // Include string for string handling
-#include <vector>           // Include vector for dynamic arrays
-#include <chrono>           // Include chrono for timing
+// Standard C++ library includes
+#include <string>           // For string handling
+#include <vector>           // For dynamic arrays
+#include <chrono>           // For timing and performance measurement
+#include <mutex>            // For thread synchronization
+#include <atomic>           // For thread-safe counters
+#include <thread>           // For multi-threading support
+#include <iostream>         // For console input/output
+#include <fstream>          // For file input/output
+#include <sstream>          // For string stream manipulation
+#include <algorithm>        // For algorithms like transform
+#include <iomanip>          // For formatted output (e.g., hex formatting)
+#include <set>              // For unique collections (e.g., factory addresses)
+
+// External library includes
+#include <curl/curl.h>      // For HTTP requests to RPC endpoints
+
+// Platform-specific includes
+#ifdef _WIN32
+#include <windows.h>        // For Windows-specific file size and networking (Winsock)
+#else
+#include <sys/stat.h>       // For Unix-like file size measurement
+#endif
 
 // ANSI color codes for console output
 const std::string GREEN = "\033[32m";    // Green color for success messages
@@ -54,6 +74,16 @@ struct FunctionStats {
     double cpu_usage_percent = 0.0;   // CPU usage percentage
     size_t outbound_traffic = 0;      // Outbound traffic in bytes
     size_t inbound_traffic = 0;       // Inbound traffic in bytes
+};
+
+// Enum for supported blockchain types (moved from blockchain.h)
+enum class BlockchainType {
+    Ethereum,    // Ethereum blockchain
+    Fantom,      // Fantom blockchain
+    BSC,         // Binance Smart Chain
+    Polygon,     // Polygon (Matic) blockchain
+    Avalanche,   // Avalanche C-Chain
+    Solana       // Solana blockchain
 };
 
 // Time units for Time Measure

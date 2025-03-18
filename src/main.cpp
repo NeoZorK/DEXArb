@@ -5,12 +5,6 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"           // Include main header for shared structures
-#include "blockchain.h"     // Include blockchain-specific functions
-#include "dex_scanner.h"    // Include DEX scanning functions
-#include "config_manager.h" // Include config management functions
-#include "queries.h"        // Include query functions
-#include "input.h"          // Include input/output functions
-#include <iostream>         // Include iostream for console I/O
 
 // Global Project Version
 const std::string VERSION = "103";

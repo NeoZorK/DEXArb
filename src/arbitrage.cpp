@@ -4,8 +4,7 @@
 //
 //  Created by Rostyslav S. on 26.02.2025.
 //
-#include "arbitrage.h"      // Include arbitrage header
-#include <iostream>         // Include iostream for console output
+#include "main.h"
 
 void analyze_arbitrage_opportunities(const std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     // Placeholder for arbitrage analysis logic
