@@ -4,14 +4,14 @@
 //
 //  Created by Rostyslav S. on 17.03.2025.
 //
-#include "input.h"
-#include <iostream>         // For console output
-#include <fstream>          // For file I/O
-#include <sstream>          // For string manipulation
+#include "input.h"          // Include input header
+#include "blockchain.h"     // Include blockchain-specific functions
+#include <iostream>         // Include iostream for console output
+#include <fstream>          // Include fstream for file I/O
+#include <sstream>          // Include stringstream for string manipulation
+#include <sys/stat.h>       // Include stat for file size on Unix-like systems
 #ifdef _WIN32
-#include <windows.h>        // For Windows file size
-#else
-#include <sys/stat.h>       // For Unix file size
+#include <windows.h>        // Include Windows API for file size on Windows
 #endif
 
 void create_config_file(int thread_count, FunctionStats& stats) {
@@ -33,7 +33,8 @@ void create_config_file(int thread_count, FunctionStats& stats) {
             }
             config_file << "    ],\n"; // Close RPC array
             config_file << "    \"dex\": []\n"; // Empty DEX array
-            config_file << "  }" << (chain != "solana" ? "," : "") << "\n"; // Close blockchain section
+            // Исправление: преобразование chain в std::string для корректного сравнения
+            config_file << "  }" << (std::string(chain) != "solana" ? "," : "") << "\n"; // Close blockchain section
         }
         config_file << "}\n"; // Close JSON object
         config_file.close(); // Close file
