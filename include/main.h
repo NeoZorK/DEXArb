@@ -21,6 +21,21 @@
 #include <iomanip>          // For formatted output (e.g., hex formatting)
 #include <set>              // For unique collections (e.g., factory addresses)
 
+// Internal library includes (13)
+#include "arbitrage.h"
+#include "blockchain.h"
+#include "config_manager.h"
+#include "dex_pools.h"
+#include "dex_scanner.h"
+#include "dex_stats.h"
+#include "dex_tokens.h"
+#include "input.h"
+#include "measure.h"
+#include "profit_analyzer.h"
+#include "queries.h"
+#include "rpc_core.h"
+#include "wallet.h"
+
 // External library includes
 #include <curl/curl.h>      // For HTTP requests to RPC endpoints
 
