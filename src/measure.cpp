@@ -5,6 +5,21 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"
+#include "measure.h"        // Include measure header
+
+void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,
+                  const std::chrono::high_resolution_clock::time_point& end, size_t outbound_size, size_t inbound_size) {
+    // Calculate execution time in milliseconds
+    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+    
+    // Update network traffic stats
+    stats.outbound_traffic = outbound_size; // Set outbound traffic
+    stats.inbound_traffic = inbound_size;   // Set inbound traffic
+    
+    // Placeholder values for future implementation
+    stats.cpu_usage_percent = 0.0; // CPU usage not implemented yet
+    stats.virtual_memory_kb = 0;   // Virtual memory not implemented yet
+}
 
 static auto start_time = std::chrono::high_resolution_clock::now();
 
