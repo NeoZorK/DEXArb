@@ -8,7 +8,6 @@
 #define RPC_CORE_H
 
 #include "main.h"       // Include main header for shared structures
-#include <string>       // Include string for string handling
 
 // CURL write callback to handle response data
 size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer);
