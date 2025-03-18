@@ -7,44 +7,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-// Standard C++ library includes
-#include <string>           // For string handling
-#include <vector>           // For dynamic arrays
-#include <chrono>           // For timing and performance measurement
-#include <mutex>            // For thread synchronization
-#include <atomic>           // For thread-safe counters
-#include <thread>           // For multi-threading support
-#include <iostream>         // For console input/output
-#include <fstream>          // For file input/output
-#include <sstream>          // For string stream manipulation
-#include <algorithm>        // For algorithms like transform
-#include <iomanip>          // For formatted output (e.g., hex formatting)
-#include <set>              // For unique collections (e.g., factory addresses)
-
-// Internal library includes (13)
-#include "arbitrage.h"
-#include "blockchain.h"
-#include "config_manager.h"
-#include "dex_pools.h"
-#include "dex_scanner.h"
-#include "dex_stats.h"
-#include "dex_tokens.h"
-#include "input.h"
-#include "measure.h"
-#include "profit_analyzer.h"
-#include "queries.h"
-#include "rpc_core.h"
-#include "wallet.h"
-
-// External library includes
-#include <curl/curl.h>      // For HTTP requests to RPC endpoints
-
-// Platform-specific includes
-#ifdef _WIN32
-#include <windows.h>        // For Windows-specific file size and networking (Winsock)
-#else
-#include <sys/stat.h>       // For Unix-like file size measurement
-#endif
+#include <string>           // For string handling in structures
+#include <vector>           // For dynamic arrays in structures
+#include <chrono>           // For timing in FunctionStats
 
 // ANSI color codes for console output
 const std::string GREEN = "\033[32m";    // Green color for success messages
@@ -89,16 +54,6 @@ struct FunctionStats {
     double cpu_usage_percent = 0.0;   // CPU usage percentage
     size_t outbound_traffic = 0;      // Outbound traffic in bytes
     size_t inbound_traffic = 0;       // Inbound traffic in bytes
-};
-
-// Enum for supported blockchain types (moved from blockchain.h)
-enum class BlockchainType {
-    Ethereum,    // Ethereum blockchain
-    Fantom,      // Fantom blockchain
-    BSC,         // Binance Smart Chain
-    Polygon,     // Polygon (Matic) blockchain
-    Avalanche,   // Avalanche C-Chain
-    Solana       // Solana blockchain
 };
 
 // Time units for Time Measure

@@ -8,7 +8,7 @@
 #ifndef PROFIT_ANALYZER_H
 #define PROFIT_ANALYZER_H
 
-#include "main.h"       // Include main header for shared structures
+#include "main.h"       // For DexInfo, FunctionStats
 
 // Function to measure transaction speed and estimate profit (stub)
 void measure_tx_speed_and_profit(const std::vector<DexInfo>& dex_list, FunctionStats& stats);

@@ -9,6 +9,8 @@
 #define DEX_SCANNER_H
 
 #include "main.h"       // Include main header for shared structures
+#include "blockchain.h" // For BlockchainType
+#include <mutex>        // For thread synchronization
 
 // Function to scan blockchain for factory contracts
 void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType chain, uint64_t scan_range,

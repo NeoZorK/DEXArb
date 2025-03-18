@@ -4,7 +4,15 @@
 //
 //  Created by Rostyslav S. on 17.03.2025.
 //
-#include "main.h"
+#include "input.h"
+#include <iostream>         // For console output
+#include <fstream>          // For file I/O
+#include <sstream>          // For string manipulation
+#ifdef _WIN32
+#include <windows.h>        // For Windows file size
+#else
+#include <sys/stat.h>       // For Unix file size
+#endif
 
 void create_config_file(int thread_count, FunctionStats& stats) {
     // Start timing the function

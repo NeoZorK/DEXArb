@@ -4,8 +4,11 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "main.h"
+#include "rpc_core.h"       // Include own header for declarations
+#include "measure.h"        // For update_stats function
+#include <curl/curl.h>      // For CURL HTTP requests
+#include <iostream>         // For console output
+#include <thread>           // For std::this_thread::sleep_for
 
 size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer) {
     // Calculate the real size of the data received

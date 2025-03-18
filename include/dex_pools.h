@@ -9,6 +9,7 @@
 #define DEX_POOLS_H
 
 #include "main.h"       // Include main header for shared structures
+#include <string>       // For string handling in functions
 
 // Function to fetch the number of pools from a factory contract
 uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int request_limit, FunctionStats& stats);

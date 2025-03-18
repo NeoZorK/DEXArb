@@ -4,7 +4,21 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "main.h"
+#include "config_manager.h"
+#include "rpc_core.h"       // For get_latest_block_number
+#include "dex_pools.h"      // For pool functions
+#include "dex_tokens.h"     // For token functions
+#include "dex_stats.h"      // For swap stats
+#include "measure.h"        // For update_stats
+#include <fstream>          // For file I/O
+#include <sstream>          // For string manipulation
+#include <iostream>         // For console I/O
+#include <thread>           // For multi-threading
+#ifdef _WIN32
+#include <windows.h>        // For Windows file size
+#else
+#include <sys/stat.h>       // For Unix file size
+#endif
 
 std::vector<DexInfo> load_dexes_from_config() {
     // Open the config file

@@ -9,6 +9,7 @@
 #define MEASURE_H
 
 #include "main.h"       // Include main header for shared structures
+#include <chrono>       // For timing
 
 // Function to update performance stats
 void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,

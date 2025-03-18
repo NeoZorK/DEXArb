@@ -4,8 +4,13 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "main.h"
+#include "queries.h"
+#include "dex_pools.h"      // For pool functions
+#include "dex_tokens.h"     // For token functions
+#include "config_manager.h" // For loading DEXes
+#include <iostream>         // For console output
+#include <thread>           // For multi-threading
+#include <algorithm>        // For std::find_if
 
 void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier) {
     // Load DEXes from config

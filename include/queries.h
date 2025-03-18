@@ -8,7 +8,7 @@
 #ifndef QUERIES_H
 #define QUERIES_H
 
-#include "main.h"       // Include main header for shared structures
+#include "main.h"       // For RpcEndpoint
 
 // Function to show pools for a DEX
 void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier);

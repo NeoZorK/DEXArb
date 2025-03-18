@@ -4,8 +4,16 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "main.h"
+#include <sstream>
+#include "dex_scanner.h"    // Include own header for declarations
+#include "rpc_core.h"       // For get_latest_block_number, make_rpc_call
+#include "dex_pools.h"      // For get_pool_count
+#include "measure.h"        // For update_stats
+#include <thread>           // For multi-threading
+#include <iostream>         // For console output
+#include <iomanip>          // For hex formatting
+#include <curl/curl.h>      // For CURL HTTP requests
+#include <set>              // For unique factory addresses
 
 void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType chain, uint64_t scan_range,
                             int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {

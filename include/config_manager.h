@@ -8,7 +8,7 @@
 #ifndef CONFIG_MANAGER_H
 #define CONFIG_MANAGER_H
 
-#include "main.h"       // Include main header for shared structures
+#include "main.h"       // For DexInfo, RpcEndpoint, FunctionStats
 
 // Function to load DEXes from config file
 std::vector<DexInfo> load_dexes_from_config();

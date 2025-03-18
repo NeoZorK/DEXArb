@@ -8,7 +8,7 @@
 #ifndef ARBITRAGE_H
 #define ARBITRAGE_H
 
-#include "main.h"       // Include main header for shared structures
+#include "main.h"       // For DexInfo, FunctionStats
 
 // Function to analyze arbitrage opportunities (stub)
 void analyze_arbitrage_opportunities(const std::vector<DexInfo>& dex_list, FunctionStats& stats);

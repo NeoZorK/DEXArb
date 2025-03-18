@@ -4,7 +4,13 @@
 //
 //  Created by Rostyslav S. on 26.02.2025.
 //
-#include "main.h"           // Include main header for shared structures
+#include "main.h"           // For shared structures and constants
+#include "blockchain.h"     // For BlockchainType and functions
+#include "dex_scanner.h"    // For find_factory_contracts
+#include "config_manager.h" // For load_dexes_from_config
+#include "queries.h"        // For query functions
+#include "input.h"          // For input/output functions
+#include <iostream>         // For console I/O
 
 // Global Project Version
 const std::string VERSION = "103";

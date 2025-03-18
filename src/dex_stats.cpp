@@ -4,8 +4,11 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "main.h"
+#include "dex_stats.h"
+#include "rpc_core.h"       // For make_rpc_call
+#include "measure.h"        // For update_stats
+#include <curl/curl.h>      // For CURL requests
+#include <sstream>          // For payload construction
 
 void get_pool_swap_stats_thread(const std::string& rpc_url, const std::string& pool_address, uint64_t from_block, uint64_t to_block,
                                 int request_limit, uint64_t& volume, uint64_t& tx_count, std::mutex& mtx, std::atomic<int>& progress, int total_pools) {
