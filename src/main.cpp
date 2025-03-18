@@ -13,7 +13,7 @@
 #include <iostream>         // Include iostream for console I/O
 
 // Global Project Version
-const std::string VERSION = "102";
+const std::string VERSION = "103";
 
 // Function to display usage instructions
 void show_help() {
