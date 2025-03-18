@@ -4,9 +4,8 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "profit_analyzer.h" // Include profit analyzer header
-#include <iostream>          // Include iostream for console output
+#include "profit_analyzer.h"
+#include <iostream>         // For console output
 
 void measure_tx_speed_and_profit(const std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     // Placeholder for transaction speed and profit measurement

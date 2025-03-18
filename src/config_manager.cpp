@@ -4,57 +4,59 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "config_manager.h" // Include config manager header
-#include "rpc_core.h"       // Include RPC core functions
-#include "dex_pools.h"      // Include pool-related functions
-#include "dex_tokens.h"     // Include token-related functions
-#include "dex_stats.h"      // Include stats-related functions
-#include "measure.h"        // Include measurement functions
-#include <fstream>          // Include fstream for file I/O
-#include <sstream>          // Include stringstream for string manipulation
-#include <thread>           // Include thread for parallelism
+#include "config_manager.h" // Include own header
+#include "rpc_core.h"       // For get_latest_block_number
+#include "dex_pools.h"      // For pool functions
+#include "dex_tokens.h"     // For token functions
+#include "dex_stats.h"      // For swap stats
+#include "measure.h"        // For update_stats
+#include <iostream>         // For console output
+#include <fstream>          // For file I/O
+#include <sstream>          // For string manipulation
+#include <thread>           // For multi-threading
 #ifdef _WIN32
-#include <windows.h>        // Include Windows API for file size on Windows
+#include <windows.h>        // For Windows file size
 #else
-#include <sys/stat.h>       // Include stat for file size on Unix-like systems
+#include <sys/stat.h>       // For Unix file size
 #endif
 
 std::vector<DexInfo> load_dexes_from_config() {
-    // Open the config file
+    std::vector<DexInfo> dex_list;
     std::ifstream config_file("neozork-config"); // Open config file
-    std::vector<DexInfo> dex_list; // List to store loaded DEXes
-    if (!config_file.is_open()) { // Check if file opened successfully
-        std::cerr << RED << "neozork-config not found" << RESET << '\n'; // Report error
-        return dex_list; // Return empty list
-    }
+    if (!config_file.is_open()) return dex_list; // Return empty list if file doesn't exist
 
-    // Read the entire file into a string
     std::stringstream buffer; // Buffer for file content
     buffer << config_file.rdbuf(); // Read file into buffer
     std::string content = buffer.str(); // Convert to string
-    config_file.close(); // Close the file
+    config_file.close(); // Close file
 
-    // Parse the DEX section
-    size_t dex_pos = content.find("\"dex\": ["); // Find DEX array
-    if (dex_pos != std::string::npos) { // Check if DEX section exists
-        size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
-        size_t pos = dex_pos + 8; // Move past "dex": [
-        while (pos < dex_end) { // Loop through DEX entries
-            size_t name_start = content.find("\"name\": \"", pos) + 9; // Find name field
-            size_t name_end = content.find('"', name_start); // Find end of name
-            std::string name = content.substr(name_start, name_end - name_start); // Extract name
-            size_t addr_start = content.find("\"address\": \"", name_end) + 12; // Find address field
-            size_t addr_end = content.find('"', addr_start); // Find end of address
-            std::string address = content.substr(addr_start, addr_end - addr_start); // Extract address
-            size_t pool_start = content.find("\"pools\": ", addr_end) + 9; // Find pools field
-            size_t pool_end = content.find(',', pool_start); // Find end of pools value
-            uint64_t pools = std::stoull(content.substr(pool_start, pool_end - pool_start)); // Extract pool count
-            dex_list.push_back({name, address, pools}); // Add DEX to list
-            pos = content.find("{", pos + 1); // Move to next DEX entry
-            if (pos == std::string::npos) break; // Exit if no more entries
+    for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
+        size_t chain_pos = content.find("\"" + std::string(chain) + "\": {"); // Find blockchain section
+        if (chain_pos == std::string::npos) continue; // Skip if not found
+
+        size_t dex_pos = content.find("\"dex\": [", chain_pos); // Find DEX array
+        if (dex_pos != std::string::npos) { // Check if DEX section exists
+            size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
+            size_t pos = dex_pos + 8; // Move past "dex": [
+            while (pos < dex_end) { // Loop through DEX entries
+                size_t addr_start = content.find("\"factory_address\": \"", pos); // Find factory address field
+                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                addr_start += 19; // Move past "factory_address": "
+                size_t addr_end = content.find('"', addr_start); // Find end of address
+                std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
+
+                // Исправление: создаём объект DexInfo и задаём только нужные поля
+                DexInfo dex;
+                dex.name = "Unknown_" + factory_address.substr(2, 6);
+                dex.factory_address = factory_address;
+                dex_list.push_back(dex); // Add to list
+
+                pos = content.find("{", pos + 1); // Move to next entry
+                if (pos == std::string::npos) break; // Exit if no more entries
+            }
         }
     }
-    return dex_list; // Return loaded DEXes
+    return dex_list; // Return list of DEXes
 }
 
 void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::vector<DexInfo>& dex_list, FunctionStats& stats) {

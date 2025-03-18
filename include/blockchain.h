@@ -9,7 +9,7 @@
 #define BLOCKCHAIN_H
 
 #include "main.h"       // Include main header for shared structures
-#include <string>       // Include string for string handling
+#include <string>       // For string handling in function parameters
 
 // Supported blockchain types as an enum
 enum class BlockchainType {

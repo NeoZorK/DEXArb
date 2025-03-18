@@ -4,8 +4,8 @@
 //
 //  Created by Rostyslav S. on 26.02.2025.
 //
-#include "main.h"
-#include "measure.h"        // Include measure header
+#include "measure.h"
+#include <iostream>         // For console I/O
 
 void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,
                   const std::chrono::high_resolution_clock::time_point& end, size_t outbound_size, size_t inbound_size) {

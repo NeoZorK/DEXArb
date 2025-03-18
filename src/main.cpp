@@ -4,16 +4,16 @@
 //
 //  Created by Rostyslav S. on 26.02.2025.
 //
-#include "main.h"           // Include main header for shared structures
-#include "blockchain.h"     // Include blockchain-specific functions
-#include "dex_scanner.h"    // Include DEX scanning functions
-#include "config_manager.h" // Include config management functions
-#include "queries.h"        // Include query functions
-#include "input.h"          // Include input/output functions
-#include <iostream>         // Include iostream for console I/O
+#include "main.h"           // For shared structures and constants
+#include "blockchain.h"     // For BlockchainType and functions
+#include "dex_scanner.h"    // For find_factory_contracts
+#include "config_manager.h" // For load_dexes_from_config
+#include "queries.h"        // For query functions
+#include "input.h"          // For input/output functions
+#include <iostream>         // For console I/O
 
 // Global Project Version
-const std::string VERSION = "102";
+const std::string VERSION = "103";
 
 // Function to display usage instructions
 void show_help() {

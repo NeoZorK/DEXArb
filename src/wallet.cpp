@@ -4,8 +4,8 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "wallet.h"         // Include wallet header
-#include <iostream>         // Include iostream for console output
+#include "wallet.h"
+#include <iostream>         // For console output
 
 void connect_wallet(const std::string& private_key, FunctionStats& stats) {
     // Placeholder for wallet connection logic

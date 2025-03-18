@@ -8,7 +8,7 @@
 #ifndef WALLET_H
 #define WALLET_H
 
-#include "main.h"       // Include main header for shared structures
+#include "main.h"       // For FunctionStats
 
 // Function to connect a wallet (stub)
 void connect_wallet(const std::string& private_key, FunctionStats& stats);

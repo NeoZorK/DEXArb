@@ -4,11 +4,10 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-
-#include "dex_tokens.h"     // Include DEX tokens header
-#include "rpc_core.h"       // Include RPC core functions
-#include "measure.h"        // Include measurement functions
-#include <iostream>         // Include iostream for console output
+#include "dex_tokens.h"
+#include "rpc_core.h"       // For make_rpc_call
+#include "measure.h"        // For update_stats
+#include <iostream>         // For console output
 
 std::pair<std::string, std::string> get_pool_tokens(const std::string& rpc_url, const std::string& pool_address, int request_limit, FunctionStats& stats) {
     // Start timing the function

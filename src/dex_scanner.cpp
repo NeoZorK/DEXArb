@@ -4,153 +4,238 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
+#include "dex_scanner.h"    // Include own header for declarations
+#include "rpc_core.h"       // For get_latest_block_number, make_rpc_call
+#include "dex_pools.h"      // For get_pool_count
+#include "measure.h"        // For update_stats
+#include <thread>           // For multi-threading
+#include <iostream>         // For console output
+#include <iomanip>          // For hex formatting
+#include <sstream>          // For stringstream
+#include <curl/curl.h>      // For CURL HTTP requests
+#include <set>              // For unique factory addresses
 
-#include "dex_scanner.h"    // Include DEX scanner header
-#include "rpc_core.h"       // Include RPC core functions
-#include "dex_pools.h"      // Include pool-related functions
-#include "measure.h"        // Include measurement functions
-#include <thread>           // Include thread for parallelism
-#include <iostream>         // Include iostream for console output
-#include <iomanip>          // Include iomanip for formatting
-#include <curl/curl.h>      // Include CURL for HTTP requests
-#include <set>              // Include set for unique factory addresses
-
+// Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)
+// Parameters:
+// - rpc_endpoints: List of RPC endpoints to query the blockchain
+// - chain: Type of blockchain to scan (e.g., Ethereum, BSC)
+// - scan_range: Number of blocks to scan backwards from the latest block
+// - thread_count: Number of threads to use for parallel scanning
+// - mtx: Mutex for synchronizing access to shared dex_list
+// - dex_list: Vector to store discovered DEX factory contracts
+// - stats: Reference to FunctionStats for performance tracking
 void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType chain, uint64_t scan_range,
                             int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
-    // Start timing the entire scanning process
+    // Record the start time for performance measurement
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Fetch the latest block number
-    FunctionStats block_stats; // Stats for block number fetch
+    // Temporary stats object for fetching the latest block number
+    FunctionStats block_stats;
+    // Fetch the latest block number in hex format from the first RPC endpoint
     std::string latest_block_hex = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats);
-    if (latest_block_hex.empty()) { // Check if fetch failed
-        std::cerr << RED << "Failed to fetch latest block" << RESET << '\n'; // Report error
-        return; // Exit function
+    // Check if the block number fetch failed
+    if (latest_block_hex.empty()) {
+        // Print error message to console
+        std::cerr << RED << "Failed to fetch latest block" << RESET << '\n';
+        // Exit the function early
+        return;
     }
-    uint64_t latest_block = std::stoull(latest_block_hex.substr(2), nullptr, 16); // Convert hex to integer
-    uint64_t from_block = latest_block - scan_range; // Calculate starting block
+    // Convert hex string to 64-bit unsigned integer, removing "0x" prefix
+    uint64_t latest_block = std::stoull(latest_block_hex.substr(2), nullptr, 16);
+    // Calculate the starting block number based on the scan range
+    uint64_t from_block = latest_block - scan_range;
 
-    // Initialize progress tracking
-    std::atomic<int> progress(0); // Atomic counter for progress
-    int total_tasks = scan_range; // Total blocks to scan
-    std::vector<std::thread> threads; // Vector to hold threads
-    uint64_t blocks_per_thread = scan_range / thread_count + 1; // Blocks per thread
+    // Atomic counter for tracking progress across threads
+    std::atomic<uint64_t> progress(0);
+    // Total number of blocks to scan (matches scan_range)
+    uint64_t total_tasks = scan_range;
+    // Vector to store thread objects
+    std::vector<std::thread> threads;
+    // Calculate number of blocks each thread will process
+    uint64_t blocks_per_thread = scan_range / thread_count + 1;
 
-    // Define event signatures for factory detection (Uniswap V2/V3, PancakeSwap, SushiSwap)
+    // List of known factory contract event signatures (e.g., PairCreated)
     std::vector<std::string> factory_signatures = {
-        "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9", // Uniswap V2 PairCreated
-        "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d", // Uniswap V3 PoolCreated
-        "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e", // PancakeSwap PairCreated
-        "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"  // SushiSwap PairCreated
+        "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9",
+        "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d",
+        "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e",
+        "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"
     };
 
-    // Launch scanning threads
-    for (int t = 0; t < thread_count; ++t) { // Loop over thread count
-        uint64_t start_block = from_block + (t * blocks_per_thread); // Calculate start block for thread
-        uint64_t end_block = std::min(start_block + blocks_per_thread, latest_block); // Calculate end block
-        if (start_block >= latest_block) break; // Skip if start exceeds latest block
+    // Launch threads for parallel block scanning
+    for (int t = 0; t < thread_count; ++t) {
+        // Calculate the start block for this thread
+        uint64_t start_block = from_block + (t * blocks_per_thread);
+        // Calculate the end block, ensuring it doesn't exceed the latest block
+        uint64_t end_block = std::min(start_block + blocks_per_thread, latest_block);
+        // Skip if the start block is beyond the latest block
+        if (start_block >= latest_block) break;
 
-        threads.emplace_back([&, start_block, end_block]() { // Create and add thread
-            // Thread-local variables
-            FunctionStats local_stats; // Stats for this thread
-            std::set<std::string> local_factories; // Set to store unique factories
-            CURL* curl = curl_easy_init(); // Initialize CURL for this thread
-            std::string read_buffer; // Buffer for RPC responses
+        // Create a thread with a lambda function for scanning
+        threads.emplace_back([&, start_block, end_block]() {
+            // Local stats object for this thread
+            FunctionStats local_stats;
+            // Set to store unique factory addresses found in this thread
+            std::set<std::string> local_factories;
+            // Initialize CURL handle for HTTP requests
+            CURL* curl = curl_easy_init();
+            // Buffer to store RPC response data
+            std::string read_buffer;
 
-            if (curl) { // Check if CURL initialized
-                // Set up CURL options
-                curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json"); // Set JSON header
-                curl_easy_setopt(curl, CURLOPT_URL, rpc_endpoints[0].url.c_str()); // Set RPC URL
-                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback); // Set write callback
-                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer); // Set response buffer
-                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers); // Apply headers
+            // Check if CURL initialization succeeded
+            if (curl) {
+                // Set HTTP headers for JSON content type
+                curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json");
+                // Set the RPC URL for this thread
+                curl_easy_setopt(curl, CURLOPT_URL, rpc_endpoints[0].url.c_str());
+                // Set the callback function to handle response data
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+                // Set the buffer to write response data into
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
+                // Apply the headers to the CURL request
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-                // Scan each block in the thread's range
-                for (uint64_t block = start_block; block < end_block; ++block) { // Loop over blocks
-                    std::stringstream block_hex; // Stream to build block hex
-                    block_hex << "0x" << std::hex << block; // Convert block to hex
+                // Iterate over the assigned block range
+                for (uint64_t block = start_block; block < end_block; ++block) {
+                    // Create a stringstream to build the block number in hex
+                    std::stringstream block_hex;
+                    // Format the block number as a hex string with "0x" prefix
+                    block_hex << "0x" << std::hex << block;
+                    // Construct the RPC payload to fetch block data
                     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getBlockByNumber\",\"params\":[\"" +
-                                          block_hex.str() + "\", true],\"id\":1}"; // Build RPC payload
-                    size_t outbound_size = payload.size(); // Calculate payload size
-                    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str()); // Set payload
+                                          block_hex.str() + "\", true],\"id\":1}";
+                    // Record the size of the outbound payload
+                    size_t outbound_size = payload.size();
+                    // Set the payload for the POST request
+                    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
 
-                    // Perform RPC call
+                    // Perform the RPC request
                     CURLcode res = curl_easy_perform(curl);
-                    if (res != CURLE_OK) { // Check for errors
-                        std::cerr << RED << "RPC failed for block " << block << RESET << '\n'; // Report error
-                        continue; // Skip to next block
+                    // Check if the request failed
+                    if (res != CURLE_OK) {
+                        // Print error message with block number
+                        std::cerr << RED << "RPC failed for block " << block << RESET << '\n';
+                        // Skip to the next block
+                        continue;
                     }
 
-                    // Parse block data
-                    std::string json = read_buffer; // Copy response to local string
-                    size_t tx_pos = json.find("\"transactions\": ["); // Find transactions array
-                    if (tx_pos != std::string::npos) { // Check if transactions found
-                        size_t tx_end = json.find("]", tx_pos); // Find end of transactions
-                        size_t pos = tx_pos + 17; // Move past "transactions": [
-                        while (pos < tx_end) { // Loop through transactions
-                            size_t to_start = json.find("\"to\": \"", pos); // Find "to" field
-                            if (to_start == std::string::npos || to_start > tx_end) break; // Exit if not found
-                            to_start += 7; // Move past "to": "
-                            size_t to_end = json.find('"', to_start); // Find end of address
-                            std::string to_addr = json.substr(to_start, to_end - to_start); // Extract address
+                    // Copy the response data for processing
+                    std::string json = read_buffer;
+                    // Find the transactions array in the JSON response
+                    size_t tx_pos = json.find("\"transactions\": [");
+                    // Check if transactions were found
+                    if (tx_pos != std::string::npos) {
+                        // Find the end of the transactions array
+                        size_t tx_end = json.find("]", tx_pos);
+                        // Start position after "transactions": [
+                        size_t pos = tx_pos + 17;
+                        // Iterate through transactions
+                        while (pos < tx_end) {
+                            // Find the "to" field in the transaction
+                            size_t to_start = json.find("\"to\": \"", pos);
+                            // Break if "to" field not found or beyond transactions
+                            if (to_start == std::string::npos || to_start > tx_end) break;
+                            // Move past "to": "
+                            to_start += 7;
+                            // Find the end of the "to" address
+                            size_t to_end = json.find('"', to_start);
+                            // Extract the destination address
+                            std::string to_addr = json.substr(to_start, to_end - to_start);
 
-                            // Check logs for factory events
-                            size_t logs_pos = json.find("\"logs\": [", pos); // Find logs array
-                            if (logs_pos != std::string::npos && logs_pos < tx_end) { // Check if logs exist
-                                size_t logs_end = json.find("]", logs_pos); // Find end of logs
-                                size_t log_pos = logs_pos + 9; // Move past "logs": [
-                                while (log_pos < logs_end) { // Loop through logs
-                                    size_t topic_start = json.find("\"topics\": [", log_pos); // Find topics array
-                                    if (topic_start == std::string::npos || topic_start > logs_end) break; // Exit if not found
-                                    topic_start += 11; // Move past "topics": [
-                                    size_t topic_end = json.find(',', topic_start); // Find end of first topic
-                                    std::string topic = json.substr(topic_start + 1, topic_end - topic_start - 2); // Extract topic
-                                    if (std::find(factory_signatures.begin(), factory_signatures.end(), topic) != factory_signatures.end()) { // Check if topic matches
-                                        local_factories.insert(to_addr); // Add factory address
-                                        break; // Move to next transaction
+                            // Find the logs array in the transaction
+                            size_t logs_pos = json.find("\"logs\": [", pos);
+                            // Check if logs were found within the transaction
+                            if (logs_pos != std::string::npos && logs_pos < tx_end) {
+                                // Find the end of the logs array
+                                size_t logs_end = json.find("]", logs_pos);
+                                // Start position after "logs": [
+                                size_t log_pos = logs_pos + 9;
+                                // Iterate through logs
+                                while (log_pos < logs_end) {
+                                    // Find the topics array in the log
+                                    size_t topic_start = json.find("\"topics\": [", log_pos);
+                                    // Break if topics not found or beyond logs
+                                    if (topic_start == std::string::npos || topic_start > logs_end) break;
+                                    // Move past "topics": [
+                                    topic_start += 11;
+                                    // Find the end of the first topic
+                                    size_t topic_end = json.find(',', topic_start);
+                                    // Extract the topic (event signature)
+                                    std::string topic = json.substr(topic_start + 1, topic_end - topic_start - 2);
+                                    // Check if the topic matches a known factory signature
+                                    if (std::find(factory_signatures.begin(), factory_signatures.end(), topic) != factory_signatures.end()) {
+                                        // Add the address to the local factory set
+                                        local_factories.insert(to_addr);
+                                        // Exit the logs loop since a match was found
+                                        break;
                                     }
-                                    log_pos = json.find("{", log_pos + 1); // Move to next log
-                                    if (log_pos == std::string::npos) break; // Exit if no more logs
+                                    // Move to the next log entry
+                                    log_pos = json.find("{", log_pos + 1);
+                                    // Break if no more logs
+                                    if (log_pos == std::string::npos) break;
                                 }
                             }
-                            pos = json.find("{", pos + 1); // Move to next transaction
-                            if (pos == std::string::npos) break; // Exit if no more transactions
+                            // Move to the next transaction
+                            pos = json.find("{", pos + 1);
+                            // Break if no more transactions
+                            if (pos == std::string::npos) break;
                         }
                     }
-                    read_buffer.clear(); // Clear buffer for next block
-                    local_stats.outbound_traffic += outbound_size; // Update outbound traffic
-                    local_stats.inbound_traffic += read_buffer.size(); // Update inbound traffic
-                    progress++; // Increment progress
-                    print_progress_bar(progress, total_tasks, "Scanning blocks"); // Update progress bar
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / rpc_endpoints[0].request_limit)); // Respect rate limit
+                    // Clear the response buffer for the next request
+                    read_buffer.clear();
+                    // Update outbound traffic stats
+                    local_stats.outbound_traffic += outbound_size;
+                    // Update inbound traffic stats
+                    local_stats.inbound_traffic += read_buffer.size();
+                    // Increment the progress counter
+                    progress++;
+                    // Display the progress bar
+                    print_progress_bar(progress, total_tasks, "Scanning blocks");
+                    // Throttle requests to respect the RPC limit
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / rpc_endpoints[0].request_limit));
                 }
-                curl_slist_free_all(headers); // Free headers
-                curl_easy_cleanup(curl); // Clean up CURL
+                // Free the CURL headers
+                curl_slist_free_all(headers);
+                // Clean up the CURL handle
+                curl_easy_cleanup(curl);
             }
 
-            // Merge local factories into global list
-            std::lock_guard<std::mutex> lock(mtx); // Lock mutex
-            for (const auto& addr : local_factories) { // Loop through local factories
-                if (std::find_if(dex_list.begin(), dex_list.end(), [&](const DexInfo& d) { return d.factory_address == addr; }) == dex_list.end()) { // Check for duplicates
-                    DexInfo dex; // Create new DEX entry
-                    dex.factory_address = addr; // Set factory address
-                    dex.name = "Unknown_" + addr.substr(2, 6); // Generate name from address
-                    dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, local_stats); // Get pool count
-                    if (dex.pool_count > 0) dex_list.push_back(dex); // Add to list if valid
+            // Lock the mutex to safely update the shared dex_list
+            std::lock_guard<std::mutex> lock(mtx);
+            // Iterate over found factory addresses
+            for (const auto& addr : local_factories) {
+                // Check if this address is already in the dex_list
+                if (std::find_if(dex_list.begin(), dex_list.end(), [&](const DexInfo& d) { return d.factory_address == addr; }) == dex_list.end()) {
+                    // Create a new DexInfo object
+                    DexInfo dex;
+                    // Set the factory address
+                    dex.factory_address = addr;
+                    // Generate a temporary name based on the address
+                    dex.name = "Unknown_" + addr.substr(2, 6);
+                    // Fetch the pool count for this factory
+                    dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, local_stats);
+                    // Add the DEX to the list if it has pools
+                    if (dex.pool_count > 0) dex_list.push_back(dex);
                 }
             }
-            stats.latency_ms += local_stats.latency_ms; // Aggregate latency
-            stats.outbound_traffic += local_stats.outbound_traffic; // Aggregate outbound traffic
-            stats.inbound_traffic += local_stats.inbound_traffic; // Aggregate inbound traffic
+            // Aggregate latency stats from this thread
+            stats.latency_ms += local_stats.latency_ms;
+            // Aggregate outbound traffic stats
+            stats.outbound_traffic += local_stats.outbound_traffic;
+            // Aggregate inbound traffic stats
+            stats.inbound_traffic += local_stats.inbound_traffic;
         });
     }
 
     // Wait for all threads to complete
-    for (auto& thread : threads) thread.join(); // Join each thread
-    std::cout << std::endl; // New line after progress bar
+    for (auto& thread : threads) thread.join();
+    // Print a newline after the progress bar
+    std::cout << std::endl;
 
-    // Finalize timing and output results
-    auto end = std::chrono::high_resolution_clock::now(); // End timing
-    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0; // Calculate execution time
-    std::cout << GREEN << "Found " << dex_list.size() << " factory contracts" << RESET << '\n'; // Report number of factories found
+    // Record the end time for performance measurement
+    auto end = std::chrono::high_resolution_clock::now();
+    // Calculate the total execution time in milliseconds
+    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+    // Print the number of factory contracts found
+    std::cout << GREEN << "Found " << dex_list.size() << " factory contracts" << RESET << '\n';
 }
