@@ -7,8 +7,13 @@
 #include "measure.h"
 #include <iostream>         // For console I/O
 
-void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,
-                  const std::chrono::high_resolution_clock::time_point& end, size_t outbound_size, size_t inbound_size) {
+// Function to update stats
+void update_stats(FunctionStats& stats,
+                  const std::chrono::high_resolution_clock::time_point& start,
+                  const std::chrono::high_resolution_clock::time_point& end,
+                  size_t outbound_size,
+                  size_t inbound_size) {
+    
     // Calculate execution time in milliseconds
     stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
     
@@ -21,12 +26,15 @@ void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock
     stats.virtual_memory_kb = 0;   // Virtual memory not implemented yet
 }
 
+// Function to start the timer
 static auto start_time = std::chrono::high_resolution_clock::now();
 
+// Function to start the timer
 void StartTimeMeasure() {
     start_time = std::chrono::high_resolution_clock::now();
 }
 
+// Function to stop the timer
 void StopTimeMeasure(const ENUM_TIME_UNITS timeUnits) {
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);

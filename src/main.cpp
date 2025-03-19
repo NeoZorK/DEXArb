@@ -17,11 +17,18 @@ const std::string VERSION = "104";
 
 // Function to display usage instructions
 void show_help() {
-    std::cout << GREEN << "Usage: neozork [flag] <blockchain> [value]" << RESET << '\n';
+    std::cout << GREEN << "Usage: NeoZorK [flag] <blockchain> [value]" << RESET << '\n';
     std::cout << YELLOW << "Supported blockchains: Ethereum, Fantom, BSC, Polygon, Avalanche, Solana" << RESET << '\n';
     std::cout << YELLOW << "Flags:" << RESET << '\n';
-    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show config settings\n";
+    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show config settings\n"; // V
+    // Scan Fantom
+    // Scan Solana
+    // Scan Ethereum
+    // Scan BSC
+    // Scan Polygon
+    // Scan Avalanch
     std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
+    //
     std::cout << BLUE << "  -showSCAN <blockchain>" << RESET << ": Show scan results\n";
     std::cout << BLUE << "  -showSCAN-STAT <blockchain>" << RESET << ": Show scan stats\n";
     std::cout << BLUE << "  -showDEXES <blockchain>" << RESET << ": Show all DEXes\n";
@@ -131,7 +138,7 @@ int main(int argc, char* argv[]) {
             // List to store found DEXes
             std::vector<DexInfo> dex_list;
             
-            // Scan for factories
+            // Scan blocks for factories directly from blockchain
             find_factory_contracts(rpc_endpoints, blockchain, scan_range, thread_count, mtx, dex_list, scan_stats);
             
             // Add scan stats

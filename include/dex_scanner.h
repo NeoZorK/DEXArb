@@ -28,7 +28,14 @@ bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats);
 // - mtx: Mutex for synchronizing access to shared dex_list
 // - dex_list: Vector to store discovered DEX factory contracts
 // - stats: Reference to FunctionStats for performance tracking
-void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType chain, uint64_t scan_range,
-                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats);
+void find_factory_contracts(
+                            const std::vector<RpcEndpoint>& rpc_endpoints,
+                            BlockchainType chain,
+                            uint64_t scan_range,
+                            int thread_count,
+                            std::mutex& mtx,
+                            std::vector<DexInfo>& dex_list,
+                            FunctionStats& stats
+                            );
 
 #endif // DEX_SCANNER_H
