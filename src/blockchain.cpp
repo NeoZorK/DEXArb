@@ -14,9 +14,29 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
     // Free RPC
     switch (chain) {
         case BlockchainType::Ethereum:
-            return {{"https://rpc.ankr.com/eth", 20}, {"https://eth.llamarpc.com", 25}};
+            return {
+                {"https://rpc.ankr.com/eth", 20},
+                {"https://rpc.ankr.com/eth_goerli", 30},
+                {"https://rpc.ankr.com/eth_ropsten", 30},
+                {"https://rpc.ankr.com/eth_rinkeby", 30},
+                {"https://rpc.ankr.com/eth_kotti", 30},
+                {"https://rpc.ankr.com/eth_sepolia", 30},
+                {"https://rpc.ankr.com/eth_goerli", 30},
+                {"https://eth.llamarpc.com", 25},
+                {"https://eth-mainnet.public.blastapi.io", 30},
+                {"https://eth-goerli.public.blastapi.io", 30},
+                {"https://eth-ropsten.public.blastapi.io", 30},
+                {"https://eth-rinkeby.public.blastapi.io", 30},
+                {"https://eth-kotti.public.blastapi.io", 30},
+                {"https://eth-sepolia.public.blastapi.io", 30}
+            };
         case BlockchainType::Fantom:
-            return {{"https://rpc.ftm.tools", 25}, {"https://rpc.ankr.com/fantom", 30}};
+            return {
+                {"https://rpc.ftm.tools", 25},
+                {"https://rpc.ankr.com/fantom", 30},
+                {"https://rpc.ankr.com/fantom_testnet", 30},
+                {"https://rpc.testnet.fantom.network", 30}
+            };
         case BlockchainType::BSC:
             return {{"https://bsc-dataseed.binance.org", 50}, {"https://rpc.ankr.com/bsc", 30}};
         case BlockchainType::Polygon:
