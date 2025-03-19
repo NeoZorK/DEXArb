@@ -20,123 +20,269 @@
 #include <sys/stat.h>       // For Unix file size
 #endif
 
+// Function to load DEXes from config
 std::vector<DexInfo> load_dexes_from_config() {
+    
+    // Read config file
     std::vector<DexInfo> dex_list;
-    std::ifstream config_file("neozork-config"); // Open config file
-    if (!config_file.is_open()) return dex_list; // Return empty list if file doesn't exist
+    
+    // Open config file
+    std::ifstream config_file("neozork-config");
+    
+    // Return empty list if file doesn't exist
+    if (!config_file.is_open()) return dex_list;
 
-    std::stringstream buffer; // Buffer for file content
-    buffer << config_file.rdbuf(); // Read file into buffer
-    std::string content = buffer.str(); // Convert to string
-    config_file.close(); // Close file
+    // Buffer for file content
+    std::stringstream buffer;
+    
+    // Read file into buffer
+    buffer << config_file.rdbuf();
+    
+    // Convert to string
+    std::string content = buffer.str();
+    
+    // Close file
+    config_file.close();
 
+    // Loop through each blockchain
     for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
-        size_t chain_pos = content.find("\"" + std::string(chain) + "\": {"); // Find blockchain section
-        if (chain_pos == std::string::npos) continue; // Skip if not found
+        
+        // Find blockchain section
+        size_t chain_pos = content.find("\"" + std::string(chain) + "\": {");
+        
+        // Skip if not found
+        if (chain_pos == std::string::npos) continue;
 
-        size_t dex_pos = content.find("\"dex\": [", chain_pos); // Find DEX array
-        if (dex_pos != std::string::npos) { // Check if DEX section exists
-            size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
-            size_t pos = dex_pos + 8; // Move past "dex": [
-            while (pos < dex_end) { // Loop through DEX entries
-                size_t addr_start = content.find("\"factory_address\": \"", pos); // Find factory address field
+        // Find DEX array
+        size_t dex_pos = content.find("\"dex\": [", chain_pos);
+        
+        // Check if DEX section exists
+        if (dex_pos != std::string::npos) {
+            
+            // Find end of DEX array
+            size_t dex_end = content.find("]", dex_pos);
+            
+            // Move past "dex": [
+            size_t pos = dex_pos + 8;
+            
+            // Loop through DEX entries
+            while (pos < dex_end) {
+                
+                // Find factory address field
+                size_t addr_start = content.find("\"factory_address\": \"", pos);
+                
+                // Break if not found
                 if (addr_start == std::string::npos || addr_start > dex_end) break;
-                addr_start += 19; // Move past "factory_address": "
-                size_t addr_end = content.find('"', addr_start); // Find end of address
-                std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
+                
+                // Move past "factory_address": "
+                addr_start += 19;
+                
+                // Find end of address
+                size_t addr_end = content.find('"', addr_start);
+                
+                // Extract address
+                std::string factory_address = content.substr(addr_start, addr_end - addr_start);
 
-                // Исправление: создаём объект DexInfo и задаём только нужные поля
+                // Fix: create object DexInfo и set only needed fields
                 DexInfo dex;
+                
+                // Set name
                 dex.name = "Unknown_" + factory_address.substr(2, 6);
+                
+                // Set factory address
                 dex.factory_address = factory_address;
-                dex_list.push_back(dex); // Add to list
+                
+                // Add to list
+                dex_list.push_back(dex);
 
-                pos = content.find("{", pos + 1); // Move to next entry
-                if (pos == std::string::npos) break; // Exit if no more entries
+                // Move to next entry
+                pos = content.find("{", pos + 1);
+                
+                // Exit if no more entries
+                if (pos == std::string::npos) break;
             }
         }
     }
-    return dex_list; // Return list of DEXes
+    
+    // Return list of DEXes
+    return dex_list;
 }
 
-void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+// Function to update config with DEXes
+void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints,
+                            std::vector<DexInfo>& dex_list,
+                            FunctionStats& stats) {
+   
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
     // Load existing config content
-    std::ifstream in_file("neozork-config"); // Open config file
-    std::stringstream buffer; // Buffer for file content
-    buffer << in_file.rdbuf(); // Read file into buffer
-    std::string content = buffer.str(); // Convert to string
-    in_file.close(); // Close the file
+    // Open config file
+    std::ifstream in_file("neozork-config");
+    
+    // Buffer for file content
+    std::stringstream buffer;
+    
+    // Read file into buffer
+    buffer << in_file.rdbuf();
+    
+    // Convert to string
+    std::string content = buffer.str();
+    
+    // Close the file
+    in_file.close();
 
     // Fetch latest block number for 24-hour range
-    FunctionStats block_stats; // Stats for block fetch
-    std::string latest_block = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats); // Get latest block
-    uint64_t latest_block_num = std::stoull(latest_block.substr(2), nullptr, 16); // Convert to integer
-    uint64_t from_block = latest_block_num - (24 * 60 * 60 / 2); // Calculate block 24 hours ago (assuming 2s block time)
+    // Stats for block fetch
+    FunctionStats block_stats;
+    
+    // Get latest block
+    std::string latest_block = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats);
+    
+    // Convert to integer
+    uint64_t latest_block_num = std::stoull(latest_block.substr(2), nullptr, 16);
+    
+    // Calculate block 24 hours ago (assuming 2s block time)
+    uint64_t from_block = latest_block_num - (24 * 60 * 60 / 2);
 
     // Update each DEX with fresh data
-    for (auto& dex : dex_list) { // Loop through DEXes
-        dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, stats); // Update pool count
-        dex.pools.clear(); // Clear existing pools
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
-            std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats); // Get pool address
-            if (!addr.empty()) { // Check if address is valid
-                auto [token0, token1] = get_pool_tokens(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get tokens
-                uint64_t liquidity = get_pool_liquidity(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get liquidity
-                dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
-                dex.liquidity += liquidity; // Update total liquidity
-                dex.tvl += liquidity; // Update TVL (simplified)
+    // Loop through DEXes
+    for (auto& dex : dex_list) {
+        
+        // Update pool count
+        dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, stats);
+        
+        // Clear existing pools
+        dex.pools.clear();
+        
+        // Loop through pool indices
+        for (uint64_t i = 0; i < dex.pool_count; ++i) {
+            
+            // Get pool address
+            std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats);
+           
+            // Check if address is valid
+            if (!addr.empty()) {
+                
+                // Get tokens
+                auto [token0, token1] = get_pool_tokens(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats);
+                
+                // Get liquidity
+                uint64_t liquidity = get_pool_liquidity(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats);
+                
+                // Add pool to DEX
+                dex.pools.push_back({addr, token0, token1, liquidity});
+                
+                // Update total liquidity
+                dex.liquidity += liquidity;
+                
+                // Update TVL (simplified)
+                dex.tvl += liquidity;
             }
         }
-        std::mutex mtx; // Mutex for thread synchronization
-        std::atomic<int> progress(0); // Progress counter
-        std::vector<std::thread> threads; // Vector for threads
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Launch thread for each pool
+        
+        // Mutex for thread synchronization
+        std::mutex mtx;
+        
+        // Progress counter
+        std::atomic<int> progress(0);
+        
+        // Vector for threads
+        std::vector<std::thread> threads;
+        
+        // Launch thread for each pool
+        for (uint64_t i = 0; i < dex.pool_count; ++i) {
+            
+            // Add thread
             threads.emplace_back(get_pool_swap_stats_thread, rpc_endpoints[0].url, dex.pools[i].address, from_block,
                                  latest_block_num, rpc_endpoints[0].request_limit, std::ref(dex.volume_24h),
-                                 std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count); // Add thread
+                                 std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count);
         }
-        for (auto& t : threads) t.join(); // Wait for all threads to finish
+        // Wait for all threads to finish
+        for (auto& t : threads) t.join();
     }
 
     // Update the DEX section in the config
-    size_t dex_pos = content.find("\"dex\": ["); // Find DEX array
-    if (dex_pos != std::string::npos) { // Check if DEX section exists
-        size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
-        std::string new_dex = "\"dex\": [\n"; // Start new DEX section
-        for (size_t i = 0; i < dex_list.size(); ++i) { // Loop through DEXes
+    // Find DEX array
+    size_t dex_pos = content.find("\"dex\": [");
+    
+    // Check if DEX section exists
+    if (dex_pos != std::string::npos) {
+        
+        // Find end of DEX array
+        size_t dex_end = content.find("]", dex_pos);
+        
+        // Start new DEX section
+        std::string new_dex = "\"dex\": [\n";
+        
+        // Loop through DEXes
+        for (size_t i = 0; i < dex_list.size(); ++i) {
+            
+            // Build DEX entry
             new_dex += "    {\"name\": \"" + dex_list[i].name + "\", \"address\": \"" + dex_list[i].factory_address +
-                       "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}"; // Build DEX entry
-            if (i < dex_list.size() - 1) new_dex += ",\n"; // Add comma if not last
+                       "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}";
+            
+            // Add comma if not last
+            if (i < dex_list.size() - 1) new_dex += ",\n";
         }
-        new_dex += "\n  ]"; // Close DEX array
-        content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1); // Replace old DEX section
+        // Close DEX array
+        new_dex += "\n  ]";
+        
+        // Replace old DEX section
+        content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1);
     }
 
     // Write updated config to file
-    std::ofstream out_file("neozork-config"); // Open file for writing
-    if (out_file.is_open()) { // Check if file opened
-        out_file << content; // Write updated content
-        out_file.close(); // Close file
-        std::cout << GREEN << "Config updated" << RESET << '\n'; // Report success
+    // Open file for writing
+    std::ofstream out_file("neozork-config");
+    
+    // Check if file opened
+    if (out_file.is_open()) {
+        
+        // Write updated content
+        out_file << content;
+        
+        // Close file
+        out_file.close();
+        
+        // Report success
+        std::cout << GREEN << "Config updated" << RESET << '\n';
+        
+        // Update disk usage
 #ifdef _WIN32
-        HANDLE hFile = CreateFile("neozork-config", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); // Open file handle on Windows
-        if (hFile != INVALID_HANDLE_VALUE) { // Check if handle is valid
-            LARGE_INTEGER file_size; // Structure for file size
-            GetFileSizeEx(hFile, &file_size); // Get file size
-            stats.disk_usage_bytes = file_size.QuadPart; // Update disk usage
-            CloseHandle(hFile); // Close handle
+        // Open file handle on Windows
+        HANDLE hFile = CreateFile("neozork-config", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        
+        // Check if handle is valid
+        if (hFile != INVALID_HANDLE_VALUE) {
+            
+            // Structure for file size
+            LARGE_INTEGER file_size;
+            
+            // Get file size
+            GetFileSizeEx(hFile, &file_size);
+            
+            // Update disk usage
+            stats.disk_usage_bytes = file_size.QuadPart;
+            
+            // Close handle
+            CloseHandle(hFile);
         }
 #else
-        struct stat file_stat; // Structure for file stats on Unix
-        stat("neozork-config", &file_stat); // Get file stats
-        stats.disk_usage_bytes = file_stat.st_size; // Update disk usage
+        // Structure for file stats on Unix
+        struct stat file_stat;
+        
+        // Get file stats
+        stat("neozork-config", &file_stat);
+        
+        // Update disk usage
+        stats.disk_usage_bytes = file_stat.st_size;
 #endif
     }
 
     // Finalize timing
-    auto end = std::chrono::high_resolution_clock::now(); // End timing
-    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0; // Calculate execution time
+    auto end = std::chrono::high_resolution_clock::now(); 
+    
+    // Calculate execution time
+    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
 }
