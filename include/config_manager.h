@@ -14,6 +14,8 @@
 std::vector<DexInfo> load_dexes_from_config();
 
 // Function to update config with DEX data
-void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::vector<DexInfo>& dex_list, FunctionStats& stats);
+void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints,
+                            std::vector<DexInfo>& dex_list,
+                            FunctionStats& stats);
 
 #endif // CONFIG_MANAGER_H
