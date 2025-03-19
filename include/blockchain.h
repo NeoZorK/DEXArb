@@ -27,4 +27,7 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain);
 // Function to convert string to BlockchainType
 BlockchainType string_to_blockchain(const std::string& chain);
 
+// Function to convert BlockchainType to string
+std::string blockchain_to_string(const BlockchainType& blockchain);
+
 #endif // BLOCKCHAIN_H

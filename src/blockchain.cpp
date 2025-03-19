@@ -48,3 +48,28 @@ BlockchainType string_to_blockchain(const std::string& chain) {
     if (lower_chain == "solana") return BlockchainType::Solana;
     return BlockchainType::Ethereum;
 }
+
+// Convert Blockchain to string
+std::string blockchain_to_string(const BlockchainType& blockchain) {
+
+    // Convert enum to string
+    switch (blockchain) {
+        case BlockchainType::Ethereum:
+            return "Ethereum";
+        case BlockchainType::Fantom:
+            return "Fantom";
+        case BlockchainType::BSC:
+            return "BSC";
+        case BlockchainType::Polygon:
+            return "Polygon";
+        case BlockchainType::Avalanche:
+            return "Avalanche";
+        case BlockchainType::Solana:
+            return "Solana";
+        default:
+            return "Unknown";
+    }
+   
+    };
+
+
