@@ -39,18 +39,14 @@ int main(int argc, char* argv[]) {
     // Start the Main timer
     StartTimeMeasure();
    
-    // Show the project version
     std::cout << "Starting NeoZorK, VERSION: "<<VERSION<<"\n";
-    
     
     // Check if there are any arguments
     if (argc == 1) {
-        // Show help if no arguments provided (Exit)
         show_help();
         return 0;
     }
     if (argc < 3) {
-        // Error for insufficient args (Exit)
         std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
         return 1;
     }
@@ -69,7 +65,7 @@ int main(int argc, char* argv[]) {
         
         // Warn about limited Solana support (Exit)
         std::cerr << RED << "Solana support is limited to config display" << RESET << '\n';
-        return 1;
+        return 2;
     }
 
     // Load configuration and initialize stats (List to store function stats)
@@ -87,10 +83,10 @@ int main(int argc, char* argv[]) {
     // Error if no endpoints loaded (Exit)
     if (rpc_endpoints.empty()) {
         std::cerr << RED << "Failed to load RPC endpoints for " << blockchain_str << RESET << '\n';
-        return 1;
+        return 3;
     }
 
-    // Process command-line flags
+    // Process command-line flags (3)
     if (argc == 3) {
         if (flag == "-showSCAN-CONFIG") {
             show_scan_config();
@@ -104,8 +100,10 @@ int main(int argc, char* argv[]) {
         } else {
             std::cerr << RED << "Invalid flag" << RESET << '\n';
             show_help();
-            return 1;
+            return 4;
         }
+        
+        // Process command-line flags (4)
     } else if (argc == 4) {
         if (flag == "-showPOOLS") {
             show_pools(rpc_endpoints, argv[3]);
@@ -117,9 +115,11 @@ int main(int argc, char* argv[]) {
             
             // Convert scan range to integer
             int scan_range = std::stoi(argv[3]);
+            
+            // Check range
             if (scan_range < 1000 || scan_range > 1000000) {
                 std::cerr << RED << "Error: scan_range must be 1000-1000000" << RESET << '\n';
-                return 1;
+                return 5;
             }
             
             // Announce scan
@@ -142,22 +142,32 @@ int main(int argc, char* argv[]) {
             
             // Add update stats
             stats_list.emplace_back("update_config_with_dex", update_stats);
+            
+            // Save scan stats
             save_scan_stats(stats_list);
+            
+            // Show scan stats
             show_scan_results(dex_list);
         } else {
+            
             // Error for invalid flag (EXIT)
             std::cerr << RED << "Invalid flag" << RESET << '\n';
             show_help();
-            return 1;
+            return 6;
         }
+        
+        
     } else if (argc == 5 && flag == "-findTOKEN") {
+        
         // Find token in a specific DEX
         find_token_in_dex(rpc_endpoints, argv[3], argv[4]);
+        
     } else {
+        
         // Error for invalid usage (EXIT)
         std::cerr << RED << "Invalid usage" << RESET << '\n';
         show_help();
-        return 1;
+        return 7;
     }
     
     

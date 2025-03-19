@@ -14,121 +14,254 @@
 #include <windows.h>        // Include Windows API for file size on Windows
 #endif
 
+
+// Create Config File (neozork-config)
 void create_config_file(int thread_count, FunctionStats& stats) {
+    
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
     // Create and write default config file
-    std::ofstream config_file("neozork-config"); // Open config file for writing
-    if (config_file.is_open()) { // Check if file opened successfully
-        config_file << "{\n"; // Start JSON object
-        for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) { // Loop through blockchains
-            config_file << "  \"" << chain << "\": {\n"; // Start blockchain section
-            config_file << "    \"threads\": " << thread_count << ",\n"; // Set thread count
-            config_file << "    \"rpc\": [\n"; // Start RPC array
-            auto endpoints = get_default_endpoints(string_to_blockchain(chain)); // Get default endpoints
-            for (size_t i = 0; i < endpoints.size(); ++i) { // Loop through endpoints
+    // Open config file for writing
+    std::ofstream config_file("neozork-config");
+    
+    // Check if file opened successfully
+    if (config_file.is_open()) {
+        
+        // Start JSON object
+        config_file << "{\n";
+        
+        // Loop through blockchains
+        for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
+            
+            // Start blockchain section
+            config_file << "  \"" << chain << "\": {\n";
+            
+            // Set thread count
+            config_file << "    \"threads\": " << thread_count << ",\n";
+            
+            // Start RPC array
+            config_file << "    \"rpc\": [\n";
+            
+            // Get default endpoints
+            auto endpoints = get_default_endpoints(string_to_blockchain(chain));
+            
+            // Loop through endpoints
+            for (size_t i = 0; i < endpoints.size(); ++i) {
+                
+                // Write endpoint
                 config_file << "      {\"url\": \"" << endpoints[i].url << "\", \"limit\": " << endpoints[i].request_limit << "}"
-                            << (i < endpoints.size() - 1 ? "," : "") << "\n"; // Write endpoint
+                            << (i < endpoints.size() - 1 ? "," : "") << "\n";
             }
-            config_file << "    ],\n"; // Close RPC array
-            config_file << "    \"dex\": []\n"; // Empty DEX array
-            // Исправление: преобразование chain в std::string для корректного сравнения
-            config_file << "  }" << (std::string(chain) != "solana" ? "," : "") << "\n"; // Close blockchain section
+            
+            // Close RPC array
+            config_file << "    ],\n";
+            
+            // Empty DEX array
+            config_file << "    \"dex\": []\n";
+            
+            // Fix: transform chain into std::string for correct measure
+            // Close blockchain section
+            config_file << "  }" << (std::string(chain) != "solana" ? "," : "") << "\n";
         }
-        config_file << "}\n"; // Close JSON object
-        config_file.close(); // Close file
-        std::cout << GREEN << "Created neozork-config" << RESET << '\n'; // Report success
+        
+        // Close JSON object
+        config_file << "}\n";
+        
+        // Close file
+        config_file.close();
+        
+        // Report success
+        std::cout << GREEN << "Created neozork-config" << RESET << '\n';
 
         // Update disk usage stats
 #ifdef _WIN32
-        HANDLE hFile = CreateFile("neozork-config", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); // Open file handle
-        if (hFile != INVALID_HANDLE_VALUE) { // Check if handle is valid
-            LARGE_INTEGER file_size; // Structure for file size
-            GetFileSizeEx(hFile, &file_size); // Get file size
-            stats.disk_usage_bytes = file_size.QuadPart; // Update disk usage
-            CloseHandle(hFile); // Close handle
+        // Open
+        HANDLE hFile = CreateFile("neozork-config", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);  file handle
+        
+        // Check if handle is valid
+        if (hFile != INVALID_HANDLE_VALUE) {
+            
+            // Structure for file size
+            LARGE_INTEGER file_size;
+            
+            // Get file size
+            GetFileSizeEx(hFile, &file_size);
+            
+            // Update disk usage
+            stats.disk_usage_bytes = file_size.QuadPart;
+           
+            // Close handle
+            CloseHandle(hFile);
         }
 #else
-        struct stat file_stat; // Structure for file stats
-        stat("neozork-config", &file_stat); // Get file stats
-        stats.disk_usage_bytes = file_stat.st_size; // Update disk usage
+        // Structure for file stats
+        struct stat file_stat;
+        
+        // Get file stats
+        stat("neozork-config", &file_stat);
+        
+        // Update disk usage
+        stats.disk_usage_bytes = file_stat.st_size;
 #endif
     }
 
     // Finalize timing
-    auto end = std::chrono::high_resolution_clock::now(); // End timing
-    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0; // Calculate execution time
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    // Calculate execution time
+    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
 }
 
+// Read Config File (neozork-config)
 std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blockchain, FunctionStats& stats) {
+    
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<RpcEndpoint> endpoints; // List to store RPC endpoints
-    int thread_count = 0; // Variable to store thread count
+    
+    // List to store RPC endpoints
+    std::vector<RpcEndpoint> endpoints;
+    
+    // Variable to store thread count
+    int thread_count = 0;
 
     // Open config file, create if it doesn't exist
-    std::ifstream config_file("neozork-config"); // Open config file
-    if (!config_file.is_open()) { // Check if file exists
-        create_config_file(3, stats); // Create default config with 3 threads
-        config_file.open("neozork-config"); // Reopen file
+    std::ifstream config_file("neozork-config");
+    
+    // Check if file NOT exists -> CREATE neozork-config file
+    if (!config_file.is_open()) {
+        
+        // Create default config with 3 threads
+        create_config_file(3, stats);
+        
+        // Reopen file
+        config_file.open("neozork-config");
     }
 
     // Read file content
-    std::stringstream buffer; // Buffer for file content
-    buffer << config_file.rdbuf(); // Read file into buffer
-    std::string content = buffer.str(); // Convert to string
-    config_file.close(); // Close file
+    // Buffer for file content
+    std::stringstream buffer;
+    
+    // Read file into buffer
+    buffer << config_file.rdbuf();
+    
+    // Convert to string
+    std::string content = buffer.str();
+    
+    // Close file
+    config_file.close();
 
     // Parse blockchain section
-    size_t chain_pos = content.find("\"" + blockchain + "\": {"); // Find blockchain section
-    if (chain_pos == std::string::npos) return {endpoints, thread_count}; // Return empty if not found
+    // Find blockchain section
+    size_t chain_pos = content.find("\"" + blockchain + "\": {");
+    
+    // Return empty if not found
+    if (chain_pos == std::string::npos) return {endpoints, thread_count};
 
-    size_t rpc_pos = content.find("\"rpc\": [", chain_pos); // Find RPC array
-    if (rpc_pos != std::string::npos) { // Check if RPC section exists
-        size_t rpc_end = content.find("]", rpc_pos); // Find end of RPC array
-        size_t pos = rpc_pos + 8; // Move past "rpc": [
-        while (pos < rpc_end) { // Loop through RPC entries
-            size_t url_start = content.find("\"url\": \"", pos) + 8; // Find URL field
-            size_t url_end = content.find('"', url_start); // Find end of URL
-            std::string url = content.substr(url_start, url_end - url_start); // Extract URL
-            size_t limit_start = content.find("\"limit\": ", url_end) + 9; // Find limit field
-            size_t limit_end = content.find_first_of(",}", limit_start); // Find end of limit
-            int limit = std::stoi(content.substr(limit_start, limit_end - limit_start)); // Extract limit
-            endpoints.push_back({url, limit}); // Add endpoint to list
-            pos = content.find("{", pos + 1); // Move to next entry
-            if (pos == std::string::npos) break; // Exit if no more entries
+    
+    // Find RPC array
+    size_t rpc_pos = content.find("\"rpc\": [", chain_pos);
+    
+    // Check if RPC section exists
+    if (rpc_pos != std::string::npos) {
+        
+        // Find end of RPC array
+        size_t rpc_end = content.find("]", rpc_pos);
+        
+        // Move past "rpc": [
+        size_t pos = rpc_pos + 8;
+        
+        // Loop through RPC entries
+        while (pos < rpc_end) {
+            
+            // Find URL field
+            size_t url_start = content.find("\"url\": \"", pos) + 8;
+            
+            // Find end of URL
+            size_t url_end = content.find('"', url_start);
+            
+            // Extract URL
+            std::string url = content.substr(url_start, url_end - url_start);
+            
+            // Find limit field
+            size_t limit_start = content.find("\"limit\": ", url_end) + 9;
+            
+            // Find end of limit
+            size_t limit_end = content.find_first_of(",}", limit_start);
+            
+            // Extract limit
+            int limit = std::stoi(content.substr(limit_start, limit_end - limit_start));
+            
+            // Add endpoint to list
+            endpoints.push_back({url, limit});
+            
+            // Move to next entry
+            pos = content.find("{", pos + 1);
+            
+            // Exit if no more entries
+            if (pos == std::string::npos) break;
         }
     }
-    size_t thread_pos = content.find("\"threads\": ", chain_pos); // Find threads field
-    if (thread_pos != std::string::npos) { // Check if threads field exists
-        size_t thread_start = thread_pos + 11; // Move past "threads":
-        size_t thread_end = content.find_first_of(",\n", thread_start); // Find end of threads value
-        thread_count = std::stoi(content.substr(thread_start, thread_end - thread_start)); // Extract thread count
+    
+    // Find threads field
+    size_t thread_pos = content.find("\"threads\": ", chain_pos);
+    
+    // Check if threads field exists
+    if (thread_pos != std::string::npos) {
+        
+        // Move past "threads":
+        size_t thread_start = thread_pos + 11;
+        
+        // Find end of threads value
+        size_t thread_end = content.find_first_of(",\n", thread_start);
+        
+        // Extract thread count
+        thread_count = std::stoi(content.substr(thread_start, thread_end - thread_start));
     }
-    if (thread_count == 0) thread_count = 3; // Default to 3 if not specified
+    
+    // Default to 3 if not specified
+    if (thread_count == 0) thread_count = 3;
 
     // Finalize timing
-    auto end = std::chrono::high_resolution_clock::now(); // End timing
-    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0; // Calculate execution time
-    return {endpoints, thread_count}; // Return endpoints and thread count
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    // Calculate execution time
+    stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+   
+    // Return endpoints and thread count
+    return {endpoints, thread_count};
 }
 
+// Show Scan Config
 void show_scan_config() {
+    
     // Open config file
-    std::ifstream config_file("neozork-config"); // Open config file
-    if (!config_file.is_open()) { // Check if file exists
-        std::cerr << RED << "neozork-config not found" << RESET << '\n'; // Report error
-        return; // Exit function
+    std::ifstream config_file("neozork-config");
+    
+    // Check if file exists
+    if (!config_file.is_open()) {
+        std::cerr << RED << "neozork-config not found" << RESET << '\n';
+        return;
     }
-    std::stringstream buffer; // Buffer for file content
-    buffer << config_file.rdbuf(); // Read file into buffer
-    std::string content = buffer.str(); // Convert to string
-    config_file.close(); // Close file
+    
+    // Buffer for file content
+    std::stringstream buffer;
+    
+    // Read file into buffer
+    buffer << config_file.rdbuf();
+    
+    // Convert to string
+    std::string content = buffer.str();
+    
+    // Close file
+    config_file.close();
 
     // Display config settings
-    std::cout << GREEN << "neozork-config settings:" << RESET << '\n'; // Header
-    for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) { // Loop through blockchains
+    // Header
+    std::cout << GREEN << "neozork-config settings:" << RESET << '\n';
+    
+    // Loop through blockchains
+    for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
         size_t chain_pos = content.find("\"" + std::string(chain) + "\": {"); // Find blockchain section
         if (chain_pos != std::string::npos) { // Check if section exists
             std::cout << YELLOW << chain << ":" << RESET << '\n'; // Print blockchain name
