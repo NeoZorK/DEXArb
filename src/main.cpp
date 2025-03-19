@@ -19,9 +19,9 @@ const std::string VERSION = "104";
 void show_help() {
     std::cout << GREEN << "Usage: neozork [flag] <blockchain> [value]" << RESET << '\n';
     std::cout << YELLOW << "Supported blockchains: Ethereum, Fantom, BSC, Polygon, Avalanche, Solana" << RESET << '\n';
-    std::cout << YELLOW << "Flags:" << RESET << '\n';   // Introduce available flags
+    std::cout << YELLOW << "Flags:" << RESET << '\n';
+    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show config settings\n";
     std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
-    std::cout << BLUE << "  -showSCAN-CONFIG <blockchain>" << RESET << ": Show config settings\n";
     std::cout << BLUE << "  -showSCAN <blockchain>" << RESET << ": Show scan results\n";
     std::cout << BLUE << "  -showSCAN-STAT <blockchain>" << RESET << ": Show scan stats\n";
     std::cout << BLUE << "  -showDEXES <blockchain>" << RESET << ": Show all DEXes\n";
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     BlockchainType blockchain = string_to_blockchain(blockchain_str);
     
     // Check if Solana is fully supported
-    if (blockchain == BlockchainType::Solana && flag != "-showSCAN-CONFIG") {
+    if (blockchain == BlockchainType::Solana && flag != "-config") {
         
         // Warn about limited Solana support (Exit)
         std::cerr << RED << "Solana support is limited to config display" << RESET << '\n';
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 
     // Process command-line flags (3)
     if (argc == 3) {
-        if (flag == "-showSCAN-CONFIG") {
+        if (flag == "-config") {
             show_scan_config();
         } else if (flag == "-showSCAN-STAT") {
             show_scan_stats();
