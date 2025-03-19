@@ -15,6 +15,8 @@
 #include <curl/curl.h>      // For CURL HTTP requests
 #include <set>              // For unique factory addresses
 #include <chrono>           // For timing measurements
+#include <string>
+#include <unordered_map>
 
 // Function to test RPC endpoint availability
 // Parameters:
@@ -28,6 +30,19 @@ bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats) {
     std::string result = make_rpc_call(endpoint.url, payload, endpoint.request_limit, stats);
     // Check if the result is non-empty (indicating success)
     return !result.empty();
+}
+
+// Blockchain to string mapping
+std::string blockchain_to_string(BlockchainType blockchain) {
+    static const std::unordered_map<BlockchainType, std::string> blockchain_strings = {
+        {BlockchainType::Ethereum, "Ethereum"},
+        {BlockchainType::BSC, "Binance Smart Chain"},
+        {BlockchainType::Solana, "Solana"},
+        // ...
+    };
+
+    auto it = blockchain_strings.find(blockchain);
+    return it != blockchain_strings.end() ? it->second : "Unknown blockchain";
 }
 
 // Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)
