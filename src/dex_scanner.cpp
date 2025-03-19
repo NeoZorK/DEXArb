@@ -14,11 +14,26 @@
 #include <sstream>          // For stringstream
 #include <curl/curl.h>      // For CURL HTTP requests
 #include <set>              // For unique factory addresses
+#include <chrono>           // For timing measurements
+
+// Function to test RPC endpoint availability
+// Parameters:
+// - endpoint: RPC endpoint to test
+// - stats: Performance statistics
+// Returns: True if the endpoint is available, false otherwise
+bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats) {
+    // Construct a simple RPC payload to test connectivity
+    std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":1}";
+    // Attempt to make an RPC call
+    std::string result = make_rpc_call(endpoint.url, payload, endpoint.request_limit, stats);
+    // Check if the result is non-empty (indicating success)
+    return !result.empty();
+}
 
 // Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)
 // Parameters:
 // - rpc_endpoints: List of RPC endpoints to query the blockchain
-// - chain: Type of blockchain to scan (e.g., Ethereum, BSC)
+// - chain: Type of blockchain to scan
 // - scan_range: Number of blocks to scan backwards from the latest block
 // - thread_count: Number of threads to use for parallel scanning
 // - mtx: Mutex for synchronizing access to shared dex_list
@@ -29,15 +44,43 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
     // Record the start time for performance measurement
     auto start = std::chrono::high_resolution_clock::now();
 
+    // Log the blockchain being scanned
+    std::cout << "Scanning " << blockchain_to_string(chain) << " for factory contracts...\n";
+
+    // Check if RPC endpoints are provided
+    if (rpc_endpoints.empty()) {
+        std::cerr << RED << "No RPC endpoints provided for " << blockchain_to_string(chain) << RESET << '\n';
+        return;
+    }
+
+    // Test and select a working RPC endpoint
+    RpcEndpoint selected_endpoint = rpc_endpoints[0]; // Default to first endpoint
+    bool endpoint_found = false;
+    for (const auto& endpoint : rpc_endpoints) {
+        std::cout << "Testing RPC endpoint: " << endpoint.url << "\n";
+        if (test_rpc_endpoint(endpoint, stats)) {
+            selected_endpoint = endpoint;
+            endpoint_found = true;
+            std::cout << GREEN << "Selected RPC endpoint: " << endpoint.url << RESET << '\n';
+            break;
+        } else {
+            std::cerr << RED << "RPC endpoint " << endpoint.url << " is unavailable" << RESET << '\n';
+        }
+    }
+    // Exit if no endpoints are available
+    if (!endpoint_found) {
+        std::cerr << RED << "Failed to load RPC endpoints for " << blockchain_to_string(chain) << RESET << '\n';
+        return;
+    }
+
     // Temporary stats object for fetching the latest block number
     FunctionStats block_stats;
-    // Fetch the latest block number in hex format from the first RPC endpoint
-    std::string latest_block_hex = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats);
+    // Fetch the latest block number in hex format from the selected RPC endpoint
+    std::string latest_block_hex = get_latest_block_number(selected_endpoint.url, selected_endpoint.request_limit, block_stats);
     // Check if the block number fetch failed
     if (latest_block_hex.empty()) {
         // Print error message to console
-        std::cerr << RED << "Failed to fetch latest block" << RESET << '\n';
-        // Exit the function early
+        std::cerr << RED << "Failed to fetch latest block on " << blockchain_to_string(chain) << " using " << selected_endpoint.url << RESET << '\n';
         return;
     }
     // Convert hex string to 64-bit unsigned integer, removing "0x" prefix
@@ -56,10 +99,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
 
     // List of known factory contract event signatures (e.g., PairCreated)
     std::vector<std::string> factory_signatures = {
-        "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9",
-        "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d",
-        "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e",
-        "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"
+        "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9", // Uniswap-like PairCreated
+        "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d", // Additional signature
+        "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e", // Additional signature
+        "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"  // Additional signature
     };
 
     // Launch threads for parallel block scanning
@@ -87,7 +130,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                 // Set HTTP headers for JSON content type
                 curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json");
                 // Set the RPC URL for this thread
-                curl_easy_setopt(curl, CURLOPT_URL, rpc_endpoints[0].url.c_str());
+                curl_easy_setopt(curl, CURLOPT_URL, selected_endpoint.url.c_str());
                 // Set the callback function to handle response data
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
                 // Set the buffer to write response data into
@@ -114,7 +157,8 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                     // Check if the request failed
                     if (res != CURLE_OK) {
                         // Print error message with block number
-                        std::cerr << RED << "RPC failed for block " << block << RESET << '\n';
+                        std::cerr << RED << "RPC failed for block " << block << " on " << blockchain_to_string(chain) << ": "
+                                  << curl_easy_strerror(res) << RESET << '\n';
                         // Skip to the next block
                         continue;
                     }
@@ -189,10 +233,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                     local_stats.inbound_traffic += read_buffer.size();
                     // Increment the progress counter
                     progress++;
-                    // Display the progress bar
-                    print_progress_bar(progress, total_tasks, "Scanning blocks");
+                    // Display the progress bar with atomic value explicitly loaded
+                    print_progress_bar(progress.load(), total_tasks, "Scanning blocks on " + blockchain_to_string(chain));
                     // Throttle requests to respect the RPC limit
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / rpc_endpoints[0].request_limit));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / selected_endpoint.request_limit));
                 }
                 // Free the CURL headers
                 curl_slist_free_all(headers);
@@ -210,10 +254,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                     DexInfo dex;
                     // Set the factory address
                     dex.factory_address = addr;
-                    // Generate a temporary name based on the address
-                    dex.name = "Unknown_" + addr.substr(2, 6);
+                    // Generate a temporary name based on the address and chain
+                    dex.name = "Unknown_" + blockchain_to_string(chain) + "_" + addr.substr(2, 6);
                     // Fetch the pool count for this factory
-                    dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, local_stats);
+                    dex.pool_count = get_pool_count(selected_endpoint.url, dex.factory_address, selected_endpoint.request_limit, local_stats);
                     // Add the DEX to the list if it has pools
                     if (dex.pool_count > 0) dex_list.push_back(dex);
                 }
@@ -237,5 +281,6 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
     // Calculate the total execution time in milliseconds
     stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
     // Print the number of factory contracts found
-    std::cout << GREEN << "Found " << dex_list.size() << " factory contracts" << RESET << '\n';
+    std::cout << GREEN << "Found " << dex_list.size() << " factory contracts on " << blockchain_to_string(chain)
+              << " in " << stats.execution_time_ms << " ms" << RESET << '\n';
 }
