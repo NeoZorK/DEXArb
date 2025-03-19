@@ -5,6 +5,7 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"           // For shared structures and constants
+#include "check_rpc_endpoints.h" // For checking rpc endpoints
 #include "blockchain.h"     // For BlockchainType and functions
 #include "dex_scanner.h"    // For find_factory_contracts
 #include "config_manager.h" // For load_dexes_from_config
@@ -128,6 +129,10 @@ int main(int argc, char* argv[]) {
                 std::cerr << RED << "Error: scan_range must be 1000-1000000" << RESET << '\n';
                 return 5;
             }
+            
+            //debug
+            check_rpc_endpoints();
+            return 0;
             
             // Announce scan
             std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';

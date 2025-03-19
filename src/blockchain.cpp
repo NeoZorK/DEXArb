@@ -11,6 +11,8 @@
 // Return free RPC endpoints based on blockchain type
 std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
    
+    // Limitations 30 req/s
+    
     // Free RPC
     switch (chain) {
         case BlockchainType::Ethereum:
@@ -32,10 +34,15 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
             };
         case BlockchainType::Fantom:
             return {
-                {"https://rpc.ftm.tools", 25},
-                {"https://rpc.ankr.com/fantom", 30},
+                {"https://rpc.ftm.tools", 3},
+                {"https://rpc.ankr.com/fantom", 30},// need api key
                 {"https://rpc.ankr.com/fantom_testnet", 30},
-                {"https://rpc.testnet.fantom.network", 30}
+                {"https://rpc.testnet.fantom.network", 30},
+                {"https://fantom.publicnode.com", 3},
+                {"https://fantom-mainnet-rpc.coinsdo.com",3},
+                {"https://fantom-mainnet.public.blastapi.io",25},
+                {"https://1rpc.io/ftm",1}, // ban 1 month if exceeded
+                {"https://rpc.ankr.com/sonic",10}
             };
         case BlockchainType::BSC:
             return {{"https://bsc-dataseed.binance.org", 50}, {"https://rpc.ankr.com/bsc", 30}};
