@@ -26,8 +26,8 @@ std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blo
 // Returns: Pair containing a vector of RpcEndpoint structures and the number of threads
 // Description: Parses 'neozork-config' to extract RPC endpoints and thread count; creates default config if missing
 
-// Function to display the current scan configuration from the config file
-void show_scan_config();
+// Function to display the current configuration from the config file
+void show_config(std::string& blockchain_str);
 // Description: Reads 'neozork-config' and prints the settings (threads, RPC URLs, limits) for all blockchains
 
 // Function to display the results of a blockchain scan

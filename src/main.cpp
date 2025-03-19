@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     // Process command-line flags (3)
     if (argc == 3) {
         if (flag == "-config") {
-            show_scan_config();
+            show_config(blockchain_str);
         } else if (flag == "-showSCAN-STAT") {
             show_scan_stats();
         } else if (flag == "-showSCAN") {

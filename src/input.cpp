@@ -233,7 +233,7 @@ std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blo
 }
 
 // Show Scan Config
-void show_scan_config() {
+void show_config(std::string& blockchain_str) {
     
     // Open config file
     std::ifstream config_file("neozork-config");
@@ -261,7 +261,7 @@ void show_scan_config() {
     std::cout << GREEN << "neozork-config settings:" << RESET << '\n';
     
     // Loop through blockchains
-    for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
+    for (const auto& chain : {blockchain_str}) {
         
         // Find blockchain section
         size_t chain_pos = content.find("\"" + std::string(chain) + "\": {");
