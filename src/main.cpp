@@ -13,7 +13,7 @@
 #include <iostream>         // For console I/O
 
 // Global Project Version
-const std::string VERSION = "103";
+const std::string VERSION = "104";
 
 // Function to display usage instructions
 void show_help() {
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     StartTimeMeasure();
    
     // Show the project version
-    std::cout << "Starting DEX Arbitrage, VERSION: "<<VERSION<<"\n";
+    std::cout << "Starting NeoZorK, VERSION: "<<VERSION<<"\n";
     
     
     // Check if there are any arguments
