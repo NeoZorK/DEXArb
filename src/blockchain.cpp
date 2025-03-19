@@ -34,7 +34,7 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
             };
         case BlockchainType::Fantom:
             return {
-                {"https://rpc.ftm.tools", 3},
+                {"https://rpc.ftm.tools/", 3},
                 {"https://rpc.ankr.com/fantom", 30},// need api key
                 {"https://rpc.ankr.com/fantom_testnet", 30},
                 {"https://rpc.testnet.fantom.network", 30},
