@@ -133,17 +133,7 @@ void check_connect_rpc(const std::string& url) {
 }
 
 // Function to check all RPC endpoints
-void check_rpc_endpoints() {
-
-    // List of RPC endpoints
-    std::vector<std::string> rpc_endpoints{
-        "https://rpc.ftm.tools/",
-        "https://rpc.ankr.com/fantom",
-        "https://fantom.publicnode.com",
-        "https://fantom-mainnet-rpc.coinsdo.com",
-        "https://fantom-mainnet.public.blastapi.io",
-        "https://1rpc.io/ftm"
-    };
+void check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints) {
 
     // Initialize CURL
     curl_global_init(CURL_GLOBAL_ALL);
@@ -157,10 +147,21 @@ void check_rpc_endpoints() {
         // Move constructor
     } globalGuard;
 
+    // Print the number of RPC endpoints
+    std::cout  << CYAN << " Total RPC endpoints: "  << std::to_string(rpc_endpoints.size())  << RESET << std::endl;
+    
+    // Initialize url index
+    int url_index = 0;
+    
     // Check each RPC endpoint
     for (const auto& endpoint : rpc_endpoints) {
-        std::cout << YELLOW << "Checking " << BLUE << endpoint << GREEN << "..." << RESET << std::endl;
-        check_connect_rpc(endpoint);
+        
+        // Increment url index
+        url_index++;
+        
+        // Print the RPC endpoint
+        std::cout << std::to_string(url_index) << YELLOW << " >> Checking " << BLUE << endpoint.url << GREEN << "..." << RESET << std::endl;
+        check_connect_rpc(endpoint.url);
     }
 
     // Cleanup CURL
