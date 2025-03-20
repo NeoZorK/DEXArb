@@ -12,83 +12,128 @@
 #include <curl/curl.h>
 #include <functional>
 
-// Структура для хранения ответа от сервера
-struct Response {
-    std::string data; // Using std::string to avoid manual memory management
+// Using std::string to avoid manual memory management
+struct struct_response {
+    std::string data;
 };
 
-// Вспомогательная функция, работающая с ссылками
-size_t processResponseData(const std::string& contents, Response& response) {
+// Function to process the response data
+size_t process_response_data(const std::string& contents, struct_response& response) {
+    
+    // Append the received data to the response
     response.data.append(contents);
+    
+    // Return the size of the received data
     return contents.size();
 }
 
-// Callback-функция для обработки данных ответа от curl
+// Callback function to handle data received from CURL
 size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-    Response& response = *static_cast<Response*>(userp); // Приводим к ссылке
-    std::string data(static_cast<char*>(contents), size * nmemb); // Преобразуем void* в std::string
-    return processResponseData(data, response); // Работаем только с ссылками
+    
+    // Cast userp to struct_response
+    struct_response& response = *static_cast<struct_response*>(userp);
+    
+    // Convert contents to std::string
+    std::string data(static_cast<char*>(contents), size * nmemb);
+    
+    // Process the response data
+    return process_response_data(data, response);
 }
 
-// Функция проверки доступности RPC-эндпоинта
-void проверитьRpc(const std::string& url) {
-    CURL* curlHandle = curl_easy_init();
-    if (!curlHandle) {
-        std::cerr << "Не удалось инициализировать curl для " << url << std::endl;
+// Function to check the RPC endpoint
+void check_connect_rpc(const std::string& url) {
+    
+    // Initialize CURL
+    CURL* curl_handle = curl_easy_init();
+    
+    // Check if initialization was successful
+    if (!curl_handle) {
+        std::cerr << "Failed to initialize CURL for " << url << std::endl;
         return;
     }
     
-    // Автоматическая очистка curlHandle с помощью RAII
-    auto curlCleanup = [curlHandle]() { curl_easy_cleanup(curlHandle); };
-    struct CurlGuard {
+    // Cleanup CURL on scope exit
+    auto curl_cleanup = [curl_handle]() { curl_easy_cleanup(curl_handle); };
+    
+    // Create a guard object to automatically clean up CURL
+    struct curl_guard {
+        
+        // Store the cleanup function
         std::function<void()> cleanup;
-        ~CurlGuard() { cleanup(); }
-    } guard{curlCleanup};
+        
+        // Construct the guard
+        ~curl_guard() { cleanup(); }
+        
+        // Move constructor
+    } guard{curl_cleanup};
 
-    Response response; // Автоматическое управление памятью через std::string
+    
+    // Create a struct to store the response
+    struct_response response;
 
-    // Настройка параметров curl для POST-запроса
-    curl_easy_setopt(curlHandle, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curlHandle, CURLOPT_POST, 1L);
-    curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}");
-    curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-    curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &response);
-    curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
+    // Set up the CURL options
+    curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}");
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeCallback);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 
-    // Установка заголовков с использованием современного C++ стиля
-    std::vector<std::string> headerList = {"Content-Type: application/json"};
+    // Set custom headers
+    std::vector<std::string> header_list = {"Content-Type: application/json"};
+    
+    // Set headers
     struct curl_slist* headers = nullptr;
-    for (const auto& header : headerList) {
+    
+    // Add headers
+    for (const auto& header : header_list) {
         headers = curl_slist_append(headers, header.c_str());
     }
-    curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, headers);
+    
+    // Set headers
+    curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 
-    // Автоматическая очистка headers
-    struct HeaderGuard {
+    // Create a guard object to automatically free headers
+    struct struct_header_guard {
+        
+        // Store the headers
         curl_slist* ptr;
-        ~HeaderGuard() { if (ptr) curl_slist_free_all(ptr); }
-    } headerGuard{headers};
+        
+        // Construct the guard
+        ~struct_header_guard() { if (ptr) curl_slist_free_all(ptr); }
+        
+        // Move constructor
+    } header_guard{headers};
 
-    // Выполнение запроса
-    CURLcode res = curl_easy_perform(curlHandle);
+    // Perform the request
+    CURLcode res = curl_easy_perform(curl_handle);
+    
+    // Check for errors
     if (res != CURLE_OK) {
-        std::cerr << "RPC " << url << ": Ошибка - " << curl_easy_strerror(res) << std::endl;
+        std::cerr << "RPC " << url << ": Error - " << curl_easy_strerror(res) << std::endl;
         return;
     }
 
-    long httpCode = 0;
-    curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &httpCode);
-    if (httpCode == 200 && response.data.find("result") != std::string::npos) {
-        std::cout << "RPC " << url << ": Доступен - Ответ: " << response.data << std::endl;
+    // Check the response
+    long http_code = 0;
+    
+    // Get the response code
+    curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &http_code);
+    
+    // Check if the response code is 200
+    if (http_code == 200 && response.data.find("result") != std::string::npos) {
+        std::cout << "RPC " << url << ": Available Answer " << response.data << std::endl;
     } else {
-        std::cerr << "RPC " << url << ": Недоступен или неверный ответ - HTTP " << httpCode
-                  << ", Ответ: " << response.data << std::endl;
+        std::cerr << "RPC " << url << ": Not Available or wrong answer - HTTP " << http_code
+                  << ", Answer: " << response.data << std::endl;
     }
 }
 
+// Function to check all RPC endpoints
 void check_rpc_endpoints() {
-    // Вектор RPC-эндпоинтов для проверки
-    std::vector<std::string> rpcEndpoints{
+
+    // List of RPC endpoints
+    std::vector<std::string> rpc_endpoints{
         "https://rpc.ftm.tools/",
         "https://rpc.ankr.com/fantom",
         "https://fantom.publicnode.com",
@@ -97,17 +142,24 @@ void check_rpc_endpoints() {
         "https://1rpc.io/ftm"
     };
 
-    // Инициализация глобального curl с автоматической очисткой
+    // Initialize CURL
     curl_global_init(CURL_GLOBAL_ALL);
-    struct GlobalCurlGuard {
-        ~GlobalCurlGuard() { curl_global_cleanup(); }
+    
+    // Create a guard object to automatically clean up CURL
+    struct struct_global_curl_guard {
+        
+        // Construct the guard
+        ~struct_global_curl_guard() { curl_global_cleanup(); }
+        
+        // Move constructor
     } globalGuard;
 
-    // Проверка каждого RPC-эндпоинта
-    for (const auto& endpoint : rpcEndpoints) {
-        std::cout << "Проверка " << endpoint << "..." << std::endl;
-        проверитьRpc(endpoint);
+    // Check each RPC endpoint
+    for (const auto& endpoint : rpc_endpoints) {
+        std::cout << "Checking " << endpoint << "..." << std::endl;
+        check_connect_rpc(endpoint);
     }
 
+    // Cleanup CURL
     return;
 }
