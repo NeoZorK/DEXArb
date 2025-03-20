@@ -325,8 +325,8 @@ void show_config(std::string& blockchain_str) {
                 // Move past "rpc": [
                 size_t pos = rpc_pos + 8;
                 
-                // Loop through RPC entries
-                while (pos < rpc_end) {
+                // Loop through RPC entries (change 3)
+                while (pos < rpc_end && content.find("{", pos) < rpc_end) {
                     
                     // Find URL field
                     size_t url_start = content.find("\"url\": \"", pos) + 8;
@@ -367,15 +367,17 @@ void show_config(std::string& blockchain_str) {
                               << YELLOW << "Limit: "
                               << RED << limit << RESET
                               << YELLOW << ", Active: "
-                              << (active_str == "true" ? GREEN : RED) << active_str << RESET
+                              << (active_str == "1" ? GREEN : RED) << active_str << RESET
                               << '\n';
                     
-                    // Move to next entry
-                    pos = content.find("{", pos + 1);
-                    
-                    // Exit if no more entries
-                    if (pos == std::string::npos) break;
+                    // Move to next entry (change 1)
+                    pos = active_end + 1;
+                                        
+                    // Exit if no more entries (change 2)
+                    if (pos >= rpc_end) break;
                 }
+                // Skip to end of current blockchain (change 4)
+                if (pos < content.length()) pos = content.find("}", rpc_pos) + 1;
             }
         }
     }
