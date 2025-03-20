@@ -10,6 +10,9 @@
 #include "main.h"       // For FunctionStats structure
 #include <string>       // For string handling in functions
 
+// Function to update RPC endpoint details
+void update1(const std::string& blockchain);
+
 // Callback function to handle data received from CURL
 // Parameters:
 // - data: Pointer to the received data

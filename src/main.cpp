@@ -5,14 +5,15 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"           // For shared structures and constants
-#include "config_get.h"     // For get_rpc_list online
 #include "check_rpc_endpoints.h" // For checking rpc endpoints
 #include "blockchain.h"     // For BlockchainType and functions
 #include "dex_scanner.h"    // For find_factory_contracts
 #include "config_manager.h" // For load_dexes_from_config
 #include "queries.h"        // For query functions
 #include "input.h"          // For input/output functions
+#include "rpc_core.h"       // For make_rpc_call
 #include <iostream>         // For console I/O
+
 
 // Global Project Version
 const std::string VERSION = "104";
@@ -118,7 +119,7 @@ int main(int argc, char* argv[]) {
         if (flag == "-config") {
             show_config(blockchain_str);
         } else if (flag == "-configGET") {
-          //  update_rpc_from_chainlist(blockchain_str);
+            update1(blockchain_str);
         } else if (flag == "-ping") {
             preliminary_check_rpc_endpoints(rpc_endpoints, blockchain_str);
         } else if (flag == "-showSCAN-STAT") {
