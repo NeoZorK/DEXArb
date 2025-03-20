@@ -19,7 +19,7 @@ void create_config_file(int thread_count, FunctionStats& stats);
 // Description: Generates a 'neozork-config' JSON file with default settings for all supported blockchains
 
 // Function to read RPC endpoints and thread count from the config file for a specific blockchain
-std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blockchain, FunctionStats& stats);
+std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::string& blockchain, FunctionStats& stats);
 // Parameters:
 // - blockchain: Name of the blockchain (e.g., "ethereum") to read config for
 // - stats: Reference to FunctionStats to track performance metrics

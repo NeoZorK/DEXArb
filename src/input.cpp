@@ -120,8 +120,8 @@ void create_config_file(int thread_count, FunctionStats& stats) {
     stats.execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
 }
 
-// Read Config File (neozork-config)
-std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blockchain, FunctionStats& stats) {
+// Read Config File (neozork-config), if not exist -> create -> then read
+std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::string& blockchain, FunctionStats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();

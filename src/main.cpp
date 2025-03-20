@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
     // Stats for different operations
     FunctionStats config_stats, scan_stats, update_stats;
     
-    // Read config file
-    auto [rpc_endpoints, thread_count] = read_config_file(blockchain_str, config_stats);
+    // Read config file, if not exist -> Create neozork-config -> then read
+    auto [rpc_endpoints, thread_count] = first_read_config_file(blockchain_str, config_stats);
     
     // Add config stats to list
     stats_list.emplace_back("read_config_file", config_stats);
