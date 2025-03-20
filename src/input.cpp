@@ -261,7 +261,7 @@ std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::strin
     return {endpoints, thread_count};
 }
 
-// Show Scan Config
+// Show Scan Config, read existed file
 void show_config(std::string& blockchain_str) {
     
     // Open config file
@@ -341,13 +341,34 @@ void show_config(std::string& blockchain_str) {
                     size_t limit_start = content.find("\"limit\": ", url_end) + 9;
                     
                     // Find end of limit
-                    size_t limit_end = content.find_first_of(",}", limit_start);
+                    size_t limit_end = content.find_first_of(",", limit_start);
                     
                     // Extract limit
-                    std::string limit = content.substr(limit_start, limit_end - limit_start);
+                    int limit = std::stoi(content.substr(limit_start, limit_end - limit_start));
+                    
+                    // Find active field
+                    size_t active_start = content.find("\"active\": ", pos) + 10;
+                    
+                    // Find end of active
+                    size_t active_end = content.find_first_of("}", active_start);
+                    
+                    // Extract active string
+                    std::string active_str = content.substr(active_start, active_end - active_start);
+                    
+                    // Extract active value and convert to bool\
+                    // Remove leading and trailing spaces
+                    active_str.erase(0, active_str.find_first_not_of(" \t"));
+                    active_str.erase(active_str.find_last_not_of(" \t") + 1);
+                    
                     
                     // Print RPC details
-                    std::cout << BLUE << "  RPC URL: " << RED << url << RESET << ", " << YELLOW << "Limit: " << RED << limit << RESET << '\n';
+                    std::cout << BLUE << "  RPC URL: "
+                              << RED << url << RESET << ", "
+                              << YELLOW << "Limit: "
+                              << RED << limit << RESET
+                              << YELLOW << ", Active: "
+                              << (active_str == "true" ? GREEN : RED) << active_str << RESET
+                              << '\n';
                     
                     // Move to next entry
                     pos = content.find("{", pos + 1);
