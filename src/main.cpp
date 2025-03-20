@@ -21,13 +21,31 @@ void show_help() {
     std::cout << GREEN << "Usage: NeoZorK [flag] <blockchain> [value]" << RESET << '\n';
     std::cout << YELLOW << "Supported blockchains: Ethereum, Fantom, BSC, Polygon, Avalanche, Solana" << RESET << '\n';
     std::cout << YELLOW << "Flags:" << RESET << '\n';
-    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show config settings\n"; // V
-    // Scan Fantom
+    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show blockchain config settings\n"; // V
+    std::cout << BLUE << "  -configGET <blockchain>" << RESET << ": Get rpc list online\n"; // X
+    std::cout << BLUE << "  -ping   <blockchain>" << RESET << ": test RPC connections to blockchain\n"; // V
+    std::cout << BLUE << "  -configActive <blockchain>" << RESET << ": Show only ACTIVE blockchain\n"; // X
+    // TODO:::
+    //
+    // Get rpc list online -> add new to config file
+    // Show only ACTIVE blockchain
+    //
+    // Scan Fantom blocks or search factorys from active rpc
     // Scan Solana
     // Scan Ethereum
     // Scan BSC
     // Scan Polygon
     // Scan Avalanch
+    // what about WSS endpoints ?
+    // search for factory contracts
+    // search dexes, pools, tokens
+    // measure latence\memory\cpu\disk usage
+    // after all this steps -> analyse TOKENS/price data
+    // calculate arbitrage opportunities (included latency, fee, gas, slippage)
+    // connect wallets
+    // try to buy\sell +profit
+    // automate ->
+    //
     std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
     //
     std::cout << BLUE << "  -showSCAN <blockchain>" << RESET << ": Show scan results\n";
@@ -98,6 +116,8 @@ int main(int argc, char* argv[]) {
     if (argc == 3) {
         if (flag == "-config") {
             show_config(blockchain_str);
+        } else if (flag == "-ping") {
+            preliminary_check_rpc_endpoints(rpc_endpoints, blockchain_str);
         } else if (flag == "-showSCAN-STAT") {
             show_scan_stats();
         } else if (flag == "-showSCAN") {
@@ -129,14 +149,7 @@ int main(int argc, char* argv[]) {
                 std::cerr << RED << "Error: scan_range must be 1000-1000000" << RESET << '\n';
                 return 5;
             }
-            
-            // Announce Active preliminary scan
-            std::cout << GREEN << "Preliminary RPC Scanning: " << blockchain_str << RESET << '\n';
-            
-            // Check RPC endpoints -> set Active / Or Not Flag
-            preliminary_check_rpc_endpoints(rpc_endpoints, blockchain_str);
-            return 0;
-            
+        
             // Announce scan
             std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
             

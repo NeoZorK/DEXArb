@@ -213,6 +213,9 @@ void check_connect_rpc(const std::string& url, std::string& blockchain_str) {
 // Function to check all RPC endpoints
 void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints, std::string& blockchain_str) {
 
+    // Announce Active preliminary scan
+    std::cout << GREEN << "Preliminary RPC Scanning: " << blockchain_str << RESET << '\n';
+    
     // Initialize CURL
     curl_global_init(CURL_GLOBAL_ALL);
     
