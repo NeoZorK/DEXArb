@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
             std::cout << GREEN << "Preliminary RPC Scanning: " << blockchain_str << RESET << '\n';
             
             // Check RPC endpoints -> set Active / Or Not Flag
-            check_rpc_endpoints(rpc_endpoints);
+            preliminary_check_rpc_endpoints(rpc_endpoints);
             return 0;
             
             // Announce scan

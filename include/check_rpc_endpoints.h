@@ -9,6 +9,6 @@
 #define check_rpc_endpoints_h
 #include "main.h"
 
-void check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints);
+void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints);
 
 #endif /* check_rpc_endpoints_h */

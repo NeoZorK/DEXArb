@@ -133,7 +133,7 @@ void check_connect_rpc(const std::string& url) {
 }
 
 // Function to check all RPC endpoints
-void check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints) {
+void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints) {
 
     // Initialize CURL
     curl_global_init(CURL_GLOBAL_ALL);
