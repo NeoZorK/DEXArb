@@ -12,14 +12,14 @@
 #include <vector>           // Include vector for dynamic arrays (used in function return types)
 
 // Function to create a default configuration file if it doesn't exist
-void create_config_file(int thread_count, FunctionStats& stats);
+void create_config_file(int thread_count, struct_function_stats& stats);
 // Parameters:
 // - thread_count: Number of threads to set in the config for parallel processing
 // - stats: Reference to FunctionStats to track performance metrics (e.g., execution time, disk usage)
 // Description: Generates a 'neozork-config' JSON file with default settings for all supported blockchains
 
 // Function to read RPC endpoints and thread count from the config file for a specific blockchain
-std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::string& blockchain, FunctionStats& stats);
+std::pair<std::vector<struct_rpc_endpoint>, int> first_read_config_file(const std::string& blockchain, struct_function_stats& stats);
 // Parameters:
 // - blockchain: Name of the blockchain (e.g., "ethereum") to read config for
 // - stats: Reference to FunctionStats to track performance metrics
@@ -31,13 +31,13 @@ void show_config(std::string& blockchain_str);
 // Description: Reads 'neozork-config' and prints the settings (threads, RPC URLs, limits) for all blockchains
 
 // Function to display the results of a blockchain scan
-void show_scan_results(const std::vector<DexInfo>& dex_list);
+void show_scan_results(const std::vector<struct_dex_info>& dex_list);
 // Parameters:
 // - dex_list: Vector of DexInfo structures containing discovered DEX factory contracts
 // Description: Prints the list of found DEXes with their names, addresses, and pool counts
 
 // Function to save performance statistics to a file
-void save_scan_stats(const std::vector<std::pair<std::string, FunctionStats>>& stats_list);
+void save_scan_stats(const std::vector<std::pair<std::string, struct_function_stats>>& stats_list);
 // Parameters:
 // - stats_list: Vector of pairs containing function names and their performance stats
 // Description: Writes detailed performance metrics (time, memory, traffic) to 'neozork-scan-stat' in JSON format

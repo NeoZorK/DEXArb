@@ -22,7 +22,7 @@ enum class BlockchainType {
 };
 
 // Function to get default RPC endpoints for a blockchain
-std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain);
+std::vector<struct_rpc_endpoint> get_default_endpoints(BlockchainType chain);
 
 // Function to convert string to BlockchainType
 BlockchainType string_to_blockchain(const std::string& chain);

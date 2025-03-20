@@ -23,7 +23,7 @@ void get_pool_swap_stats_thread(const std::string& rpc_url,
                                 int total_pools) {
     
  // Local stats for this thread
-    FunctionStats stats;
+    struct_function_stats stats;
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();

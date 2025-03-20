@@ -12,7 +12,7 @@
 #include <chrono>       // For timing
 
 // Function to update performance stats
-void update_stats(FunctionStats& stats,
+void update_stats(struct_function_stats& stats,
                   const std::chrono::high_resolution_clock::time_point& start,
                   const std::chrono::high_resolution_clock::time_point& end,
                   size_t outbound_size,

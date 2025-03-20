@@ -22,7 +22,7 @@
 // - endpoint: RPC endpoint to test
 // - stats: Performance statistics
 // Returns: True if the endpoint is available, false otherwise
-bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats) {
+bool test_rpc_endpoint(const struct_rpc_endpoint& endpoint, struct_function_stats& stats) {
     
     // Construct a simple RPC payload to test connectivity
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":1}";
@@ -43,13 +43,13 @@ bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats) {
 // - mtx: Mutex for synchronizing access to shared dex_list
 // - dex_list: Vector to store discovered DEX factory contracts
 // - stats: Reference to FunctionStats for performance tracking
-void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints,
+void find_factory_contracts(const std::vector<struct_rpc_endpoint>& rpc_endpoints,
                             BlockchainType chain,
                             uint64_t scan_range,
                             int thread_count,
                             std::mutex& mtx,
-                            std::vector<DexInfo>& dex_list,
-                            FunctionStats& stats) {
+                            std::vector<struct_dex_info>& dex_list,
+                            struct_function_stats& stats) {
     
     // Record the start time for performance measurement
     auto start = std::chrono::high_resolution_clock::now();
@@ -64,7 +64,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints,
     }
 
     // Test and select a working RPC endpoint ( Default to first endpoint)
-    RpcEndpoint selected_endpoint = rpc_endpoints[0];
+    struct_rpc_endpoint selected_endpoint = rpc_endpoints[0];
     
     // Test each RPC endpoint
     bool endpoint_found = false;
@@ -100,7 +100,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints,
     }
 
     // Temporary stats object for fetching the latest block number
-    FunctionStats block_stats;
+    struct_function_stats block_stats;
     
     // Fetch the latest block number in hex format from the selected RPC endpoint
     std::string latest_block_hex = get_latest_block_number(selected_endpoint.url, selected_endpoint.request_limit, block_stats);
@@ -154,7 +154,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints,
         threads.emplace_back([&, start_block, end_block]() {
             
             // Local stats object for this thread
-            FunctionStats local_stats;
+            struct_function_stats local_stats;
             
             // Set to store unique factory addresses found in this thread
             std::set<std::string> local_factories;
@@ -334,10 +334,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints,
             for (const auto& addr : local_factories) {
                 
                 // Check if this address is already in the dex_list
-                if (std::find_if(dex_list.begin(), dex_list.end(), [&](const DexInfo& d) { return d.factory_address == addr; }) == dex_list.end()) {
+                if (std::find_if(dex_list.begin(), dex_list.end(), [&](const struct_dex_info& d) { return d.factory_address == addr; }) == dex_list.end()) {
                     
                     // Create a new DexInfo object
-                    DexInfo dex;
+                    struct_dex_info dex;
                     
                     // Set the factory address
                     dex.factory_address = addr;

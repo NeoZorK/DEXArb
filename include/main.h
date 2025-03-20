@@ -21,14 +21,14 @@ const std::string CYAN = "\033[36m";     // Cyan color for progress bars
 const std::string WHITE = "\033[37m";   // White color for emphasis
 
 // Structure for RPC endpoint details
-struct RpcEndpoint {
+struct struct_rpc_endpoint {
     std::string url;       // URL of the RPC endpoint
     int request_limit;     // Maximum requests per second allowed by the endpoint
     bool active;           // Active or Not, by default false (when created config)
 };
 
 // Structure for pool information
-struct PoolInfo {
+struct struct_pool_info {
     std::string address;   // Pool contract address
     std::string token0;    // Address of the first token in the pool
     std::string token1;    // Address of the second token in the pool
@@ -36,11 +36,11 @@ struct PoolInfo {
 };
 
 // Structure for DEX details
-struct DexInfo {
+struct struct_dex_info {
     std::string name;             // Name of the DEX (e.g., Uniswap)
     std::string factory_address;  // Factory contract address of the DEX
     uint64_t pool_count = 0;      // Number of pools managed by the factory
-    std::vector<PoolInfo> pools;  // List of pools associated with the DEX
+    std::vector<struct_pool_info> pools;  // List of pools associated with the DEX
     uint64_t liquidity = 0;       // Total liquidity across all pools
     uint64_t tvl = 0;             // Total Value Locked in the DEX
     uint64_t volume_24h = 0;      // 24-hour trading volume
@@ -48,7 +48,7 @@ struct DexInfo {
 };
 
 // Structure for performance statistics
-struct FunctionStats {
+struct struct_function_stats {
     double execution_time_ms = 0.0;   // Execution time of a function in milliseconds
     size_t virtual_memory_kb = 0;     // Virtual memory used in kilobytes
     size_t disk_usage_bytes = 0;      // Disk usage in bytes
@@ -62,12 +62,12 @@ struct FunctionStats {
 enum ENUM_TIME_UNITS {NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS};
 
 // Function to find arbitrage opportunities
-void findArbitrageOpportunity();
+void find_arbitrage_opportunity();
 
 // Start Time Measure
-void StartTimeMeasure();
+void start_time_measure();
 
 // Stop Time Measure
-void StopTimeMeasure(const ENUM_TIME_UNITS time_units);
+void stop_time_measure(const ENUM_TIME_UNITS time_units);
 
 #endif // MAIN_H

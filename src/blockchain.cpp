@@ -9,7 +9,7 @@
 #include <algorithm>        // For std::transform in string_to_blockchain
 
 // Return free RPC endpoints based on blockchain type
-std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
+std::vector<struct_rpc_endpoint> get_default_endpoints(BlockchainType chain) {
    
     // Limitations 30 req/s
     

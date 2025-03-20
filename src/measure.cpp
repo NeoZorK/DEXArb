@@ -8,7 +8,7 @@
 #include <iostream>         // For console I/O
 
 // Function to update stats
-void update_stats(FunctionStats& stats,
+void update_stats(struct_function_stats& stats,
                   const std::chrono::high_resolution_clock::time_point& start,
                   const std::chrono::high_resolution_clock::time_point& end,
                   size_t outbound_size,
@@ -30,12 +30,12 @@ void update_stats(FunctionStats& stats,
 static auto start_time = std::chrono::high_resolution_clock::now();
 
 // Function to start the timer
-void StartTimeMeasure() {
+void start_time_measure() {
     start_time = std::chrono::high_resolution_clock::now();
 }
 
 // Function to stop the timer
-void StopTimeMeasure(const ENUM_TIME_UNITS timeUnits) {
+void stop_time_measure(const ENUM_TIME_UNITS timeUnits) {
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
     

@@ -63,7 +63,7 @@ void show_help() {
 int main(int argc, char* argv[]) {
     
     // Start the Main timer
-    StartTimeMeasure();
+    start_time_measure();
    
     std::cout << "Starting NeoZorK, VERSION: "<<VERSION<<"\n";
     
@@ -95,10 +95,10 @@ int main(int argc, char* argv[]) {
     }
 
     // Load configuration and initialize stats (List to store function stats)
-    std::vector<std::pair<std::string, FunctionStats>> stats_list;
+    std::vector<std::pair<std::string, struct_function_stats>> stats_list;
     
     // Stats for different operations
-    FunctionStats config_stats, scan_stats, update_stats;
+    struct_function_stats config_stats, scan_stats, update_stats;
     
     // Read config file, if not exist -> Create neozork-config -> then read
     auto [rpc_endpoints, thread_count] = first_read_config_file(blockchain_str, config_stats);
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-showSCAN-STAT") {
             show_scan_stats();
         } else if (flag == "-showSCAN") {
-            std::vector<DexInfo> dex_list = load_dexes_from_config();
+            std::vector<struct_dex_info> dex_list = load_dexes_from_config();
             show_scan_results(dex_list);
         } else if (flag == "-showDEXES") {
             show_dexes(rpc_endpoints);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
             std::mutex mtx;
             
             // List to store found DEXes
-            std::vector<DexInfo> dex_list;
+            std::vector<struct_dex_info> dex_list;
             
             // Scan blocks for factories directly from blockchain
             find_factory_contracts(rpc_endpoints, blockchain, scan_range, thread_count, mtx, dex_list, scan_stats);
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
     
     
     // Stop the Main timer
-    StopTimeMeasure(MILLISECONDS);
+    stop_time_measure(MILLISECONDS);
     
     // Exit successfully
     return 0;

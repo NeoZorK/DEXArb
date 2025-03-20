@@ -11,12 +11,12 @@
 #include "main.h"       // For FunctionStats
 
 // Function to connect a wallet (stub)
-void connect_wallet(const std::string& private_key, FunctionStats& stats);
+void connect_wallet(const std::string& private_key, struct_function_stats& stats);
 
 // Function to disconnect a wallet (stub)
-void disconnect_wallet(FunctionStats& stats);
+void disconnect_wallet(struct_function_stats& stats);
 
 // Function to check wallet balance (stub)
-uint64_t check_wallet_balance(const std::string& token_address, FunctionStats& stats);
+uint64_t check_wallet_balance(const std::string& token_address, struct_function_stats& stats);
 
 #endif // WALLET_H

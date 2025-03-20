@@ -13,16 +13,16 @@
 #include <algorithm>        // For std::find_if
 
 // Load DEXes from config
-void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier) {
+void show_pools(const std::vector<struct_rpc_endpoint>& rpc_endpoints, const std::string& dex_identifier) {
     
     // Get DEX list
-    std::vector<DexInfo> dex_list = load_dexes_from_config();
+    std::vector<struct_dex_info> dex_list = load_dexes_from_config();
     
     // Find DEX
     auto it = std::find_if(dex_list.begin(),
                            dex_list.end(),
                            [&dex_identifier]
-                           (const DexInfo& dex)
+                           (const struct_dex_info& dex)
                            { return dex.name == dex_identifier
                             || dex.factory_address == dex_identifier;
                             }); // Find DEX
@@ -34,7 +34,7 @@ void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string
     }
     
     // Reference to found DEX
-    DexInfo& dex = *it;
+    struct_dex_info& dex = *it;
 
     // Fetch fresh pool data
     // Clear existing pools
@@ -44,7 +44,7 @@ void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string
     for (uint64_t i = 0; i < dex.pool_count; ++i) {
         
         // Stats for this operation
-        FunctionStats stats;
+        struct_function_stats stats;
         
         // Get pool address
         std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats);
@@ -74,14 +74,14 @@ void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string
 }
 
 // Load DEXes from config
-void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier) {
+void show_tokens(const std::vector<struct_rpc_endpoint>& rpc_endpoints, const std::string& dex_identifier) {
     
     // Get DEX list
-    std::vector<DexInfo> dex_list = load_dexes_from_config();
+    std::vector<struct_dex_info> dex_list = load_dexes_from_config();
     
     // Find DEX
     auto it = std::find_if(dex_list.begin(), dex_list.end(),
-                           [&dex_identifier](const DexInfo& dex) { return dex.name == dex_identifier || dex.factory_address == dex_identifier; });
+                           [&dex_identifier](const struct_dex_info& dex) { return dex.name == dex_identifier || dex.factory_address == dex_identifier; });
     
     // Check if DEX was found
     if (it == dex_list.end()) {
@@ -90,7 +90,7 @@ void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::strin
     }
     
     // Reference to found DEX
-    DexInfo& dex = *it;
+    struct_dex_info& dex = *it;
 
     // Fetch tokens and ensure uniqueness
     // List of unique tokens
@@ -103,7 +103,7 @@ void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::strin
     for (uint64_t i = 0; i < dex.pool_count; ++i) {
        
         // Stats for this operation
-        FunctionStats stats;
+        struct_function_stats stats;
         
         // Get pool address
         std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats);
@@ -134,14 +134,14 @@ void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::strin
 }
 
 // Load DEXes from config
-void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier, const std::string& token_address) {
+void find_token_in_dex(const std::vector<struct_rpc_endpoint>& rpc_endpoints, const std::string& dex_identifier, const std::string& token_address) {
     
     // Get DEX list
-    std::vector<DexInfo> dex_list = load_dexes_from_config();
+    std::vector<struct_dex_info> dex_list = load_dexes_from_config();
     
     // Find DEX
     auto it = std::find_if(dex_list.begin(), dex_list.end(),
-                           [&dex_identifier](const DexInfo& dex) { return dex.name == dex_identifier || dex.factory_address == dex_identifier; });
+                           [&dex_identifier](const struct_dex_info& dex) { return dex.name == dex_identifier || dex.factory_address == dex_identifier; });
     
     // Check if DEX was found
     if (it == dex_list.end()) {
@@ -150,7 +150,7 @@ void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std:
     }
     
     // Reference to found DEX
-    DexInfo& dex = *it;
+    struct_dex_info& dex = *it;
 
     // Search for token in pools
     // Clear existing pools
@@ -160,7 +160,7 @@ void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std:
     for (uint64_t i = 0; i < dex.pool_count; ++i) {
         
         // Stats for this operation
-        FunctionStats stats;
+        struct_function_stats stats;
         
         // Get pool address
         std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats);
@@ -194,10 +194,10 @@ void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std:
 }
 
 // Load DEXes from config
-void find_tokens_across_dexes(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& token_address) {
+void find_tokens_across_dexes(const std::vector<struct_rpc_endpoint>& rpc_endpoints, const std::string& token_address) {
    
     // Get DEX list
-    std::vector<DexInfo> dex_list = load_dexes_from_config();
+    std::vector<struct_dex_info> dex_list = load_dexes_from_config();
     
     // Loop through all DEXes
     for (auto& dex : dex_list) {
@@ -209,7 +209,7 @@ void find_tokens_across_dexes(const std::vector<RpcEndpoint>& rpc_endpoints, con
         for (uint64_t i = 0; i < dex.pool_count; ++i) {
             
             // Stats for this operation
-            FunctionStats stats;
+            struct_function_stats stats;
             
             // Get pool address
             std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats);
@@ -253,10 +253,10 @@ void find_tokens_across_dexes(const std::vector<RpcEndpoint>& rpc_endpoints, con
 }
 
 // Load and display all DEXes
-void show_dexes(const std::vector<RpcEndpoint>& rpc_endpoints) {
+void show_dexes(const std::vector<struct_rpc_endpoint>& rpc_endpoints) {
    
     // Get DEX list
-    std::vector<DexInfo> dex_list = load_dexes_from_config();
+    std::vector<struct_dex_info> dex_list = load_dexes_from_config();
     
     // Header
     std::cout << GREEN << "Found DEXes:" << RESET << '\n';

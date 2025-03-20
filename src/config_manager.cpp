@@ -21,10 +21,10 @@
 #endif
 
 // Function to load DEXes from config
-std::vector<DexInfo> load_dexes_from_config() {
+std::vector<struct_dex_info> load_dexes_from_config() {
     
     // Read config file
-    std::vector<DexInfo> dex_list;
+    std::vector<struct_dex_info> dex_list;
     
     // Open config file
     std::ifstream config_file("neozork-config");
@@ -84,7 +84,7 @@ std::vector<DexInfo> load_dexes_from_config() {
                 std::string factory_address = content.substr(addr_start, addr_end - addr_start);
 
                 // Fix: create object DexInfo и set only needed fields
-                DexInfo dex;
+                struct_dex_info dex;
                 
                 // Set name
                 dex.name = "Unknown_" + factory_address.substr(2, 6);
@@ -109,9 +109,9 @@ std::vector<DexInfo> load_dexes_from_config() {
 }
 
 // Function to update config with DEXes
-void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints,
-                            std::vector<DexInfo>& dex_list,
-                            FunctionStats& stats) {
+void update_config_with_dex(const std::vector<struct_rpc_endpoint>& rpc_endpoints,
+                            std::vector<struct_dex_info>& dex_list,
+                            struct_function_stats& stats) {
    
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
@@ -134,7 +134,7 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints,
 
     // Fetch latest block number for 24-hour range
     // Stats for block fetch
-    FunctionStats block_stats;
+    struct_function_stats block_stats;
     
     // Get latest block
     std::string latest_block = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats);

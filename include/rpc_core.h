@@ -45,7 +45,7 @@ void print_progress_bar(uint64_t current,
 // Returns: Latest block number in hex format or empty string if failed
 std::string get_latest_block_number(const std::string& rpc_url,
                                     int request_limit,
-                                    FunctionStats& stats);
+                                    struct_function_stats& stats);
 
 // Function to perform a generic RPC call to a blockchain
 // Parameters:
@@ -57,6 +57,6 @@ std::string get_latest_block_number(const std::string& rpc_url,
 std::string make_rpc_call(const std::string& rpc_url,
                           const std::string& payload,
                           int request_limit,
-                          FunctionStats& stats);
+                          struct_function_stats& stats);
 
 #endif // RPC_CORE_H

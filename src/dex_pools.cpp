@@ -13,7 +13,7 @@
 #include <iomanip>          // For hex formatting
 
 // Function to get the number of pools
-uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int request_limit, FunctionStats& stats) {
+uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int request_limit, struct_function_stats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
@@ -47,7 +47,7 @@ std::string get_pool_address(const std::string& rpc_url,
                              const std::string& factory_address,
                              uint64_t index,
                              int request_limit,
-                             FunctionStats& stats) {
+                             struct_function_stats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
@@ -84,7 +84,7 @@ std::string get_pool_address(const std::string& rpc_url,
 }
 
 // Function to get the liquidity of a pool
-uint64_t get_pool_liquidity(const std::string& rpc_url, const std::string& pool_address, int request_limit, FunctionStats& stats) {
+uint64_t get_pool_liquidity(const std::string& rpc_url, const std::string& pool_address, int request_limit, struct_function_stats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();

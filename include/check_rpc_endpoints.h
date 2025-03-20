@@ -9,6 +9,6 @@
 #define check_rpc_endpoints_h
 #include "main.h"
 
-void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints, std::string& blockchain);
+void preliminary_check_rpc_endpoints(std::vector<struct_rpc_endpoint>& rpc_endpoints, std::string& blockchain);
 
 #endif /* check_rpc_endpoints_h */

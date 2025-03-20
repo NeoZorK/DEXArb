@@ -16,7 +16,7 @@
 
 
 // Create Config File (neozork-config)
-void create_config_file(int thread_count, FunctionStats& stats) {
+void create_config_file(int thread_count, struct_function_stats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
@@ -121,13 +121,13 @@ void create_config_file(int thread_count, FunctionStats& stats) {
 }
 
 // Read Config File (neozork-config), if not exist -> create -> then read
-std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::string& blockchain, FunctionStats& stats) {
+std::pair<std::vector<struct_rpc_endpoint>, int> first_read_config_file(const std::string& blockchain, struct_function_stats& stats) {
     
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
     
     // List to store RPC endpoints
-    std::vector<RpcEndpoint> endpoints;
+    std::vector<struct_rpc_endpoint> endpoints;
     
     // Variable to store thread count
     int thread_count = 0;
@@ -379,7 +379,7 @@ void show_config(std::string& blockchain_str) {
 }
 
 // Display scan results
-void show_scan_results(const std::vector<DexInfo>& dex_list) {
+void show_scan_results(const std::vector<struct_dex_info>& dex_list) {
     
     // Header
     std::cout << GREEN << "DEX found after scanning:" << RESET << '\n';
@@ -393,7 +393,7 @@ void show_scan_results(const std::vector<DexInfo>& dex_list) {
 }
 
 // Open stats file for writing
-void save_scan_stats(const std::vector<std::pair<std::string, FunctionStats>>& stats_list) {
+void save_scan_stats(const std::vector<std::pair<std::string, struct_function_stats>>& stats_list) {
     
     // Open stats file
     std::ofstream stat_file("neozork-scan-stat");

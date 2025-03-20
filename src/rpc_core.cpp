@@ -104,7 +104,7 @@ void print_progress_bar(uint64_t current, uint64_t total, const std::string& lab
 // - request_limit: Maximum requests per second allowed by the endpoint
 // - stats: Reference to FunctionStats for performance tracking
 // Returns: Latest block number in hex format or empty string if failed
-std::string get_latest_block_number(const std::string& rpc_url, int request_limit, FunctionStats& stats) {
+std::string get_latest_block_number(const std::string& rpc_url, int request_limit, struct_function_stats& stats) {
     
     // Define the RPC payload to fetch the block number
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}";
@@ -120,7 +120,7 @@ std::string get_latest_block_number(const std::string& rpc_url, int request_limi
 // - request_limit: Maximum requests per second allowed by the endpoint
 // - stats: Reference to FunctionStats for performance tracking
 // Returns: Parsed result from the RPC response
-std::string make_rpc_call(const std::string& rpc_url, const std::string& payload, int request_limit, FunctionStats& stats) {
+std::string make_rpc_call(const std::string& rpc_url, const std::string& payload, int request_limit, struct_function_stats& stats) {
     
     // Record the start time for performance measurement
     auto start = std::chrono::high_resolution_clock::now();

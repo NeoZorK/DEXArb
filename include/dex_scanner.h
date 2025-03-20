@@ -17,7 +17,7 @@
 // - endpoint: RPC endpoint to test
 // - stats: Performance statistics
 // Returns: True if the endpoint is available, false otherwise
-bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats);
+bool test_rpc_endpoint(const struct_rpc_endpoint& endpoint, struct_function_stats& stats);
 
 // Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)
 // Parameters:
@@ -29,13 +29,13 @@ bool test_rpc_endpoint(const RpcEndpoint& endpoint, FunctionStats& stats);
 // - dex_list: Vector to store discovered DEX factory contracts
 // - stats: Reference to FunctionStats for performance tracking
 void find_factory_contracts(
-                            const std::vector<RpcEndpoint>& rpc_endpoints,
+                            const std::vector<struct_rpc_endpoint>& rpc_endpoints,
                             BlockchainType chain,
                             uint64_t scan_range,
                             int thread_count,
                             std::mutex& mtx,
-                            std::vector<DexInfo>& dex_list,
-                            FunctionStats& stats
+                            std::vector<struct_dex_info>& dex_list,
+                            struct_function_stats& stats
                             );
 
 #endif // DEX_SCANNER_H

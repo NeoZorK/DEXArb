@@ -11,9 +11,9 @@
 #include "main.h"       // For DexInfo, FunctionStats
 
 // Function to measure transaction speed and estimate profit (stub)
-void measure_tx_speed_and_profit(const std::vector<DexInfo>& dex_list, FunctionStats& stats);
+void measure_tx_speed_and_profit(const std::vector<struct_dex_info>& dex_list, struct_function_stats& stats);
 
 // Function to maximize profit with zero-loss guarantee (stub)
-void maximize_profit_zero_loss(const std::vector<DexInfo>& dex_list, uint64_t& max_profit, FunctionStats& stats);
+void maximize_profit_zero_loss(const std::vector<struct_dex_info>& dex_list, uint64_t& max_profit, struct_function_stats& stats);
 
 #endif // PROFIT_ANALYZER_H

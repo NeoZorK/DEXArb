@@ -8,22 +8,22 @@
 #include <iostream>         // For console output
 
 // Placeholder for arbitrage analysis logic
-void analyze_arbitrage_opportunities(const std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+void analyze_arbitrage_opportunities(const std::vector<struct_dex_info>& dex_list, struct_function_stats& stats) {
     std::cout << YELLOW << "Analyzing arbitrage opportunities (not implemented yet)" << RESET << '\n';
 }
 
 // Placeholder for manual arbitrage execution
-void execute_manual_arbitrage(const std::string& dex_name, const std::string& pool_address, uint64_t amount, FunctionStats& stats) {
+void execute_manual_arbitrage(const std::string& dex_name, const std::string& pool_address, uint64_t amount, struct_function_stats& stats) {
     std::cout << YELLOW << "Executing manual arbitrage on " << dex_name << " pool " << pool_address
               << " with amount " << amount << " (not implemented yet)" << RESET << '\n';
 }
 
 // Placeholder for automatic arbitrage execution
-void execute_auto_arbitrage(const std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+void execute_auto_arbitrage(const std::vector<struct_dex_info>& dex_list, struct_function_stats& stats) {
     std::cout << YELLOW << "Executing automatic arbitrage (not implemented yet)" << RESET << '\n';
 }
 
 // Placeholder for finding arbitrage opportunities
-void findArbitrageOpportunity() {
+void find_arbitrage_opportunity() {
     std::cout << "Searching for arbitrage opportunities...\n";
 }
