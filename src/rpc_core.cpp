@@ -65,21 +65,28 @@ void update1(const std::string& blockchain) {
         curl_easy_cleanup(curl);
         return;
     }
+    
+    // Cleanup CURL
     curl_easy_cleanup(curl);
     std::cout << "\n"; // Newline after progress bar
-
+    
     // Save downloaded content to chainlist-config
     std::ofstream chainlist_file("chainlist-config");
     if (!chainlist_file.is_open()) {
         std::cerr << RED << "Failed to create chainlist-config" << RESET << "\n";
         return;
     }
+    
+    
     chainlist_file << response;
     chainlist_file.close();
 
     auto end_download = std::chrono::high_resolution_clock::now();
     auto download_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_download - start_download).count();
 
+    std::cerr << GREEN << "CURL request performed: " << RESET << "\n";
+    std::cerr << GREEN << "Created chainlist-config"  << RESET << "\n";
+    
     // Start parsing
     auto start_parse = std::chrono::high_resolution_clock::now();
 
@@ -88,7 +95,8 @@ void update1(const std::string& blockchain) {
     if (!file.is_open()) {
         std::cerr << RED << "Error: neozork-config not found" << RESET << "\n";
         return;
-    }
+    } else     std::cerr << GREEN << "Opened neozork-config" << RESET << "\n";
+
 
     // Read neozork-config content
     std::string config_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -99,7 +107,7 @@ void update1(const std::string& blockchain) {
         std::cerr << RED << "Blockchain " << blockchain << " not found in neozork-config" << RESET << "\n";
         file.close();
         return;
-    }
+    } else std::cerr << GREEN << "Blockchain " << blockchain << " Found in neozork-config" << RESET << "\n";
 
     // Find RPC array in config
     size_t rpc_pos = config_content.find("\"rpc\": [", chain_pos);
@@ -129,10 +137,15 @@ void update1(const std::string& blockchain) {
         file.close();
         return;
     }
+    
+    std::cerr << BLUE << "Blockchain " << RED << blockchain << YELLOW << " ID is: " << CYAN <<chain_id<< RESET << "\n";
 
+    
     // Extract RPC and WSS from downloaded response with progress bar
     std::vector<struct_rpc_endpoint> new_endpoints;
     pos = response.find("\"" + chain_id + "\": [");
+    
+    
     if (pos != std::string::npos) {
         size_t rpcs_end = response.find("]", pos);
         std::string rpcs_section = response.substr(pos + chain_id.length() + 4, rpcs_end - pos - chain_id.length() - 4);
@@ -140,6 +153,7 @@ void update1(const std::string& blockchain) {
         size_t processed = 0;
 
         pos = 0;
+        
         while ((pos = rpcs_section.find("\"", pos)) != std::string::npos) {
             pos += 1;
             size_t url_end = rpcs_section.find('"', pos);
@@ -147,9 +161,14 @@ void update1(const std::string& blockchain) {
             if (url.find("wss://") == 0 || url.find("https://") == 0) {
                 new_endpoints.push_back({url, 30, false});
             }
+            
             processed = url_end;
             size_t progress = (processed * 100) / total_length;
+            
+            // Print progress bar
             std::cout << "\r" << BLUE << "Parsing RPCs: [";
+            
+            // Print progress bar
             for (size_t i = 0; i < 50; ++i) {
                 std::cout << (i < progress / 2 ? (std::string(YELLOW) + "#") : " ");
             }
@@ -174,7 +193,7 @@ void update1(const std::string& blockchain) {
         config_content.replace(rpc_pos + 8, rpc_end - rpc_pos - 8, updated_rpc);
         file.seekp(0);
         file << config_content;
-    }
+    } else std::cerr << BLUE << "Blockchain " << RED << blockchain << YELLOW << " There are NO New Endpoints" << RESET << "\n";
 
     file.close();
 
