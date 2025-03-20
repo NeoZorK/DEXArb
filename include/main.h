@@ -18,6 +18,7 @@ const std::string RED = "\033[31m";      // Red color for errors
 const std::string BLUE = "\033[34m";     // Blue color for info
 const std::string RESET = "\033[0m";     // Reset color to default
 const std::string CYAN = "\033[36m";     // Cyan color for progress bars
+const std::string WHITE = "\033[37m";   // White color for emphasis
 
 // Structure for RPC endpoint details
 struct RpcEndpoint {

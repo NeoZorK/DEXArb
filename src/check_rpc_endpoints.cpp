@@ -6,6 +6,7 @@
 //
 
 #include "check_rpc_endpoints.h"
+#include "main.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -28,7 +29,7 @@ size_t process_response_data(const std::string& contents, struct_response& respo
 }
 
 // Callback function to handle data received from CURL
-size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp) {
     
     // Cast userp to struct_response
     struct_response& response = *static_cast<struct_response*>(userp);
@@ -48,7 +49,7 @@ void check_connect_rpc(const std::string& url) {
     
     // Check if initialization was successful
     if (!curl_handle) {
-        std::cerr << "Failed to initialize CURL for " << url << std::endl;
+        std::cerr << RED <<  " Failed to initialize CURL for " << BLUE << url << RESET << std::endl;
         return;
     }
     
@@ -75,7 +76,7 @@ void check_connect_rpc(const std::string& url) {
     curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
     curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}");
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeCallback);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response);
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 
@@ -110,7 +111,7 @@ void check_connect_rpc(const std::string& url) {
     
     // Check for errors
     if (res != CURLE_OK) {
-        std::cerr << "RPC " << url << ": Error - " << curl_easy_strerror(res) << std::endl;
+        std::cerr << RED << "RPC "<< BLUE << url << RED << ": Error - " << curl_easy_strerror(res) << RESET << std::endl;
         return;
     }
 
@@ -122,10 +123,12 @@ void check_connect_rpc(const std::string& url) {
     
     // Check if the response code is 200
     if (http_code == 200 && response.data.find("result") != std::string::npos) {
-        std::cout << "RPC " << url << ": Available Answer " << response.data << std::endl;
+        
+        // Print the response
+        std::cout << GREEN << "RPC " << CYAN << url << GREEN << ": Available Answer " << WHITE << response.data << RESET << std::endl;
     } else {
-        std::cerr << "RPC " << url << ": Not Available or wrong answer - HTTP " << http_code
-                  << ", Answer: " << response.data << std::endl;
+        std::cerr << RED << "RPC " << BLUE << url << RED <<": Not Available or wrong answer - HTTP " << http_code
+                  << ", Answer: " << WHITE << response.data << RESET << std::endl;
     }
 }
 
@@ -156,7 +159,7 @@ void check_rpc_endpoints() {
 
     // Check each RPC endpoint
     for (const auto& endpoint : rpc_endpoints) {
-        std::cout << "Checking " << endpoint << "..." << std::endl;
+        std::cout << YELLOW << "Checking " << BLUE << endpoint << GREEN << "..." << RESET << std::endl;
         check_connect_rpc(endpoint);
     }
 
