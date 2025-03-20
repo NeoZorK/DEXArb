@@ -178,8 +178,8 @@ std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::strin
         // Move past "rpc": [
         size_t pos = rpc_pos + 8;
         
-        // Loop through RPC entries
-        while (pos < rpc_end) {
+        // Loop through RPC entries (change 1)
+        while (pos < rpc_end && content.find("\"url\": \"", pos) <= rpc_end) {
             
             // Find URL field
             size_t url_start = content.find("\"url\": \"", pos) + 8;
@@ -213,22 +213,17 @@ std::pair<std::vector<RpcEndpoint>, int> first_read_config_file(const std::strin
             active_str.erase(0, active_str.find_first_not_of(" \t"));
             active_str.erase(active_str.find_last_not_of(" \t") + 1);
             
-            // Convert to bool
-            bool active;
-            if (active_str == "true") {
-                active = true;
-            } else if (active_str == "false") {
-                active = false;
-            } else active = "unknown";
+            // Convert to bool (измененная строка 2)
+            bool active = (active_str == "1" || active_str == "true");
             
             // Add endpoint to list
             endpoints.push_back({url, limit, active});
             
-            // Move to next entry
-            pos = content.find("{", pos + 1);
-            
-            // Exit if no more entries
-            if (pos == std::string::npos) break;
+            // Move to next entry (change 3)
+            pos = active_end + 1;
+                        
+            // Exit if no more entries (change 4)
+            if (pos >= rpc_end) break; 
         }
     }
     
