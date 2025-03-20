@@ -12,6 +12,76 @@
 #include <vector>
 #include <curl/curl.h>
 #include <functional>
+#include <fstream>
+
+// Function to set the "active" field for a specific URL in neozork-config
+void set_active_endpoint(const std::string& blockchain, const std::string& url, bool activate) {
+    
+    // Open file for both reading and writing
+    std::fstream file("neozork-config", std::ios::in | std::ios::out);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open neozork-config for reading and writing");
+    }
+
+    // Read file content into a string
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    // Find blockchain section
+    size_t chain_pos = content.find("\"" + blockchain + "\": {");
+    if (chain_pos == std::string::npos) {
+        file.close();
+        throw std::runtime_error("Blockchain " + blockchain + " not found in config");
+    }
+
+    // Find RPC array
+    size_t rpc_pos = content.find("\"rpc\": [", chain_pos);
+    if (rpc_pos == std::string::npos) {
+        file.close();
+        throw std::runtime_error("RPC array not found in " + blockchain + " section");
+    }
+
+    // Find end of RPC array
+    size_t rpc_end = content.find("]", rpc_pos);
+    if (rpc_end == std::string::npos) {
+        file.close();
+        throw std::runtime_error("Invalid RPC array end");
+    }
+
+    // Find the specific URL within the RPC array
+    size_t url_pos = content.find("\"url\": \"" + url + "\"", rpc_pos);
+    if (url_pos == std::string::npos || url_pos >= rpc_end) {
+        file.close();
+        throw std::runtime_error("URL " + url + " not found in " + blockchain + " RPC array");
+    }
+
+    // Find "active" field after the URL
+    size_t active_pos = content.find("\"active\": ", url_pos);
+    if (active_pos == std::string::npos || active_pos >= rpc_end) {
+        file.close();
+        throw std::runtime_error("Field 'active' not found for URL " + url);
+    }
+
+    // Move to the value position after "active":
+    size_t value_pos = active_pos + 9;
+    size_t value_end = content.find_first_of(",}", value_pos);
+    std::string current_value = content.substr(value_pos, value_end - value_pos);
+    current_value.erase(0, current_value.find_first_not_of(" \t"));
+    current_value.erase(current_value.find_last_not_of(" \t") + 1);
+
+    // Replace the value with "1" or "0" based on activate flag
+    std::string new_value = activate ? " 1" : " 0";
+    if (current_value != new_value) {
+        content.replace(value_pos, value_end - value_pos, new_value);
+
+        // Move file pointer to the beginning and write updated content
+        file.seekp(0);
+        file << content;
+    }
+
+    // Close the file
+    file.close();
+}
+
 
 // Using std::string to avoid manual memory management
 struct struct_response {
@@ -42,7 +112,7 @@ size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 // Function to check the RPC endpoint
-void check_connect_rpc(const std::string& url) {
+void check_connect_rpc(const std::string& url, std::string& blockchain_str) {
     
     // Initialize CURL
     CURL* curl_handle = curl_easy_init();
@@ -124,16 +194,24 @@ void check_connect_rpc(const std::string& url) {
     // Check if the response code is 200
     if (http_code == 200 && response.data.find("result") != std::string::npos) {
         
+        // mark Active RPC
+        set_active_endpoint(blockchain_str, url, true);
+        
         // Print the response
         std::cout << GREEN << "RPC " << CYAN << url << GREEN << ": Available Answer " << WHITE << response.data << RESET << std::endl;
     } else {
+        
+        // mark NOT Active RPC
+        set_active_endpoint(blockchain_str, url, false);
+        
+        // Print the response
         std::cerr << RED << "RPC " << BLUE << url << RED <<": Not Available or wrong answer - HTTP " << http_code
                   << ", Answer: " << WHITE << response.data << RESET << std::endl;
     }
 }
 
 // Function to check all RPC endpoints
-void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints) {
+void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints, std::string& blockchain_str) {
 
     // Initialize CURL
     curl_global_init(CURL_GLOBAL_ALL);
@@ -161,7 +239,9 @@ void preliminary_check_rpc_endpoints(std::vector<RpcEndpoint>& rpc_endpoints) {
         
         // Print the RPC endpoint
         std::cout << std::to_string(url_index) << YELLOW << " >> Checking " << BLUE << endpoint.url << GREEN << "..." << RESET << std::endl;
-        check_connect_rpc(endpoint.url);
+        
+        // Check RPC
+        check_connect_rpc(endpoint.url, blockchain_str);
     }
 
     // Cleanup CURL
