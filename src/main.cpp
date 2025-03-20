@@ -44,7 +44,7 @@ void show_help() {
     // calculate arbitrage opportunities (included latency, fee, gas, slippage)
     // connect wallets
     // try to buy\sell +profit
-    // automate ->
+    
     //
     std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
     //
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
     
     
     // Stop the Main timer
-    StopTimeMeasure(MICROSECONDS);
+    StopTimeMeasure(MILLISECONDS);
     
     // Exit successfully
     return 0;
