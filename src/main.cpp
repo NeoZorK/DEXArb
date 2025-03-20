@@ -59,6 +59,21 @@ void show_help() {
     std::cout << BLUE << "  -findTOKENS <blockchain> <token>" << RESET << ": Find token across DEXes\n";
 }
 
+
+Перенастроить парсер, чтоб функция update1 находила FANTOM OPERA и все URL внутри!
+А также === "name": "Fantom Testnet" 
+"name": "Fantom Opera",
+ "chain": "FTM",
+ "rpc": [
+   {
+     "url": "https://rpcapi.fantom.network"
+},
+     "name": "Fantom Testnet",
+     "chain": "FTM",
+     "rpc": [
+       {
+         "url": "https://rpc.testnet.fantom.network"
+
 //
 //          MAIN FUNCTION
 //
