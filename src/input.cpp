@@ -50,8 +50,15 @@ void create_config_file(int thread_count, FunctionStats& stats) {
             for (size_t i = 0; i < endpoints.size(); ++i) {
                 
                 // Write endpoint
-                config_file << "      {\"url\": \"" << endpoints[i].url << "\", \"limit\": " << endpoints[i].request_limit << "}"
-                            << (i < endpoints.size() - 1 ? "," : "") << "\n";
+                config_file << "      {\"url\": \""
+                            << endpoints[i].url
+                            << "\", \"limit\": "
+                            << endpoints[i].request_limit
+                            << ", \"active\": "
+                            << endpoints[i].active
+                            << "}"
+                            << (i < endpoints.size() - 1 ? "," : "")
+                            << "\n";
             }
             
             // Close RPC array

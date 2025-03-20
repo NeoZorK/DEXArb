@@ -23,6 +23,7 @@ const std::string CYAN = "\033[36m";     // Cyan color for progress bars
 struct RpcEndpoint {
     std::string url;       // URL of the RPC endpoint
     int request_limit;     // Maximum requests per second allowed by the endpoint
+    bool active;           // Active or Not, by default false (when created config)
 };
 
 // Structure for pool information

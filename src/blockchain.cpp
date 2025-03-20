@@ -17,41 +17,53 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
     switch (chain) {
         case BlockchainType::Ethereum:
             return {
-                {"https://rpc.ankr.com/eth", 20},
-                {"https://rpc.ankr.com/eth_goerli", 30},
-                {"https://rpc.ankr.com/eth_ropsten", 30},
-                {"https://rpc.ankr.com/eth_rinkeby", 30},
-                {"https://rpc.ankr.com/eth_kotti", 30},
-                {"https://rpc.ankr.com/eth_sepolia", 30},
-                {"https://rpc.ankr.com/eth_goerli", 30},
-                {"https://eth.llamarpc.com", 25},
-                {"https://eth-mainnet.public.blastapi.io", 30},
-                {"https://eth-goerli.public.blastapi.io", 30},
-                {"https://eth-ropsten.public.blastapi.io", 30},
-                {"https://eth-rinkeby.public.blastapi.io", 30},
-                {"https://eth-kotti.public.blastapi.io", 30},
-                {"https://eth-sepolia.public.blastapi.io", 30}
+                {"https://rpc.ankr.com/eth", 20, false},
+                {"https://rpc.ankr.com/eth_goerli", 30, false},
+                {"https://rpc.ankr.com/eth_ropsten", 30, false},
+                {"https://rpc.ankr.com/eth_rinkeby", 30, false},
+                {"https://rpc.ankr.com/eth_kotti", 30, false},
+                {"https://rpc.ankr.com/eth_sepolia", 30, false},
+                {"https://rpc.ankr.com/eth_goerli", 30, false},
+                {"https://eth.llamarpc.com", 25, false},
+                {"https://eth-mainnet.public.blastapi.io", 30, false},
+                {"https://eth-goerli.public.blastapi.io", 30, false},
+                {"https://eth-ropsten.public.blastapi.io", 30, false},
+                {"https://eth-rinkeby.public.blastapi.io", 30, false},
+                {"https://eth-kotti.public.blastapi.io", 30, false},
+                {"https://eth-sepolia.public.blastapi.io", 30, false}
             };
         case BlockchainType::Fantom:
             return {
-                {"https://rpc.ftm.tools/", 3},
-                {"https://rpc.ankr.com/fantom", 30},// need api key
-                {"https://rpc.ankr.com/fantom_testnet", 30},
-                {"https://rpc.testnet.fantom.network", 30},
-                {"https://fantom.publicnode.com", 3},
-                {"https://fantom-mainnet-rpc.coinsdo.com",3},
-                {"https://fantom-mainnet.public.blastapi.io",25},
-                {"https://1rpc.io/ftm",1}, // ban 1 month if exceeded
-                {"https://rpc.ankr.com/sonic",10}
+                {"https://rpc.ftm.tools/", 3, false},
+                {"https://rpc.ankr.com/fantom", 30, false},// need api key
+                {"https://rpc.ankr.com/fantom_testnet", 30, false},
+                {"https://rpc.testnet.fantom.network", 30, false},
+                {"https://fantom.publicnode.com", 3, false},
+                {"https://fantom-mainnet-rpc.coinsdo.com",3, false},
+                {"https://fantom-mainnet.public.blastapi.io",25, false},
+                {"https://1rpc.io/ftm",1, false}, // ban 1 month if exceeded
+                {"https://rpc.ankr.com/sonic",10, false}
             };
         case BlockchainType::BSC:
-            return {{"https://bsc-dataseed.binance.org", 50}, {"https://rpc.ankr.com/bsc", 30}};
+            return {
+                {"https://bsc-dataseed.binance.org", 50, false},
+                {"https://rpc.ankr.com/bsc", 30, false}
+            };
         case BlockchainType::Polygon:
-            return {{"https://polygon-rpc.com", 50}, {"https://rpc.ankr.com/polygon", 30}};
+            return {
+                {"https://polygon-rpc.com", 50, false},
+                {"https://rpc.ankr.com/polygon", 30, false}
+            };
         case BlockchainType::Avalanche:
-            return {{"https://rpc.ankr.com/avalanche", 20}, {"https://api.avax.network/ext/bc/C/rpc", 25}};
+            return {
+                {"https://rpc.ankr.com/avalanche", 20, false},
+                {"https://api.avax.network/ext/bc/C/rpc", 25, false}
+            };
         case BlockchainType::Solana:
-            return {{"https://api.mainnet-beta.solana.com", 100}, {"https://solana-mainnet.rpc.extrnode.com", 50}};
+            return {
+                {"https://api.mainnet-beta.solana.com", 100, false},
+                {"https://solana-mainnet.rpc.extrnode.com", 50, false}
+            };
         default:
             return {};  // Return empty vector for unsupported chains
     }
