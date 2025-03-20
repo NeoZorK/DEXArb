@@ -194,13 +194,35 @@ std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blo
             size_t limit_start = content.find("\"limit\": ", url_end) + 9;
             
             // Find end of limit
-            size_t limit_end = content.find_first_of(",}", limit_start);
+            size_t limit_end = content.find_first_of(",", limit_start);
             
             // Extract limit
             int limit = std::stoi(content.substr(limit_start, limit_end - limit_start));
             
+            // Find active field
+            size_t active_start = content.find("\"active\": ", pos) + 10;
+            
+            // Find end of active
+            size_t active_end = content.find_first_of("}", active_start);
+            
+            // Extract active string
+            std::string active_str = content.substr(active_start, active_end - active_start);
+            
+            // Extract active value and convert to bool\
+            // Remove leading and trailing spaces
+            active_str.erase(0, active_str.find_first_not_of(" \t"));
+            active_str.erase(active_str.find_last_not_of(" \t") + 1);
+            
+            // Convert to bool
+            bool active;
+            if (active_str == "true") {
+                active = true;
+            } else if (active_str == "false") {
+                active = false;
+            } else active = "unknown";
+            
             // Add endpoint to list
-            endpoints.push_back({url, limit});
+            endpoints.push_back({url, limit, active});
             
             // Move to next entry
             pos = content.find("{", pos + 1);
