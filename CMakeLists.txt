@@ -25,6 +25,8 @@ add_executable(NeoZorKDEXArb
     src/arbitrage.cpp
     src/wallet.cpp
     src/profit_analyzer.cpp
+    src/config_get.cpp
+    Src/preliminary_check_rpc_endpoints.cpp
 )
 
 # Include directories (header files in include folder)

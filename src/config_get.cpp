@@ -4,22 +4,14 @@
 //
 //  Created by Rostyslav S. on 20.03.2025.
 //
-
-#include "config_get.h"
 #include "main.h"
+#include "config_get.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <chrono>
 #include <curl/curl.h>
-
-// Structure for RPC endpoint details
-struct RpcEndpoint {
-    std::string url;
-    int request_limit = 30; // Default request limit
-    bool active = false;    // Default inactive state
-};
 
 // Callback function to write CURL response data and update progress bar
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
@@ -34,7 +26,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* use
         last_progress = progress;
         std::cout << "\r" << YELLOW << "Downloading chainlist-config: [";
         for (size_t i = 0; i < 50; ++i) {
-            std::cout << (i < progress / 2 ? GREEN "#" : " ");
+            std::cout << (i < progress / 2 ? (std::string(GREEN) + "#") : " ");
         }
         std::cout << "] " << progress << "%" << RESET << std::flush;
     }
@@ -42,7 +34,8 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* use
 }
 
 // Function to fetch RPC/WSS from chainlist.org and update neozork-config
-void update_rpc_from_chainlist(const std::string& blockchain) {
+void update_rpc1(const std::string& blockchain) {
+    // Start downloading
     auto start_download = std::chrono::high_resolution_clock::now();
 
     // Initialize CURL
@@ -135,7 +128,7 @@ void update_rpc_from_chainlist(const std::string& blockchain) {
     }
 
     // Extract RPC and WSS from downloaded response with progress bar
-    std::vector<RpcEndpoint> new_endpoints;
+    std::vector<struct_rpc_endpoint> new_endpoints;
     pos = response.find("\"" + chain_id + "\": [");
     if (pos != std::string::npos) {
         size_t rpcs_end = response.find("]", pos);
@@ -149,13 +142,13 @@ void update_rpc_from_chainlist(const std::string& blockchain) {
             size_t url_end = rpcs_section.find('"', pos);
             std::string url = rpcs_section.substr(pos, url_end - pos);
             if (url.find("wss://") == 0 || url.find("https://") == 0) {
-                new_endpoints.push_back({url});
+                new_endpoints.push_back({url, 30, false});
             }
             processed = url_end;
             size_t progress = (processed * 100) / total_length;
             std::cout << "\r" << BLUE << "Parsing RPCs: [";
             for (size_t i = 0; i < 50; ++i) {
-                std::cout << (i < progress / 2 ? YELLOW "#" : " ");
+                std::cout << (i < progress / 2 ? (std::string(YELLOW) + "#") : " ");
             }
             std::cout << "] " << progress << "%" << RESET << std::flush;
             pos = url_end + 1;
@@ -188,10 +181,4 @@ void update_rpc_from_chainlist(const std::string& blockchain) {
     // Display timing results
     std::cout << GREEN << "Download time: " << YELLOW << download_time << " ms" << RESET << "\n";
     std::cout << GREEN << "Parse time: " << YELLOW << parse_time << " ms" << RESET << "\n";
-}
-
-// Example usage
-int main() {
-    update_rpc_from_chainlist("bsc");
-    return 0;
 }

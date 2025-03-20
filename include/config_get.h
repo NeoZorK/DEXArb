@@ -1,13 +1,17 @@
 //
-//  config_get.hpp
+//  config_get.h
 //  NeoZorKDEXArb
 //
 //  Created by Rostyslav S. on 20.03.2025.
 //
 
-#ifndef config_get_hpp
-#define config_get_hpp
+#ifndef CONFIG_GET_H
+#define CONFIG_GET_H
 
-#include <stdio.h>
+#include "main.h"
+#include <string>
 
-#endif /* config_get_hpp */
+// Update RPC from chainlist
+void update_rpc_from_chainlist(const std::string& blockchain);
+
+#endif // CONFIG_GET_H

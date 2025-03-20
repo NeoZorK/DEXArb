@@ -5,6 +5,7 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"           // For shared structures and constants
+#include "config_get.h"     // For get_rpc_list online
 #include "check_rpc_endpoints.h" // For checking rpc endpoints
 #include "blockchain.h"     // For BlockchainType and functions
 #include "dex_scanner.h"    // For find_factory_contracts
@@ -21,10 +22,10 @@ void show_help() {
     std::cout << GREEN << "Usage: NeoZorK [flag] <blockchain> [value]" << RESET << '\n';
     std::cout << YELLOW << "Supported blockchains: Ethereum, Fantom, BSC, Polygon, Avalanche, Solana" << RESET << '\n';
     std::cout << YELLOW << "Flags:" << RESET << '\n';
-    std::cout << BLUE << "  -config <blockchain>" << RESET << ": Show blockchain config settings\n"; // V
-    std::cout << BLUE << "  -configGET <blockchain>" << RESET << ": Get rpc list online\n"; // X
-    std::cout << BLUE << "  -ping   <blockchain>" << RESET << ": test RPC connections to blockchain\n"; // V
-    std::cout << BLUE << "  -configActive <blockchain>" << RESET << ": Show only ACTIVE blockchain\n"; // X
+    std::cout << BLUE << "  -config " << RED << "       <blockchain>" << RESET << ": Show blockchain config settings\n"; // V
+    std::cout << BLUE << "  -configGET " << RED << "    <blockchain>" << RESET << ": Get RPC list online\n"; // X
+    std::cout << BLUE << "  -ping " << RED << "         <blockchain>" << RESET << ": Test RPC connections to blockchain\n"; // V
+    std::cout << BLUE << "  -configActive " << RED << " <blockchain>" << RESET << ": Show only ACTIVE blockchain\n"; // X
     // TODO:::
     //
     // Get rpc list online -> add new to config file
@@ -44,9 +45,9 @@ void show_help() {
     // calculate arbitrage opportunities (included latency, fee, gas, slippage)
     // connect wallets
     // try to buy\sell +profit
-    
     //
-    std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
+    //
+    std::cout << BLUE << "  -scan" << RED << "          <blockchain>" << YELLOW << "    <blocks>" << RESET << " : Scan last <blocks> (1000-1000000)\n";
     //
     std::cout << BLUE << "  -showSCAN <blockchain>" << RESET << ": Show scan results\n";
     std::cout << BLUE << "  -showSCAN-STAT <blockchain>" << RESET << ": Show scan stats\n";
@@ -116,6 +117,8 @@ int main(int argc, char* argv[]) {
     if (argc == 3) {
         if (flag == "-config") {
             show_config(blockchain_str);
+        } else if (flag == "-configGET") {
+          //  update_rpc_from_chainlist(blockchain_str);
         } else if (flag == "-ping") {
             preliminary_check_rpc_endpoints(rpc_endpoints, blockchain_str);
         } else if (flag == "-showSCAN-STAT") {
