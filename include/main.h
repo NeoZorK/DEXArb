@@ -10,6 +10,8 @@
 #include <string>           // For string handling in structures
 #include <vector>           // For dynamic arrays in structures
 #include <chrono>           // For timing in FunctionStats
+#include "json.hpp"         // nlohman json parsing
+#include "httplib.h"        // HTTP library for making HTTP requests
 
 // ANSI color codes for console output
 const std::string GREEN = "\033[32m";    // Green color for success messages
