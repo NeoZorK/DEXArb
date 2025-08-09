@@ -33,7 +33,7 @@ void create_config_file(int thread_count, FunctionStats& stats) {
             }
             config_file << "    ],\n"; // Close RPC array
             config_file << "    \"dex\": []\n"; // Empty DEX array
-            // Исправление: преобразование chain в std::string для корректного сравнения
+            // Fix: convert chain to std::string for correct comparison
             config_file << "  }" << (std::string(chain) != "solana" ? "," : "") << "\n"; // Close blockchain section
         }
         config_file << "}\n"; // Close JSON object

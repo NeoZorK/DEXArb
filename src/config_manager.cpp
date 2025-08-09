@@ -45,7 +45,7 @@ std::vector<DexInfo> load_dexes_from_config() {
                 size_t addr_end = content.find('"', addr_start); // Find end of address
                 std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
 
-                // Исправление: создаём объект DexInfo и задаём только нужные поля
+                // Fix: create DexInfo object and set only required fields
                 DexInfo dex;
                 dex.name = "Unknown_" + factory_address.substr(2, 6);
                 dex.factory_address = factory_address;

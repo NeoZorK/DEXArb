@@ -1,18 +1,17 @@
 {
-  "version": 3,
-  "configurePresets": [
-    {
-      "name": "macos-xcode",
-      "generator": "Xcode",
-      "binaryDir": "${sourceDir}/build"
-    },
-    {
-      "name": "linux-make",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build"
-    }
-  ]
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "Clang 17.0.0 arm64-apple-darwin24.6.0",
+            "displayName": "Clang 17.0.0 arm64-apple-darwin24.6.0",
+            "description": "Using compilers: C = /usr/bin/clang, CXX = /usr/bin/clang++",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
 }
-
-# use: cmake --preset macos-xcode 
-#   or cmake --preset linux-make.

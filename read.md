@@ -1,5 +1,6 @@
-**NeoZorKDEXArb** — это консольное приложение на C++, разработанное для сканирования, анализа и потенциального использования возможностей арбитража на децентрализованных биржах (DEX) в различных блокчейнах, таких как Ethereum, Fantom, Binance Smart Chain (BSC), Polygon, Avalanche и Solana. Программа предоставляет пользователям инструменты для обнаружения заводских контрактов DEX, анализа пулов ликвидности, токенов, статистики торгов, а также выполнения запросов к блокчейнам через бесплатные RPC-узлы. Проект ориентирован на кроссплатформенность, производительность и минимальные зависимости, что делает его легким для развертывания и тестирования.
-Все платные ноды (например, Infura) исключены, заменены на бесплатные общедоступные RPC-узлы:
+**NeoZorKDEXArb** — is a console application written in C++, designed for scanning, analyzing, and potentially utilizing arbitrage opportunities on decentralized exchanges (DEX) across various blockchains such as Ethereum, Fantom, Binance Smart Chain (BSC), Polygon, Avalanche, and Solana. The program provides users with tools for discovering DEX factory contracts, analyzing liquidity pools, tokens, trading statistics, as well as executing queries to blockchains through free RPC nodes. The project focuses on cross-platform compatibility, performance, and minimal dependencies, making it easy to deploy and test.
+
+All paid nodes (e.g., Infura) are excluded and replaced with free public RPC nodes:
 
 Ethereum: rpc.ankr.com/eth, eth.llamarpc.com
 Fantom: rpc.ftm.tools, rpc.ankr.com/fantom
@@ -8,92 +9,92 @@ Polygon: polygon-rpc.com, rpc.ankr.com/polygon
 Avalanche: rpc.ankr.com/avalanche, api.avax.network/ext/bc/C/rpc
 Solana: api.mainnet-beta.solana.com, solana-mainnet.rpc.extrnode.com
 
-#### Основные функции
-1. **Сканирование блокчейна**:
-   - Программа сканирует заданный диапазон блоков (от 1000 до 1 000 000) для поиска заводских контрактов DEX (например, Uniswap, PancakeSwap).
-   - Использует многопоточность для ускорения процесса, распределяя блоки между потоками.
-   - Идентифицирует события создания пулов (PairCreated, PoolCreated) по их сигнатурам.
+#### Main Features
+1. **Blockchain Scanning**:
+   - The program scans a specified block range (from 1000 to 1,000,000) to find DEX factory contracts (e.g., Uniswap, PancakeSwap).
+   - Uses multithreading to accelerate the process by distributing blocks across threads.
+   - Identifies pool creation events (PairCreated, PoolCreated) by their signatures.
 
-2. **Анализ DEX**:
-   - Собирает данные о пулах ликвидности, токенах, объеме торгов за 24 часа и общем заблокированном значении (TVL).
-   - Поддерживает запросы к заводским контрактам для получения адресов пулов и их характеристик.
+2. **DEX Analysis**:
+   - Collects data on liquidity pools, tokens, 24-hour trading volume, and total value locked (TVL).
+   - Supports queries to factory contracts to obtain pool addresses and their characteristics.
 
-3. **Конфигурация**:
-   - Читает настройки из файла `neozork-config` в формате JSON, включая количество потоков и RPC-узлы.
-   - Автоматически создает файл конфигурации с бесплатными RPC-узлами, если он отсутствует.
+3. **Configuration**:
+   - Reads settings from a `neozork-config` file in JSON format, including thread count and RPC nodes.
+   - Automatically creates a configuration file with free RPC nodes if it doesn't exist.
 
-4. **Запросы и вывод данных**:
-   - Поддерживает команды для отображения информации о DEX, пулах, токенах и поиска конкретных токенов.
-   - Выводит статистику производительности (время выполнения, использование сети, дисковое пространство) в файл `neozork-scan-stat`.
+4. **Queries and Data Output**:
+   - Supports commands for displaying DEX information, pools, tokens, and searching for specific tokens.
+   - Outputs performance statistics (execution time, network usage, disk space) to the `neozork-scan-stat` file.
 
-5. **Арбитраж (заглушка)**:
-   - Включает функции для анализа и выполнения арбитражных операций (пока не реализованы полностью).
+5. **Arbitrage (stub)**:
+   - Includes functions for analyzing and executing arbitrage operations (not fully implemented yet).
 
-#### Как работает программа
-1. **Запуск и аргументы командной строки**:
-   - Программа запускается с флагами, такими как `-scan`, `-showDEXES`, `-showPOOLS`, и требует указания блокчейна (например, `ethereum`) и, при необходимости, дополнительных параметров (например, диапазон блоков).
-   - Пример: `./neozork -scan ethereum 1000` сканирует последние 1000 блоков Ethereum.
+#### How the Program Works
+1. **Launch and Command Line Arguments**:
+   - The program is launched with flags such as `-scan`, `-showDEXES`, `-showPOOLS`, and requires specifying a blockchain (e.g., `ethereum`) and, if necessary, additional parameters (e.g., block range).
+   - Example: `./neozork -scan ethereum 1000` scans the last 1000 blocks of Ethereum.
 
-2. **Чтение конфигурации**:
-   - При запуске программа проверяет наличие файла `neozork-config`. Если его нет, создается файл с настройками по умолчанию (3 потока, бесплатные RPC-узлы).
-   - Конфигурация содержит секции для каждого блокчейна с указанием RPC-узлов и их лимитов запросов.
+2. **Configuration Reading**:
+   - Upon startup, the program checks for the presence of the `neozork-config` file. If it doesn't exist, a file with default settings is created (3 threads, free RPC nodes).
+   - The configuration contains sections for each blockchain with specified RPC nodes and their request limits.
 
-3. **Сканирование блокчейна**:
-   - Использует RPC-метод `eth_getBlockByNumber` для получения данных о блоках.
-   - Анализирует транзакции и логи в каждом блоке, проверяя сигнатуры событий создания пулов.
-   - Найденные заводские контракты сохраняются в список `DexInfo`.
+3. **Blockchain Scanning**:
+   - Uses the RPC method `eth_getBlockByNumber` to retrieve block data.
+   - Analyzes transactions and logs in each block, checking for pool creation event signatures.
+   - Found factory contracts are saved to the `DexInfo` list.
 
-4. **Обработка данных**:
-   - Для каждого найденного заводского контракта запрашивается количество пулов (`allPairsLength`), адреса пулов (`allPairs(index)`), токены пула (`token0`, `token1`) и ликвидность (`getReserves`).
-   - Статистика торгов за 24 часа собирается через `eth_getLogs` с фильтром на событие `Swap`.
+4. **Data Processing**:
+   - For each found factory contract, the number of pools (`allPairsLength`), pool addresses (`allPairs(index)`), pool tokens (`token0`, `token1`), and liquidity (`getReserves`) are requested.
+   - 24-hour trading statistics are collected via `eth_getLogs` with a filter on the `Swap` event.
 
-5. **Многопоточность**:
-   - Сканирование блоков и сбор статистики пулов распределяются между потоками (количество задается в конфиге).
-   - Используется мьютекс для синхронизации доступа к общим данным.
+5. **Multithreading**:
+   - Block scanning and pool statistics collection are distributed across threads (count specified in config).
+   - A mutex is used to synchronize access to shared data.
 
-6. **Вывод и сохранение**:
-   - Результаты сканирования отображаются в консоли с цветным форматированием (зеленый для успеха, желтый для данных, красный для ошибок).
-   - Данные о DEX сохраняются в `neozork-config`, статистика — в `neozork-scan-stat`.
+6. **Output and Saving**:
+   - Scan results are displayed in the console with colored formatting (green for success, yellow for data, red for errors).
+   - DEX data is saved to `neozork-config`, statistics to `neozork-scan-stat`.
 
-7. **Производительность**:
-   - Замеряется время выполнения, объем сетевого трафика и использование диска. Прогресс сканирования отображается в виде полосы.
+7. **Performance**:
+   - Execution time, network traffic volume, and disk usage are measured. Scan progress is displayed as a progress bar.
 
-#### Технические детали
-- **Язык и стандарт**: C++17 для современных возможностей и совместимости.
-- **Зависимости**: Использует `libcurl` для HTTP-запросов к RPC-узлам и стандартную библиотеку C++ ( `<thread>`, `<mutex>`, `<atomic>` ) для многопоточности.
-- **RPC-узлы**: Только бесплатные, общедоступные узлы (например, `rpc.ankr.com`, `polygon-rpc.com`).
-- **Кроссплатформенность**: Поддерживает Windows, Linux и macOS с минимальными настройками.
+#### Technical Details
+- **Language and Standard**: C++17 for modern capabilities and compatibility.
+- **Dependencies**: Uses `libcurl` for HTTP requests to RPC nodes and the C++ standard library (`<thread>`, `<mutex>`, `<atomic>`) for multithreading.
+- **RPC Nodes**: Only free, public nodes (e.g., `rpc.ankr.com`, `polygon-rpc.com`).
+- **Cross-platform**: Supports Windows, Linux, and macOS with minimal setup.
 
-#### Пример использования
-- **Сканирование**: `./neozork -scan bsc 5000` — сканирует 5000 блоков BSC, находит DEX и обновляет конфиг.
-- **Просмотр пулов**: `./neozork -showPOOLS bsc 0xFactoryAddress` — показывает пулы для указанного DEX.
-- **Поиск токена**: `./neozork -findTOKEN bsc 0xFactoryAddress 0xTokenAddress` — ищет токен в пулах DEX.
+#### Usage Examples
+- **Scanning**: `./neozork -scan bsc 5000` — scans 5000 BSC blocks, finds DEXes and updates config.
+- **Viewing Pools**: `./neozork -showPOOLS bsc 0xFactoryAddress` — shows pools for the specified DEX.
+- **Token Search**: `./neozork -findTOKEN bsc 0xFactoryAddress 0xTokenAddress` — searches for a token in DEX pools.
 
-#### Ограничения
-- Solana поддерживается ограниченно (только отображение конфига) из-за отличий в API.
-- Функции арбитража, кошелька и анализа прибыли пока реализованы как заглушки.
+#### Limitations
+- Solana support is limited (only config display) due to API differences.
+- Arbitrage, wallet, and profit analysis functions are currently implemented as stubs.
 
-1. **Версия CMake**: Оставлена 3.28 для поддержки современных возможностей.
-2. **Исходные файлы**: Добавлены все `.cpp` файлы из `/src`, чтобы проект собирал полный функционал.
-3. **Зависимости**:
-   - `find_package(CURL REQUIRED)`: Обеспечивает наличие `libcurl` для RPC-запросов.
-   - `find_package(Threads REQUIRED)`: Включает поддержку потоков через `<thread>` и `-pthread`.
-4. **Кроссплатформенность**:
-   - **macOS**: Добавлены фреймворки `CoreFoundation` и `SystemConfiguration` для корректной работы `libcurl`.
-   - **Linux**: Базовая конфигурация с `libcurl` и `pthread`.
-   - **Windows**: Добавлена библиотека `ws2_32` (Winsock) для сетевых операций `libcurl`.
-5. **Флаги компилятора**: Добавлены предупреждения (`-Wall`, `/W4`) и оптимизация (`-O2`) для всех платформ.
-6. **Установка**: Добавлен `install` для возможности упаковки бинарника в `bin`.
+1. **CMake Version**: Kept at 3.28 for modern capabilities support.
+2. **Source Files**: Added all `.cpp` files from `/src` so the project builds full functionality.
+3. **Dependencies**:
+   - `find_package(CURL REQUIRED)`: Ensures `libcurl` is available for RPC requests.
+   - `find_package(Threads REQUIRED)`: Includes thread support via `<thread>` and `-pthread`.
+4. **Cross-platform**:
+   - **macOS**: Added `CoreFoundation` and `SystemConfiguration` frameworks for proper `libcurl` operation.
+   - **Linux**: Basic configuration with `libcurl` and `pthread`.
+   - **Windows**: Added `ws2_32` library (Winsock) for `libcurl` network operations.
+5. **Compiler Flags**: Added warnings (`-Wall`, `/W4`) and optimization (`-O2`) for all platforms.
+6. **Installation**: Added `install` for the ability to package the binary in `bin`.
 
-#### Сборка проекта
-1. Убедитесь, что установлены зависимости:
+#### Building the Project
+1. Ensure dependencies are installed:
    - Linux: `sudo apt install libcurl4-openssl-dev cmake g++`
    - macOS: `brew install curl cmake`
-   - Windows: Установите CMake и CURL через vcpkg (`vcpkg install curl`) и MSVC.
-2. Выполните:
+   - Windows: Install CMake and CURL via vcpkg (`vcpkg install curl`) and MSVC.
+2. Execute:
    ```bash
    mkdir build && cd build
    cmake ..
    cmake --build .
    ```
-3. Запустите: `./NeoZorKDEXArb` (Linux/macOS) или `NeoZorKDEXArb.exe` (Windows).
+3. Run: `./NeoZorKDEXArb` (Linux/macOS) or `NeoZorKDEXArb.exe` (Windows).
