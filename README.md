@@ -164,8 +164,10 @@ DEXArb/
 
 ## 📚 Documentation
 
-- **[Project Description](docs/PROJECT_DESCRIPTION.md)**: Detailed project overview
+- **[Documentation Index](docs/README.md)**: Complete documentation overview
+- **[Quick Start Guide](docs/QUICK_START.md)**: Get up and running in 5 minutes
 - **[Build and Usage Guide](docs/BUILD_AND_USAGE.md)**: Comprehensive setup and usage instructions
+- **[Project Description](docs/PROJECT_DESCRIPTION.md)**: Detailed technical overview and architecture
 
 ## 🚧 Current Limitations
 

@@ -350,7 +350,8 @@ cmake --build .
 ## Support
 
 For issues and questions:
-1. Check the troubleshooting section
+1. Check the [troubleshooting section](#troubleshooting)
 2. Review the configuration file
 3. Verify RPC endpoint availability
 4. Check system resources and network connectivity
+5. Browse [complete documentation](README.md) for more details
