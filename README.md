@@ -55,7 +55,21 @@ cmake ..
 cmake --build . --config Release
 ```
 
-### Using Deploy Script
+### Using Build Script (Recommended)
+
+```bash
+chmod +x build-and-deploy.sh
+./build-and-deploy.sh
+```
+
+This script will:
+- Check dependencies automatically
+- Pull latest changes from git
+- Build project with CMake
+- Copy binary to `bin/` directory
+- Commit and push changes
+
+### Using Legacy Deploy Script
 
 ```bash
 chmod +x DeployBins.sh

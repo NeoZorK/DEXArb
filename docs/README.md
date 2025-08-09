@@ -7,6 +7,7 @@ Welcome to the NeoZorKDEXArb documentation. This directory contains comprehensiv
 ### Getting Started
 - **[Quick Start Guide](QUICK_START.md)** - Get up and running in 5 minutes
 - **[Build and Usage Guide](BUILD_AND_USAGE.md)** - Comprehensive setup and usage instructions
+- **[Build Script](BUILD_SCRIPT.md)** - Automated build and deploy script
 
 ### Project Information
 - **[Project Description](PROJECT_DESCRIPTION.md)** - Detailed technical overview and architecture
@@ -33,6 +34,7 @@ Welcome to the NeoZorKDEXArb documentation. This directory contains comprehensiv
 |----------|---------|----------|
 | [Quick Start Guide](QUICK_START.md) | Fast setup and basic usage | New users |
 | [Build and Usage Guide](BUILD_AND_USAGE.md) | Complete setup and advanced usage | All users |
+| [Build Script](BUILD_SCRIPT.md) | Automated build and deploy process | Developers |
 | [Project Description](PROJECT_DESCRIPTION.md) | Technical architecture and features | Developers |
 | [Version History](VERSION_HISTORY.md) | Complete version history and changes | All users |
 | [Original README](README_ORIGINAL.md) | Original project description | Historical reference |
