@@ -13,6 +13,16 @@
 #include <memory>           // For smart pointers
 #include <functional>       // For function objects
 
+// Supported blockchain types as an enum
+enum class BlockchainType {
+    Ethereum,    // Ethereum blockchain
+    Fantom,      // Fantom blockchain
+    BSC,         // Binance Smart Chain
+    Polygon,     // Polygon (Matic) blockchain
+    Avalanche,   // Avalanche C-Chain
+    Solana       // Solana blockchain
+};
+
 // ANSI color codes for console output
 const std::string GREEN = "\033[32m";    // Green color for success messages
 const std::string YELLOW = "\033[33m";   // Yellow color for warnings or highlights

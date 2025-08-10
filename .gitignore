@@ -1,244 +1,92 @@
-# Build directories
-build/
-out/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-*.cmake
-**/CMakeFiles/
-**/CMakeCache.txt
-**/cmake_install.cmake
-**/Makefile
-**/*.cmake
+# Docker
+.dockerignore
+docker-compose.override.yml
 
-# Dependencies
-vcpkg/
-vcpkg_installed/
+# Wine
+*.wine
+wine-data/
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-# JetBrains IDEs
-.idea/
-*.iml
-*.ipr
-*.iws
-*.iws
-*.ipr
-*.iml
-# Editor files
-*~
-*.swp
-*.swo
-*.swn
-*.bak
-*.orig
-*.rej
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-# macOS specific
-.AppleDouble
-.LSOverride
-Icon?
-._*
-.DocumentRevisions-V100
-.fseventsd
-.TemporaryItems
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+# Application files
+app/*.exe
+app/*.msi
+app/*.zip
+app/*.rar
 
 # Temporary files
 *.tmp
 *.temp
 *.log
-*.pid
-*.seed
-*.pid.lock
-logs/
-*.log.*
-*.log.1
-*.log.2
-*.log.3
-*.log.4
-*.log.5
-*.log.6
-*.log.7
-*.log.8
-*.log.9
 
-# Compiled Object files
-*.slo
-*.lo
+# Build artifacts and build directories
+build/
+build-*/
+build-*/
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
 *.so
-*.dylib
 *.dll
-
-# Compiled Static libraries
-*.lai
-*.la
+*.exe
+*.obj
 *.a
 *.lib
-
-# Executables
-*.exe
-*.out
+*.dylib
 *.app
 
-# Package files
-*.tar.gz
-*.zip
-*.deb
-*.rpm
+# CMake build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
 
-# Test coverage
-*.gcov
-*.gcda
-*.gcno
-coverage/
+# Package managers
+vcpkg/
+vcpkg_installed/
+vcpkg-container/
+node_modules/
+vendor/
 
-# Profiling data
-*.prof
-*.profraw
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.lnk
 
 # Backup files
 *.bak
 *.backup
-*.old
+*.orig
 
-# Local configuration
+# Test artifacts
+*.test
+*.prof
+*.gcov
+*.gcda
+*.gcno
+
+# Documentation build
+docs/_build/
+docs/build/
+site/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+*.sql
+
+# Environment files
 .env
 .env.local
-config.local.*
+.env.*.local
 
-# Project specific exclusions
-build-modern.sh
-include/modern_utils.h
-src/modern_utils.cpp
-cmake-build-*/
-cmake-build-debug/
-.pytest_cache/
-.benchmarks/
-.venv/
-.coverage
-bin/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Rust
-target/
-Cargo.lock
-
-# Go
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-go.work
-
-# Java
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-hs_err_pid*
-replay_pid*
-
-# C/C++ specific
-*.dSYM/
-*.su
-*.idb
-*.pdb
-*.ilk
-*.exp
-*.manifest
-*.lib
-*.a
-*.o
-*.obj
-*.so
-*.dylib
-*.dll
-*.exe
-*.out
-*.app
-*.ipa
-*.apk
-*.deb
-*.rpm
-*.tar.gz
-*.zip
-*.7z
-*.rar
+# Cache directories
+.cache/
+cache/
+tmp/
+temp/

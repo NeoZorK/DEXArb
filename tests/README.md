@@ -1,129 +1,145 @@
 # DEXArb Test Suite
 
-This directory contains comprehensive tests for the DEXArb application, ensuring code quality and reliability.
+This directory contains comprehensive C++ tests for the DEXArb application, ensuring code quality and reliability using Google Test framework.
 
 ## 🧪 Test Structure
 
 ### Test Files
-- **`test_main_functions.py`** - Tests for main application functions (help, version, CLI)
-- **`test_config.py`** - Tests for configuration management
-- **`test_blockchain.py`** - Tests for blockchain functionality and validation
+- **`test_main.cpp`** - Tests for main application functions
+- **`cpp/test_modern_format.cpp`** - Tests for modern formatting utilities
+- **`cpp/test_modern_result.cpp`** - Tests for modern Result<T,E> class
+- **`cpp/test_arbitrage.cpp`** - Tests for arbitrage functionality
+- **`cpp/test_blockchain.cpp`** - Tests for blockchain functionality
+- **`cpp/test_dex_pools.cpp`** - Tests for DEX pools management
+- **`cpp/test_dex_tokens.cpp`** - Tests for token handling
+- **`cpp/test_cli_commands.cpp`** - Tests for CLI command parsing
 
 ### Test Categories
 - **Unit Tests** - Test individual functions and components
 - **Integration Tests** - Test complete workflows and component interactions
-- **Mock Tests** - Test functionality using mocked C++ functions
+- **Performance Tests** - Test execution time and resource usage
 
 ## 🚀 Running Tests
 
 ### Prerequisites
-Install testing dependencies:
+- CMake 3.28+
+- Google Test framework
+- C++23 compatible compiler
+
+### Build Tests
 ```bash
-uv pip install -r requirements.txt
+mkdir cmake-build-debug
+cd cmake-build-debug
+cmake -G "Unix Makefiles" ..
 ```
 
 ### Run All Tests
 ```bash
-uv run pytest tests -n auto
+# Build all test targets
+cmake --build . --target ModernFormatTests
+cmake --build . --target ModernResultTests
+cmake --build . --target NeoZorKDEXArbTests
+
+# Run individual test suites
+./ModernFormatTests
+./ModernResultTests
+./NeoZorKDEXArbTests
 ```
 
-### Run Specific Test File
+### Run Tests with CTest
 ```bash
-uv run pytest tests/test_main_functions.py -v
-```
+# Run all tests
+ctest --output-on-failure
 
-### Run Tests with Coverage
-```bash
-uv run pytest tests --cov=src --cov-report=html
-```
-
-### Run Tests in Parallel
-```bash
-uv run pytest tests -n auto --dist=loadfile
+# Run specific test
+ctest -R ModernFormatTests
 ```
 
 ## 📊 Test Coverage
 
 The test suite provides comprehensive coverage for:
+- ✅ Modern C++ utilities (Result<T,E>, formatting)
 - ✅ Command line interface functionality
-- ✅ Help and version display functions
 - ✅ Configuration management
 - ✅ Blockchain type handling
-- ✅ Input validation
-- ✅ Error handling
+- ✅ DEX pools and tokens
+- ✅ Arbitrage calculations
+- ✅ Error handling and validation
 
 ## 🎯 Test Goals
 
 1. **100% Code Coverage** - All new features must have complete test coverage
-2. **Fast Execution** - Tests run in parallel for quick feedback
+2. **Fast Execution** - Tests run efficiently for quick feedback
 3. **Reliable Results** - Tests are deterministic and repeatable
 4. **Clear Documentation** - Each test has clear purpose and description
 
 ## 🔧 Test Configuration
 
-### pytest.ini
-- Parallel execution with `-n auto`
-- Coverage reporting enabled
-- HTML and XML coverage reports
-- Warning suppression for clean output
+### CMake Configuration
+- Google Test integration
+- Parallel build support
+- Coverage reporting (when available)
+- Warning handling and suppression
 
-### Test Markers
-- `@pytest.mark.slow` - For slow-running tests
-- `@pytest.mark.integration` - For integration tests
-- `@pytest.mark.unit` - For unit tests
+### Test Structure
+- Test fixtures for common setup
+- Mock objects for external dependencies
+- Assertion macros for clear test logic
 
 ## 📝 Adding New Tests
 
 ### Test Naming Convention
-- Test files: `test_<module_name>.py`
+- Test files: `test_<module_name>.cpp`
 - Test classes: `Test<ClassName>`
-- Test methods: `test_<functionality>`
+- Test methods: `TEST_F(TestClass, TestName)`
 
 ### Test Structure
-```python
-def test_functionality_description(self):
-    """Test description explaining what is being tested"""
-    # Arrange
-    # Act
-    # Assert
+```cpp
+TEST_F(TestClassName, TestMethodName) {
+    // Arrange
+    // Act
+    // Assert
+}
 ```
 
 ### Example Test
-```python
-def test_help_flag_behavior(self):
-    """Test that help flags trigger help display"""
-    # Test -h flag
-    result = MockMainFunctions.process_arguments(["-h"])
-    assert result == "help"
+```cpp
+TEST_F(ModernResultTest, BasicConstruction) {
+    // Test successful result
+    auto result = modern::Result<int, std::string>::ok(42);
+    EXPECT_TRUE(result.is_ok());
+    EXPECT_EQ(result.unwrap(), 42);
     
-    # Test -help flag
-    result = MockMainFunctions.process_arguments(["-help"])
-    assert result == "help"
+    // Test error result
+    auto error = modern::Result<int, std::string>::err("error");
+    EXPECT_TRUE(error.is_err());
+    EXPECT_EQ(error.unwrap_err(), "error");
+}
 ```
 
 ## 🚨 Troubleshooting
 
 ### Common Issues
-1. **Import Errors** - Ensure `src/` directory is in Python path
+1. **Build Errors** - Check CMake configuration and dependencies
 2. **Test Failures** - Check test output for detailed error messages
-3. **Coverage Issues** - Verify source files are in `src/` directory
+3. **Linker Errors** - Verify all required libraries are linked
 
 ### Debug Mode
-Run tests with verbose output:
+Build with debug information:
 ```bash
-uv run pytest tests -v -s
+cmake -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
 ### Test Isolation
-Run single test method:
+Run single test executable:
 ```bash
-uv run pytest tests/test_main_functions.py::TestMockMainFunctions::test_show_help -v
+./ModernFormatTests
 ```
 
 ## 📈 Continuous Integration
 
 Tests are designed to run in CI/CD pipelines:
-- Fast execution (< 30 seconds)
+- Fast execution (< 1 second per test suite)
 - Deterministic results
 - Clear pass/fail status
 - Comprehensive coverage reporting
@@ -135,3 +151,4 @@ When adding new features:
 2. Ensure 100% coverage for new code
 3. Follow existing test patterns
 4. Update this README if needed
+5. Use Google Test best practices
