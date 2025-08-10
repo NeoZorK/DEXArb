@@ -24,7 +24,7 @@ void show_version();
 // Function to display usage instructions
 void show_help() {
     std::cout << "DEBUG: show_help() called" << std::endl;
-    g_logger.info("Displaying help information");
+    modern_utils::Logger::info("Displaying help information");
     
     std::cout << "\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
@@ -78,7 +78,7 @@ void show_help() {
 
 // Function to display version information
 void show_version() {
-    g_logger.info("Displaying version information");
+    modern_utils::Logger::info("Displaying version information");
     
     std::cout << "\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
@@ -110,8 +110,8 @@ int main(int argc, char* argv[]) {
     StartTimeMeasure();
     
     // Initialize logger
-    g_logger.set_level(modern::Logger::INFO);
-    g_logger.info("Starting DEX Arbitrage Scanner v" + PROJECT_VERSION);
+    // Logger level is set by default
+    modern_utils::Logger::info("Starting DEX Arbitrage Scanner v" + PROJECT_VERSION);
    
     // Show the project version
     std::cout << "Starting DEX Arbitrage, PROJECT_VERSION: "<<PROJECT_VERSION<<"\n";
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
     // Check if there are any arguments
     if (argc == 1) {
         // Show help if no arguments provided (Exit)
-        g_logger.info("No arguments provided, showing help");
+        modern_utils::Logger::info("No arguments provided, showing help");
         show_help();
         return 0;
     }
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
             return 0;
         } else {
             // Error for insufficient args (Exit)
-            g_logger.error("Insufficient arguments provided: " + flag);
+            modern_utils::Logger::error("Insufficient arguments provided: " + flag);
             std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
             return 1;
         }
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
     
     if (argc < 3) {
         // Error for insufficient args (Exit)
-        g_logger.error("Insufficient arguments: " + std::to_string(argc));
+        modern_utils::Logger::error("Insufficient arguments: " + std::to_string(argc));
         std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
         return 1;
     }
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     // Get the blockchain name from arguments
     std::string blockchain_str(argv[2]);
     
-    g_logger.info("Processing command: " + flag + " for blockchain: " + blockchain_str);
+    modern_utils::Logger::info("Processing command: " + flag + " for blockchain: " + blockchain_str);
     
     // Convert string to blockchain type
     BlockchainType blockchain = string_to_blockchain(blockchain_str);
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
     if (blockchain == BlockchainType::Solana && flag != "-showSCAN-CONFIG") {
         
         // Warn about limited Solana support (Exit)
-        g_logger.warn("Solana support is limited to config display");
+        modern_utils::Logger::warning("Solana support is limited to config display");
         std::cerr << RED << "Solana support is limited to config display" << RESET << '\n';
         return 1;
     }
@@ -190,61 +190,61 @@ int main(int argc, char* argv[]) {
     
     // Error if no endpoints loaded (Exit)
     if (rpc_endpoints.empty()) {
-        g_logger.error("Failed to load RPC endpoints for " + blockchain_str);
+        modern_utils::Logger::error("Failed to load RPC endpoints for " + blockchain_str);
         std::cerr << RED << "Failed to load RPC endpoints for " << blockchain_str << RESET << '\n';
         return 1;
     }
 
-    g_logger.info("Loaded " + std::to_string(rpc_endpoints.size()) + " RPC endpoints with " + std::to_string(thread_count) + " threads");
+    modern_utils::Logger::info("Loaded " + std::to_string(rpc_endpoints.size()) + " RPC endpoints with " + std::to_string(thread_count) + " threads");
 
     // Process command-line flags
     if (argc == 3) {
         if (flag == "-showSCAN-CONFIG") {
-            g_logger.info("Showing scan configuration");
+            modern_utils::Logger::info("Showing scan configuration");
             show_scan_config();
         } else if (flag == "-showSCAN-STAT") {
-            g_logger.info("Showing scan statistics");
+            modern_utils::Logger::info("Showing scan statistics");
             show_scan_stats();
         } else if (flag == "-showSCAN") {
-            g_logger.info("Loading and showing scan results");
+            modern_utils::Logger::info("Loading and showing scan results");
             std::vector<DexInfo> dex_list = load_dexes_from_config();
             show_scan_results(dex_list);
         } else if (flag == "-showDEXES") {
-            g_logger.info("Showing DEXes for " + blockchain_str);
+            modern_utils::Logger::info("Showing DEXes for " + blockchain_str);
             show_dexes(rpc_endpoints);
         } else if (flag == "-showTOKENS") {
             // showTOKENS requires blockchain only (shows all tokens across all DEXes)
-            g_logger.info("Showing all tokens for " + blockchain_str);
+            modern_utils::Logger::info("Showing all tokens for " + blockchain_str);
             show_all_tokens(rpc_endpoints);
         } else {
-            g_logger.error("Invalid flag: " + flag);
+            modern_utils::Logger::error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
             show_help();
             return 1;
         }
     } else if (argc == 4) {
         if (flag == "-showPOOLS") {
-            g_logger.info("Showing pools for DEX: " + std::string(argv[3]));
+            modern_utils::Logger::info("Showing pools for DEX: " + std::string(argv[3]));
             show_pools(rpc_endpoints, argv[3]);
         } else if (flag == "-showTOKENS") {
             // showTOKENS with DEX parameter shows tokens for specific DEX
-            g_logger.info("Showing tokens for DEX: " + std::string(argv[3]));
+            modern_utils::Logger::info("Showing tokens for DEX: " + std::string(argv[3]));
             show_tokens(rpc_endpoints, argv[3]);
         } else if (flag == "-findTOKENS") {
-            g_logger.info("Finding tokens across DEXes: " + std::string(argv[3]));
+            modern_utils::Logger::info("Finding tokens across DEXes: " + std::string(argv[3]));
             find_tokens_across_dexes(rpc_endpoints, argv[3]);
         } else if (flag == "-scan") {
             
             // Convert scan range to integer
             int scan_range = std::stoi(argv[3]);
             if (scan_range < 1000 || scan_range > 1000000) {
-                g_logger.error("Invalid scan range: " + std::to_string(scan_range));
+                modern_utils::Logger::error("Invalid scan range: " + std::to_string(scan_range));
                 std::cerr << RED << "Error: scan_range must be 1000-1000000" << RESET << '\n';
                 return 1;
             }
             
             // Announce scan
-            g_logger.info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
+            modern_utils::Logger::info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
             std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
             
             // Mutex for thread synchronization
@@ -268,18 +268,18 @@ int main(int argc, char* argv[]) {
             show_scan_results(dex_list);
         } else {
             // Error for invalid flag (EXIT)
-            g_logger.error("Invalid flag: " + flag);
+            modern_utils::Logger::error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
             show_help();
             return 1;
         }
     } else if (argc == 5 && flag == "-findTOKEN") {
         // Find token in a specific DEX
-        g_logger.info("Finding token " + std::string(argv[4]) + " in DEX " + std::string(argv[3]));
+        modern_utils::Logger::info("Finding token " + std::string(argv[4]) + " in DEX " + std::string(argv[3]));
         find_token_in_dex(rpc_endpoints, argv[3], argv[4]);
     } else {
         // Error for invalid usage (EXIT)
-        g_logger.error("Invalid usage with " + std::to_string(argc) + " arguments");
+        modern_utils::Logger::error("Invalid usage with " + std::to_string(argc) + " arguments");
         std::cerr << RED << "Invalid usage" << RESET << '\n';
         show_help();
         return 1;
@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
     // Stop the Main timer
     StopTimeMeasure(MICROSECONDS);
     
-    g_logger.info("DEX Arbitrage Scanner completed successfully");
+    modern_utils::Logger::info("DEX Arbitrage Scanner completed successfully");
     
     // Exit successfully
     return 0;

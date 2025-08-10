@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <algorithm>
 
 namespace modern {
 
@@ -38,9 +39,19 @@ public:
         oss << std::fixed << std::setprecision(0) << number;
         std::string str = oss.str();
         
-        // Add thousands separator
-        for (int i = str.length() - 3; i > 0; i -= 3) {
-            str.insert(i, ",");
+        // Add thousands separator from right to left
+        size_t len = str.length();
+        if (len > 3) {
+            std::string result;
+            result.reserve(len + (len - 1) / 3);
+            
+            for (size_t i = 0; i < len; ++i) {
+                if (i > 0 && (len - i) % 3 == 0) {
+                    result += ",";
+                }
+                result += str[i];
+            }
+            return result;
         }
         return str;
     }
@@ -73,15 +84,17 @@ public:
         auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
         auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
         
+        std::ostringstream oss;
         if (hours.count() > 0) {
-            return format("{}h {}m {}s", hours.count(), minutes.count() % 60, seconds.count() % 60);
+            oss << hours.count() << "h " << (minutes.count() % 60) << "m " << (seconds.count() % 60) << "s";
         } else if (minutes.count() > 0) {
-            return format("{}m {}s", minutes.count(), seconds.count() % 60);
+            oss << minutes.count() << "m " << (seconds.count() % 60) << "s";
         } else if (seconds.count() > 0) {
-            return format("{}s {}ms", seconds.count(), ms.count() % 1000);
+            oss << seconds.count() << "s " << (ms.count() % 1000) << "ms";
         } else {
-            return format("{}ms", ms.count());
+            oss << ms.count() << "ms";
         }
+        return oss.str();
     }
     
     // Format percentage
@@ -95,7 +108,7 @@ public:
     static std::string format_progress_bar(double progress, int width = 50) {
         int filled = static_cast<int>(progress * width);
         std::string bar;
-        bar.reserve(width + 10);
+        bar.reserve(static_cast<size_t>(width) + 10);
         
         bar += "[";
         for (int i = 0; i < width; ++i) {
@@ -108,7 +121,11 @@ public:
             }
         }
         bar += "] ";
-        bar += format_percentage(progress);
+        
+        // Format percentage directly
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2) << (progress * 100.0) << "%";
+        bar += oss.str();
         
         return bar;
     }
@@ -123,16 +140,19 @@ public:
     
     // Format address (truncate middle)
     static std::string format_address(std::string_view address, int max_length = 20) {
-        if (address.length() <= max_length) {
+        if (address.length() <= static_cast<size_t>(max_length)) {
             return std::string(address);
         }
         
         int prefix_length = (max_length - 3) / 2;
         int suffix_length = max_length - 3 - prefix_length;
         
-        return format("{:.{}}...{:.{}}", 
-                     address.substr(0, prefix_length), prefix_length,
-                     address.substr(address.length() - suffix_length), suffix_length);
+        std::string result;
+        result += std::string(address.substr(0, static_cast<size_t>(prefix_length)));
+        result += "...";
+        result += std::string(address.substr(address.length() - static_cast<size_t>(suffix_length)));
+        
+        return result;
     }
     
     // Format timestamp

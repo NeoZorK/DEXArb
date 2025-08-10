@@ -15,11 +15,11 @@
 #define ASSERT_FALSE(a) if (a) { std::cerr << "ASSERT_FALSE failed" << std::endl; return false; }
 
 // Include our format utilities
-#include "modern_format.h"
+#include "../../include/modern_format.h"
 
 using namespace modern;
 
-bool test_basic_formatting() {
+static bool test_basic_formatting() {
     std::cout << "Testing basic formatting..." << std::endl;
     
     auto result = Format::format("Hello {}!", "World");
@@ -34,22 +34,28 @@ bool test_basic_formatting() {
     return true;
 }
 
-bool test_number_formatting() {
+static bool test_number_formatting() {
     std::cout << "Testing number formatting..." << std::endl;
     
+    std::cout << "Testing 1234567..." << std::endl;
     auto result = Format::format_number(1234567);
+    std::cout << "Result: " << result << std::endl;
     ASSERT_EQ(result, "1,234,567");
     
+    std::cout << "Testing 1000..." << std::endl;
     auto result2 = Format::format_number(1000);
+    std::cout << "Result: " << result2 << std::endl;
     ASSERT_EQ(result2, "1,000");
     
+    std::cout << "Testing 999..." << std::endl;
     auto result3 = Format::format_number(999);
+    std::cout << "Result: " << result3 << std::endl;
     ASSERT_EQ(result3, "999");
     
     return true;
 }
 
-bool test_bytes_formatting() {
+static bool test_bytes_formatting() {
     std::cout << "Testing bytes formatting..." << std::endl;
     
     auto result = Format::format_bytes(1024);
@@ -64,7 +70,7 @@ bool test_bytes_formatting() {
     return true;
 }
 
-bool test_percentage_formatting() {
+static bool test_percentage_formatting() {
     std::cout << "Testing percentage formatting..." << std::endl;
     
     auto result = Format::format_percentage(0.5);
@@ -76,7 +82,7 @@ bool test_percentage_formatting() {
     return true;
 }
 
-bool test_progress_bar() {
+static bool test_progress_bar() {
     std::cout << "Testing progress bar..." << std::endl;
     
     auto result = Format::format_progress_bar(0.5);
@@ -87,7 +93,7 @@ bool test_progress_bar() {
     return true;
 }
 
-bool test_address_formatting() {
+static bool test_address_formatting() {
     std::cout << "Testing address formatting..." << std::endl;
     
     std::string long_address = "0x1234567890abcdef1234567890abcdef12345678";
@@ -102,7 +108,7 @@ bool test_address_formatting() {
     return true;
 }
 
-bool test_string_utils() {
+static bool test_string_utils() {
     std::cout << "Testing string utilities..." << std::endl;
     
     // Test join
@@ -140,7 +146,7 @@ bool test_string_utils() {
     return true;
 }
 
-bool test_table_formatting() {
+static bool test_table_formatting() {
     std::cout << "Testing table formatting..." << std::endl;
     
     auto result = Format::format_table_row("Name", "Age", "City");
@@ -152,7 +158,7 @@ bool test_table_formatting() {
     return true;
 }
 
-bool test_duration_formatting() {
+static bool test_duration_formatting() {
     std::cout << "Testing duration formatting..." << std::endl;
     
     auto duration = std::chrono::milliseconds(1500);

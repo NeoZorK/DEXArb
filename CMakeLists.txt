@@ -48,7 +48,7 @@ set(SOURCES
     src/arbitrage.cpp
     src/wallet.cpp
     src/profit_analyzer.cpp
-    src/modern_utils.cpp
+    # src/modern_utils.cpp  # Removed - using header-only implementation
     # New modular source files (temporarily disabled for testing)
     # src/cli/command_parser.cpp
     # src/cli/help_display.cpp
