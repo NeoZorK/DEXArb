@@ -68,4 +68,10 @@ void StartTimeMeasure();
 // Stop Time Measure
 void StopTimeMeasure(const ENUM_TIME_UNITS time_units);
 
+// Function to display help information
+void show_help();
+
+// Function to display version information
+void show_version();
+
 #endif // MAIN_H

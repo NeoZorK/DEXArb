@@ -117,6 +117,19 @@ The application is a command-line tool with the following syntax:
 ./NeoZorKDEXArb [flag] <blockchain> [parameters]
 ```
 
+#### Getting Help and Version Information
+```bash
+# Show application version
+./NeoZorKDEXArb -v
+# or
+./NeoZorKDEXArb -version
+
+# Show help and all available commands
+./NeoZorKDEXArb -h
+# or
+./NeoZorKDEXArb -help
+```
+
 ### Available Commands
 
 #### 1. Scanning Blockchain

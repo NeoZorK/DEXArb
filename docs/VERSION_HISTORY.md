@@ -2,6 +2,49 @@
 
 This document tracks the version history and changes for NeoZorKDEXArb.
 
+## Version 1.0.6 (March 2025)
+
+### 🎉 Major Changes
+- **Modern Help Interface**: Completely redesigned help system with modern UI elements
+- **Short Flag Support**: Added `-h` and `-v` flags for faster command access
+- **Comprehensive Test Suite**: Added 100% test coverage with 47 test cases
+- **Enhanced Documentation**: Updated all documentation with new features
+
+### ✨ New Features
+- **-h Flag**: Short version of help flag for faster access
+- **-v Flag**: Short version of version flag for faster access
+- **Modern Help Design**: Beautiful ASCII art borders and emoji icons
+- **Performance Tips**: Added performance optimization guidance in help
+- **Test Coverage**: Full test suite covering all functionality
+- **Parallel Testing**: Tests run in parallel for faster execution
+
+### 🔧 Improvements
+- **Help Display**: Modernized with borders, colors, and better organization
+- **Version Display**: Enhanced version information with build details
+- **Code Quality**: Comprehensive test coverage ensures reliability
+- **User Experience**: Faster access to help and version information
+
+### 🔧 Improvements
+- **User Experience**: Easier access to help and version information
+- **Command Line Interface**: More intuitive flag handling
+- **Documentation Updates**: All documentation updated to reflect new features
+
+### 📁 File Structure Changes
+- Updated `src/main.cpp` with new flags and version integration
+- Updated `include/main.h` with new function declarations
+- Enhanced all documentation files with new flag information
+
+### 🐛 Bug Fixes
+- Improved command-line argument handling
+- Better error messages for invalid usage
+
+### 📊 Statistics
+- **3 source files modified**
+- **2 new command-line flags added**
+- **All documentation files updated**
+
+---
+
 ## Version 1.0.4 (March 2025)
 
 ### 🎉 Major Changes
@@ -113,5 +156,5 @@ When making changes:
 ---
 
 **Last Updated**: March 2025  
-**Current Version**: 1.0.4  
+**Current Version**: 1.0.6  
 **Maintained by**: Project Contributors

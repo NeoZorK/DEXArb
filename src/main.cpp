@@ -13,22 +13,80 @@
 #include <iostream>         // For console I/O
 
 // Global Project Version
-const std::string VERSION = "1.0.4";
+const std::string VERSION = "1.0.6";
+
+// Forward declarations
+void show_help();
+void show_version();
 
 // Function to display usage instructions
 void show_help() {
-    std::cout << GREEN << "Usage: neozork [flag] <blockchain> [value]" << RESET << '\n';
-    std::cout << YELLOW << "Supported blockchains: Ethereum, Fantom, BSC, Polygon, Avalanche, Solana" << RESET << '\n';
-    std::cout << YELLOW << "Flags:" << RESET << '\n';   // Introduce available flags
-    std::cout << BLUE << "  -scan <blockchain> <blocks>" << RESET << ": Scan last <blocks> (1000-1000000)\n";
-    std::cout << BLUE << "  -showSCAN-CONFIG <blockchain>" << RESET << ": Show config settings\n";
-    std::cout << BLUE << "  -showSCAN <blockchain>" << RESET << ": Show scan results\n";
-    std::cout << BLUE << "  -showSCAN-STAT <blockchain>" << RESET << ": Show scan stats\n";
-    std::cout << BLUE << "  -showDEXES <blockchain>" << RESET << ": Show all DEXes\n";
-    std::cout << BLUE << "  -showPOOLS <blockchain> <DEX>" << RESET << ": Show DEX pools\n";
-    std::cout << BLUE << "  -showTOKENS <blockchain> <DEX>" << RESET << ": Show DEX tokens\n";
-    std::cout << BLUE << "  -findTOKEN <blockchain> <DEX> <token>" << RESET << ": Find token in DEX\n";
-    std::cout << BLUE << "  -findTOKENS <blockchain> <token>" << RESET << ": Find token across DEXes\n";
+    std::cout << "\n";
+    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << "\n";
+    
+    std::cout << YELLOW << "📖 USAGE" << RESET << '\n';
+    std::cout << "   neozork [flag] <blockchain> [value]\n\n";
+    
+    std::cout << YELLOW << "🌐 SUPPORTED BLOCKCHAINS" << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " Ethereum    " << BLUE << "•" << RESET << " Fantom      " << BLUE << "•" << RESET << " BSC\n";
+    std::cout << "   " << BLUE << "•" << RESET << " Polygon     " << BLUE << "•" << RESET << " Avalanche   " << BLUE << "•" << RESET << " Solana\n\n";
+    
+    std::cout << YELLOW << "🎯 COMMAND FLAGS" << RESET << '\n';
+    std::cout << "   " << GREEN << "📋 Help & Info" << RESET << '\n';
+    std::cout << "      " << BLUE << "-h, -help" << RESET << "     Show this help message\n";
+    std::cout << "      " << BLUE << "-v, -version" << RESET << "  Show application version\n\n";
+    
+    std::cout << "   " << GREEN << "🔍 Scanning & Discovery" << RESET << '\n';
+    std::cout << "      " << BLUE << "-scan" << RESET << "        <blockchain> <blocks>     Scan last <blocks> (1000-1000000)\n";
+    std::cout << "      " << BLUE << "-showSCAN-CONFIG" << RESET << " <blockchain>           Show config settings\n";
+    std::cout << "      " << BLUE << "-showSCAN" << RESET << "     <blockchain>              Show scan results\n";
+    std::cout << "      " << BLUE << "-showSCAN-STAT" << RESET << " <blockchain>              Show scan stats\n\n";
+    
+    std::cout << "   " << GREEN << "🏦 DEX Analysis" << RESET << '\n';
+    std::cout << "      " << BLUE << "-showDEXES" << RESET << "    <blockchain>              Show all DEXes\n";
+    std::cout << "      " << BLUE << "-showPOOLS" << RESET << "    <blockchain> <DEX>         Show DEX pools\n";
+    std::cout << "      " << BLUE << "-showTOKENS" << RESET << "   <blockchain> <DEX>         Show DEX tokens\n\n";
+    
+    std::cout << "   " << GREEN << "🔎 Token Search" << RESET << '\n';
+    std::cout << "      " << BLUE << "-findTOKEN" << RESET << "    <blockchain> <DEX> <token> Find token in DEX\n";
+    std::cout << "      " << BLUE << "-findTOKENS" << RESET << "   <blockchain> <token>       Find token across DEXes\n\n";
+    
+    std::cout << YELLOW << "💡 EXAMPLES" << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " neozork -h                              # Show this help\n";
+    std::cout << "   " << BLUE << "•" << RESET << " neozork -v                              # Show version\n";
+    std::cout << "   " << BLUE << "•" << RESET << " neozork -scan ethereum 5000            # Scan Ethereum\n";
+    std::cout << "   " << BLUE << "•" << RESET << " neozork -showDEXES bsc                 # Show BSC DEXes\n\n";
+    
+    std::cout << YELLOW << "⚡ PERFORMANCE TIPS" << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " Start with small block ranges (1000-5000) for testing\n";
+    std::cout << "   " << BLUE << "•" << RESET << " Use 10,000-50,000 blocks for discovery\n";
+    std::cout << "   " << BLUE << "•" << RESET << " 100,000+ blocks for deep analysis\n\n";
+    
+    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "              " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << "\n";
+}
+
+// Function to display version information
+void show_version() {
+    std::cout << "\n";
+    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << "\n";
+    std::cout << YELLOW << "📋 BUILD INFORMATION" << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " Version: " << GREEN << VERSION << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " Purpose: Blockchain arbitrage opportunities detection\n";
+    std::cout << "   " << BLUE << "•" << RESET << " Language: C++17\n";
+    std::cout << "   " << BLUE << "•" << RESET << " Platform: Cross-platform\n\n";
+    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "              " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << "\n";
 }
 
 //
@@ -49,6 +107,23 @@ int main(int argc, char* argv[]) {
         show_help();
         return 0;
     }
+    
+    // Handle special flags that don't require blockchain parameter
+    if (argc == 2) {
+        std::string flag(argv[1]);
+        if (flag == "-help" || flag == "-h") {
+            show_help();
+            return 0;
+        } else if (flag == "-version" || flag == "-v") {
+            show_version();
+            return 0;
+        } else {
+            // Error for insufficient args (Exit)
+            std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
+            return 1;
+        }
+    }
+    
     if (argc < 3) {
         // Error for insufficient args (Exit)
         std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';

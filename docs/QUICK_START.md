@@ -31,6 +31,16 @@ cmake --build . --config Release
 ### 3. Run Your First Scan
 
 ```bash
+# Check application version
+./NeoZorKDEXArb -v
+# or
+./NeoZorKDEXArb -version
+
+# Get help and see all available commands
+./NeoZorKDEXArb -h
+# or
+./NeoZorKDEXArb -help
+
 # Scan Ethereum for DEXes (last 5,000 blocks)
 ./NeoZorKDEXArb -scan ethereum 5000
 

@@ -19,6 +19,8 @@ Welcome to the NeoZorKDEXArb documentation. This directory contains comprehensiv
 ### For New Users
 1. Start with **[Quick Start Guide](QUICK_START.md)** for immediate setup
 2. Read **[Build and Usage Guide](BUILD_AND_USAGE.md)** for detailed instructions
+3. Use `neozork -h` or `neozork -help` for command-line help
+4. Use `neozork -v` or `neozork -version` to check application version
 
 ### For Developers
 1. Review **[Project Description](PROJECT_DESCRIPTION.md)** for technical details
