@@ -1,94 +1,97 @@
 # Container Scripts
 
-This directory contains scripts for managing Docker containers and containerized environments for the DEXArb project.
+This directory contains scripts for running DEXArb in different Linux container environments using Apple Container CLI.
 
-## Scripts Overview
+## 🐳 Available Runners
 
-### Alpine Linux Container Scripts
-- **`run-alpine-simple.sh`** - Recommended: Lightweight Alpine container runner
-- **`run-alpine-fast.sh`** - Optimized for speed with minimal dependencies
-- **`run-alpine-container.sh`** - Full-featured Alpine container with tests
+### Alpine Linux Runner
+- **File**: `run-alpine-simple.sh`
+- **Use case**: Lightweight, fast startup
+- **Best for**: Quick testing and development
+- **Documentation**: [Alpine Container Runner](../../docs/getting-started/ALPINE_CONTAINER_RUNNER.md)
 
-## Alpine Container Runner
+### Ubuntu Linux Runner
+- **File**: `run-ubuntu-container.sh`
+- **Use case**: Full Linux compatibility, glibc support
+- **Best for**: Production-like environment, compatibility testing
+- **Documentation**: [Ubuntu Container Runner](../../docs/getting-started/UBUNTU_CONTAINER_RUNNER.md)
 
-### Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Make scripts executable
 chmod +x scripts/container/*.sh
 
-# Run application in Alpine container (recommended)
-./scripts/container/run-alpine-simple.sh -- --help
-
-# Run with fast configuration
-./scripts/container/run-alpine-fast.sh -- --version
-
-# Run full container with tests
-./scripts/container/run-alpine-container.sh -- --showDEXES ethereum
-```
-
-### Features
-
-✅ **Lightweight**: ~15MB runtime dependencies  
-✅ **Fast**: ~10-15s container startup  
-✅ **Secure**: Minimal attack surface  
-✅ **Portable**: musl libc compatibility  
-✅ **Apple Silicon**: ARM64 optimized  
-
-### Script Differences
-
-| Script | Use Case | Startup Time | Features |
-|--------|----------|--------------|----------|
-| `run-alpine-simple.sh` | Development, testing | ~10s | Core app only |
-| `run-alpine-fast.sh` | Quick iterations | ~8s | Minimal deps |
-| `run-alpine-container.sh` | Full testing | ~15s | Tests + validation |
-
-### Examples
-
-```bash
-# Show help
+# Run in Alpine (lightweight)
 ./scripts/container/run-alpine-simple.sh
 
-# Show version
-./scripts/container/run-alpine-simple.sh -- -version
+# Run in Ubuntu (full compatibility)
+./scripts/container/run-ubuntu-container.sh
 
-# Show Ethereum DEXes
-./scripts/container/run-alpine-simple.sh -- -showDEXES ethereum
-
-# Force rebuild
-./scripts/container/run-alpine-simple.sh --build
+# Show help
+./scripts/container/run-ubuntu-container.sh --help
 ```
 
-### Requirements
+## 🔧 Features
 
-- macOS with Apple Silicon
-- Apple Container CLI (`brew install --cask docker`)
-- Git repository
-- Sufficient disk space for container images
+### Alpine Runner
+- ✅ Fast container startup
+- ✅ Small image size (~5MB)
+- ✅ Musl libc compatibility
+- ✅ Pre-built binary available
 
-### Container Management
+### Ubuntu Runner
+- ✅ Full glibc compatibility
+- ✅ Automatic dependency installation
+- ✅ Modern CMake support (3.28+)
+- ✅ Runtime dependency management
+- ✅ Automatic build system
 
+## 📋 Prerequisites
+
+1. **Apple Container CLI** installed and available
+2. **macOS** operating system
+3. **Internet connection** for container images
+4. **Sufficient disk space** for builds
+
+## 🎯 Use Cases
+
+| Use Case | Recommended Runner | Reason |
+|----------|-------------------|---------|
+| Quick testing | Alpine | Fast startup, small footprint |
+| Development | Alpine | Quick iteration cycles |
+| Production testing | Ubuntu | Full compatibility |
+| Dependency testing | Ubuntu | Complete Linux environment |
+| CI/CD pipelines | Ubuntu | Reliable build environment |
+
+## 🔄 Maintenance
+
+### Updating Scripts
 ```bash
-# List running containers
-docker ps
+# Make executable
+chmod +x scripts/container/*.sh
 
-# Stop all DEXArb containers
-docker stop $(docker ps -q --filter ancestor=dexarb:latest)
-
-# Remove old containers
-docker container prune
-
-# View container logs
-docker logs <container_id>
+# Check Apple Container CLI version
+container --version
 ```
 
-## Troubleshooting
+### Rebuilding Applications
+```bash
+# Alpine (uses pre-built binary)
+./scripts/container/run-alpine-simple.sh
 
-- **Container won't start**: Check Docker daemon status
-- **Permission denied**: Ensure scripts are executable
-- **Build failures**: Verify Dockerfile and dependencies
-- **Performance issues**: Use `run-alpine-fast.sh` for development
+# Ubuntu (rebuilds automatically)
+./scripts/container/run-ubuntu-container.sh --build
+```
 
-## Documentation
+## 📚 Documentation
 
-Full documentation: `docs/getting-started/ALPINE_CONTAINER_RUNNER.md`
+- [Alpine Container Runner](../../docs/getting-started/ALPINE_CONTAINER_RUNNER.md)
+- [Ubuntu Container Runner](../../docs/getting-started/UBUNTU_CONTAINER_RUNNER.md)
+- [Getting Started](../../docs/getting-started/README.md)
+
+---
+
+**Created**: 26.02.2025  
+**Author**: Rostyslav S.  
+**Version**: 1.0.7
