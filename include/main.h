@@ -10,6 +10,8 @@
 #include <string>           // For string handling in structures
 #include <vector>           // For dynamic arrays in structures
 #include <chrono>           // For timing in FunctionStats
+#include <memory>           // For smart pointers
+#include <functional>       // For function objects
 
 // ANSI color codes for console output
 const std::string GREEN = "\033[32m";    // Green color for success messages
@@ -23,6 +25,17 @@ const std::string CYAN = "\033[36m";     // Cyan color for progress bars
 struct RpcEndpoint {
     std::string url;       // URL of the RPC endpoint
     int request_limit;     // Maximum requests per second allowed by the endpoint
+    
+    // Modern constructor with validation
+    RpcEndpoint(const std::string& endpoint_url, int limit) 
+        : url(endpoint_url), request_limit(limit) {
+        if (request_limit <= 0) request_limit = 10; // Default limit
+    }
+    
+    // Validation method
+    bool is_valid() const {
+        return !url.empty() && request_limit > 0;
+    }
 };
 
 // Structure for pool information
@@ -31,6 +44,18 @@ struct PoolInfo {
     std::string token0;    // Address of the first token in the pool
     std::string token1;    // Address of the second token in the pool
     uint64_t liquidity;    // Total liquidity in the pool
+    
+    // Modern constructor
+    PoolInfo(const std::string& pool_address = "", 
+             const std::string& t0 = "", 
+             const std::string& t1 = "", 
+             uint64_t liq = 0)
+        : address(pool_address), token0(t0), token1(t1), liquidity(liq) {}
+    
+    // Validation method
+    bool is_valid() const {
+        return !address.empty() && !token0.empty() && !token1.empty();
+    }
 };
 
 // Structure for DEX details
@@ -43,6 +68,23 @@ struct DexInfo {
     uint64_t tvl = 0;             // Total Value Locked in the DEX
     uint64_t volume_24h = 0;      // 24-hour trading volume
     uint64_t tx_count_24h = 0;    // Number of transactions in the last 24 hours
+    
+    // Modern constructor
+    DexInfo(const std::string& dex_name = "", const std::string& factory = "")
+        : name(dex_name), factory_address(factory) {}
+    
+    // Validation method
+    bool is_valid() const {
+        return !name.empty() && !factory_address.empty();
+    }
+    
+    // Method to add pool
+    void add_pool(const PoolInfo& pool) {
+        if (pool.is_valid()) {
+            pools.push_back(pool);
+            pool_count = pools.size();
+        }
+    }
 };
 
 // Structure for performance statistics
@@ -54,6 +96,28 @@ struct FunctionStats {
     double cpu_usage_percent = 0.0;   // CPU usage percentage
     size_t outbound_traffic = 0;      // Outbound traffic in bytes
     size_t inbound_traffic = 0;       // Inbound traffic in bytes
+    
+    // Method to reset stats
+    void reset() {
+        execution_time_ms = 0.0;
+        virtual_memory_kb = 0;
+        disk_usage_bytes = 0;
+        latency_ms = 0.0;
+        cpu_usage_percent = 0.0;
+        outbound_traffic = 0;
+        inbound_traffic = 0;
+    }
+    
+    // Method to add another stats object
+    void add(const FunctionStats& other) {
+        execution_time_ms += other.execution_time_ms;
+        virtual_memory_kb += other.virtual_memory_kb;
+        disk_usage_bytes += other.disk_usage_bytes;
+        latency_ms += other.latency_ms;
+        cpu_usage_percent += other.cpu_usage_percent;
+        outbound_traffic += other.outbound_traffic;
+        inbound_traffic += other.inbound_traffic;
+    }
 };
 
 // Time units for Time Measure

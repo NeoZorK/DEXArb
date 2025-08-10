@@ -5,6 +5,7 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 #include "rpc_core.h"       // Include own header for declarations
+#include "modern_utils.h"    // For modern JSON parser and logger
 #include "measure.h"        // For update_stats function
 #include <curl/curl.h>      // For CURL HTTP requests
 #include <iostream>         // For console output
@@ -31,20 +32,8 @@ size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer
 // - json: The JSON string to parse
 // Returns: The value of the "result" field or an empty string if not found
 std::string parse_json_result(const std::string& json) {
-    // Define the key to search for in the JSON
-    std::string result_key = "\"result\":\"";
-    // Find the position of the result key
-    size_t start = json.find(result_key);
-    // Return empty string if the key is not found
-    if (start == std::string::npos) return "";
-    // Move past the key to the value
-    start += result_key.length();
-    // Find the end of the result value
-    size_t end = json.find('"', start);
-    // Return empty string if the end is not found
-    if (end == std::string::npos) return "";
-    // Extract and return the result value
-    return json.substr(start, end - start);
+    // Use modern JSON parser instead of manual string manipulation
+    return modern::JsonParser::extract_field(json, "result");
 }
 
 // Function to display a progress bar in the console
