@@ -13,7 +13,7 @@
 #include <iostream>         // For console I/O
 
 // Global Project Version
-const std::string VERSION = "1.0.4";
+const std::string VERSION = "1.0.6";
 
 // Forward declarations
 void show_help();
@@ -66,7 +66,7 @@ void show_help() {
     std::cout << "   " << BLUE << "•" << RESET << " 100,000+ blocks for deep analysis\n\n";
     
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "              " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "                    " << CYAN << "║" << RESET << '\n';
     std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
     std::cout << "\n";
 }
@@ -84,7 +84,7 @@ void show_version() {
     std::cout << "   " << BLUE << "•" << RESET << " Language: C++17\n";
     std::cout << "   " << BLUE << "•" << RESET << " Platform: Cross-platform\n\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "              " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "                    " << CYAN << "║" << RESET << '\n';
     std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
     std::cout << "\n";
 }
