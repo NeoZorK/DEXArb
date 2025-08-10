@@ -18,7 +18,7 @@
 
 // Include our main structures and enums
 #include "../../include/main.h"
-#include "../../include/blockchain.h"
+#include "../../include/core/blockchain.h"
 
 // Mock command line argument parser for testing
 class MockCommandLineParser {

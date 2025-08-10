@@ -27,18 +27,18 @@ public:
     // Register a service with factory function
     template<typename T>
     void register_service(std::function<std::unique_ptr<T>()> factory) {
-        services_[std::type_index(typeid(T))] = [factory]() -> std::unique_ptr<void> {
+        services_[std::type_index(typeid(T))] = [factory]() -> std::unique_ptr<void*> {
             auto service = factory();
-            return std::unique_ptr<void>(service.release());
+            return std::unique_ptr<void*>(static_cast<void*>(service.release()));
         };
     }
     
     // Register a singleton service
     template<typename T>
     void register_singleton(std::function<std::unique_ptr<T>()> factory) {
-        singletons_[std::type_index(typeid(T))] = [factory]() -> std::unique_ptr<void> {
+        singletons_[std::type_index(typeid(T))] = [factory]() -> std::unique_ptr<void*> {
             auto service = factory();
-            return std::unique_ptr<void>(service.release());
+            return std::unique_ptr<void*>(static_cast<void*>(service.release()));
         };
     }
     
@@ -106,13 +106,13 @@ public:
 
 private:
     // Service factories
-    std::unordered_map<std::type_index, std::function<std::unique_ptr<void>()>> services_;
+    std::unordered_map<std::type_index, std::function<std::unique_ptr<void*>()>> services_;
     
     // Singleton factories
-    std::unordered_map<std::type_index, std::function<std::unique_ptr<void>()>> singletons_;
+    std::unordered_map<std::type_index, std::function<std::unique_ptr<void*>()>> singletons_;
     
     // Created singleton instances
-    std::unordered_map<std::type_index, std::unique_ptr<void>> created_singletons_;
+    std::unordered_map<std::type_index, std::unique_ptr<void*>> created_singletons_;
 };
 
 // Global service container instance

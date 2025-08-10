@@ -4,8 +4,8 @@
 //
 //  Created by Rostyslav S. on 10.08.2025.
 //
-#include "../../include/cli/command_parser.h"
-#include "../../include/blockchain.h"
+#include "cli/command_parser.h"
+#include "core/blockchain.h"
 #include <algorithm>
 #include <cctype>
 

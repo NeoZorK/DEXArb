@@ -20,12 +20,12 @@
 
 // Include our main structures and enums
 #include "../../include/main.h"
-#include "../../include/blockchain.h"
-#include "../../include/dex_scanner.h"
-#include "../../include/dex_tokens.h"
-#include "../../include/dex_pools.h"
-#include "../../include/dex_stats.h"
-#include "../../include/config_manager.h"
+#include "../../include/core/blockchain.h"
+#include "../../include/dex/dex_scanner.h"
+#include "../../include/dex/dex_tokens.h"
+#include "../../include/dex/dex_pools.h"
+#include "../../include/dex/dex_stats.h"
+#include "../../include/config/config_manager.h"
 
 // Mock functions for testing (since we can't actually call RPC endpoints)
 namespace mock {

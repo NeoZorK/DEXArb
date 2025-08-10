@@ -4,10 +4,10 @@
 //
 //  Created by Rostyslav S. on 10.08.2025.
 //
-#include "core/application.h"
-#include "cli/command_parser.h"
-#include "cli/help_display.h"
-#include "modern_utils.h"
+#include "../../include/core/application.h"
+#include "../../include/cli/command_parser.h"
+#include "../../include/cli/help_display.h"
+#include "../../include/utils/modern_utils.h"
 #include <iostream>
 
 namespace core {
@@ -20,7 +20,7 @@ Application::~Application() {
     shutdown();
 }
 
-int Application::run(int argc, char* argv[]) {
+int Application::run(int argc, const char* argv[]) {
     if (!initialize()) {
         return 1;
     }

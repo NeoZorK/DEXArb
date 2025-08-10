@@ -32,28 +32,26 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /O2 /std:c++23")
 endif()
 
-# Source files (all .cpp files from src directory)
+# Source files organized by functionality
 set(SOURCES
     src/main.cpp
-    src/blockchain.cpp
-    src/rpc_core.cpp
-    src/dex_scanner.cpp
-    src/dex_pools.cpp
-    src/dex_tokens.cpp
-    src/dex_stats.cpp
-    src/config_manager.cpp
-    src/queries.cpp
-    src/input.cpp
-    src/measure.cpp
-    src/arbitrage.cpp
-    src/wallet.cpp
-    src/profit_analyzer.cpp
-    # src/modern_utils.cpp  # Removed - using header-only implementation
-    # New modular source files (temporarily disabled for testing)
-    # src/cli/command_parser.cpp
-    # src/cli/help_display.cpp
-    # src/core/application.cpp
-    # src/di/service_container.cpp
+    src/core/arbitrage.cpp
+    src/core/blockchain.cpp
+    src/core/profit_analyzer.cpp
+    src/dex/dex_pools.cpp
+    src/dex/dex_scanner.cpp
+    src/dex/dex_stats.cpp
+    src/dex/dex_tokens.cpp
+    src/network/rpc_core.cpp
+    src/network/queries.cpp
+    src/utils/input.cpp
+    src/utils/measure.cpp
+    src/utils/wallet.cpp
+    src/config/config_manager.cpp
+    src/cli/command_parser.cpp
+    src/cli/help_display.cpp
+    src/core/application.cpp
+    src/di/service_container.cpp
 )
 
 # Create main executable
@@ -63,6 +61,7 @@ add_executable(NeoZorKDEXArb ${SOURCES})
 target_include_directories(NeoZorKDEXArb PRIVATE 
     include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 

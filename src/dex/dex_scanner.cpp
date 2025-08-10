@@ -4,9 +4,9 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "dex_scanner.h"
+#include "dex/dex_scanner.h"
 #include "main.h"           // For RpcEndpoint, BlockchainType, DexInfo, FunctionStats, and color constants
-#include "rpc_core.h"       // For get_latest_block_number, write_callback, print_progress_bar
+#include "network/rpc_core.h"       // For get_latest_block_number, write_callback, print_progress_bar
 #include <iostream>         // For console output
 #include <sstream>          // For stringstream
 #include <chrono>           // For timing

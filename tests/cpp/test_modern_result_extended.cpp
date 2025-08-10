@@ -16,7 +16,7 @@
 #define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
 
 // Include our result utilities
-#include "../../include/modern_result.h"
+#include "../../include/utils/modern_result.h"
 
 using namespace modern;
 

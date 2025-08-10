@@ -4,7 +4,7 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "wallet.h"
+#include "utils/wallet.h"
 #include "main.h"           // For FunctionStats and color constants
 #include <iostream>         // For console output
 

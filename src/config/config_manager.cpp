@@ -4,12 +4,12 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "config_manager.h" // Include own header
-#include "rpc_core.h"       // For get_latest_block_number
-#include "dex_pools.h"      // For pool functions
-#include "dex_tokens.h"     // For token functions
-#include "dex_stats.h"      // For swap stats
-#include "measure.h"        // For update_stats
+#include "config/config_manager.h" // Include own header
+#include "network/rpc_core.h"       // For get_latest_block_number
+#include "dex/dex_pools.h"      // For pool functions
+#include "dex/dex_tokens.h"     // For token functions
+#include "dex/dex_stats.h"      // For swap stats
+#include "utils/measure.h"        // For update_stats
 #include <iostream>         // For console output
 #include <fstream>          // For file I/O
 #include <sstream>          // For string manipulation

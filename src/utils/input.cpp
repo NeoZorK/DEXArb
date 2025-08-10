@@ -4,8 +4,8 @@
 //
 //  Created by Rostyslav S. on 17.03.2025.
 //
-#include "input.h"          // Include input header
-#include "blockchain.h"     // Include blockchain-specific functions
+#include "utils/input.h"          // Include input header
+#include "core/blockchain.h"     // Include blockchain-specific functions
 #include <iostream>         // Include iostream for console output
 #include <fstream>          // Include fstream for file I/O
 #include <sstream>          // Include stringstream for string manipulation

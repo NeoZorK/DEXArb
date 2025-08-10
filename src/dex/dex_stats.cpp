@@ -4,9 +4,9 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "dex_stats.h"
-#include "rpc_core.h"       // For make_rpc_call
-#include "measure.h"        // For update_stats
+#include "dex/dex_stats.h"
+#include "network/rpc_core.h"       // For make_rpc_call
+#include "utils/measure.h"        // For update_stats
 #include <curl/curl.h>      // For CURL requests
 #include <sstream>          // For payload construction
 

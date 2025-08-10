@@ -11,23 +11,13 @@
 #include <string>
 #include <string_view>
 
-// Forward declarations
-namespace modern {
-    class Logger;
-}
-
-namespace interfaces {
-    class IConfigManager;
-    class IBlockchainScanner;
-    class IRpcClient;
-}
-
-namespace cli {
-    struct ParsedCommand;
-}
-
-// Forward declarations
-struct FunctionStats;
+// Include the actual implementations instead of forward declarations
+#include "../utils/modern_utils.h"
+#include "../interfaces/iconfig_manager.h"
+#include "../interfaces/iblockchain_scanner.h"
+#include "../interfaces/irpc_client.h"
+#include "../cli/command_parser.h"
+#include "../main.h"
 
 namespace core {
 
@@ -41,7 +31,7 @@ public:
     ~Application();
     
     // Run application with command line arguments
-    int run(int argc, char* argv[]);
+    int run(int argc, const char* argv[]);
     
     // Initialize application
     bool initialize();
@@ -90,7 +80,7 @@ private:
     void log_info(std::string_view info_message);
     
     // Member variables
-    std::unique_ptr<modern::Logger> logger_;
+    std::unique_ptr<modern_utils::Logger> logger_;
     std::unique_ptr<interfaces::IConfigManager> config_manager_;
     std::unique_ptr<interfaces::IBlockchainScanner> blockchain_scanner_;
     std::unique_ptr<interfaces::IRpcClient> rpc_client_;

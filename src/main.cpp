@@ -5,12 +5,12 @@
 //  Created by Rostyslav S. on 26.02.2025.
 //
 #include "main.h"           // For shared structures and constants
-#include "modern_utils.h"    // For modern logging and utilities
-#include "blockchain.h"     // For BlockchainType and functions
-#include "dex_scanner.h"    // For find_factory_contracts
-#include "config_manager.h" // For load_dexes_from_config
-#include "queries.h"        // For query functions
-#include "input.h"          // For input/output functions
+#include "utils/modern_utils.h"    // For modern logging and utilities
+#include "core/blockchain.h"     // For BlockchainType and functions
+#include "dex/dex_scanner.h"    // For find_factory_contracts
+#include "config/config_manager.h" // For load_dexes_from_config
+#include "network/queries.h"        // For query functions
+#include "utils/input.h"          // For input/output functions
 #include <iostream>         // For console I/O
 #include <algorithm>        // For std::transform
 

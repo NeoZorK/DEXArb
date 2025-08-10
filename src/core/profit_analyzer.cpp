@@ -4,7 +4,7 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "profit_analyzer.h"
+#include "core/profit_analyzer.h"
 #include "main.h"           // For DexInfo, FunctionStats, and color constants
 #include <iostream>         // For console output
 

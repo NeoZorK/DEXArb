@@ -9,7 +9,7 @@
 #define DEX_SCANNER_H
 
 #include "main.h"       // For RpcEndpoint, DexInfo, FunctionStats
-#include "blockchain.h" // For BlockchainType
+#include "core/blockchain.h" // For BlockchainType
 #include <mutex>        // For thread synchronization
 
 // Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)

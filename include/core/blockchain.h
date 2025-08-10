@@ -8,7 +8,7 @@
 #ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
-#include "main.h"       // Include main header for shared structures
+#include "../main.h"       // Include main header for shared structures
 #include <string>       // For string handling in function parameters
 
 

@@ -15,7 +15,7 @@
 #define ASSERT_FALSE(a) if (a) { std::cerr << "ASSERT_FALSE failed" << std::endl; return false; }
 
 // Include our format utilities
-#include "../../include/modern_format.h"
+#include "utils/modern_format.h"
 
 using namespace modern;
 

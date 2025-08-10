@@ -4,9 +4,9 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "rpc_core.h"       // Include own header for declarations
-#include "modern_utils.h"    // For modern JSON parser and logger
-#include "measure.h"        // For update_stats function
+#include "network/rpc_core.h"       // Include own header for declarations
+#include "utils/modern_utils.h"    // For modern JSON parser and logger
+#include "utils/measure.h"        // For update_stats function
 #include <curl/curl.h>      // For CURL HTTP requests
 #include <iostream>         // For console output
 #include <thread>           // For std::this_thread::sleep_for

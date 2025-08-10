@@ -5,9 +5,9 @@
 //  Created by Rostyslav S. on 18.03.2025.
 //
 
-#include "dex_pools.h"      // Include own header for declarations
-#include "rpc_core.h"       // For make_rpc_call
-#include "measure.h"        // For update_stats
+#include "dex/dex_pools.h"      // Include own header for declarations
+#include "network/rpc_core.h"       // For make_rpc_call
+#include "utils/measure.h"        // For update_stats
 #include <iostream>         // For console output
 #include <sstream>          // For stringstream in payload construction
 #include <iomanip>          // For hex formatting

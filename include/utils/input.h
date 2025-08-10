@@ -8,7 +8,7 @@
 #define INPUT_H
 
 #include "main.h"           // Include main header for shared structures and definitions
-#include "blockchain.h"     // Include blockchain header for blockchain-related types and functions
+#include "core/blockchain.h"     // Include blockchain header for blockchain-related types and functions
 #include <vector>           // Include vector for dynamic arrays (used in function return types)
 
 // Function to create a default configuration file if it doesn't exist
