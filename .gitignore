@@ -1,47 +1,23 @@
 # Build directories
-/build/
-/out/
-/bin/
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.dylib
-*.a
-*.lib
-
-# CMake generated files
-CMakeCache.txt
+build/
+out/
+cmake-build-*/
 CMakeFiles/
+CMakeCache.txt
 cmake_install.cmake
 Makefile
 *.cmake
 
-# IDE and editor files
+# Dependencies
+vcpkg/
+vcpkg_installed/
+
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
-Thumbs.db
-
-# Logs and temporary files
-*.log
-logs/
-*.tmp
-*.temp
-
-# Configuration files with sensitive data
-neozork-config
-*.config
-.env
-
-# Dependencies
-/vendor/
-/node_modules/
-*.deps
 
 # OS generated files
 .DS_Store
@@ -52,7 +28,62 @@ neozork-config
 ehthumbs.db
 Thumbs.db
 
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Package files
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+# Test coverage
+*.gcov
+*.gcda
+*.gcno
+coverage/
+
+# Profiling data
+*.prof
+*.profraw
+
 # Backup files
 *.bak
 *.backup
 *.old
+
+# Local configuration
+.env
+.env.local
+config.local.*
