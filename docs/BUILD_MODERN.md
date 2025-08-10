@@ -37,8 +37,8 @@ This document describes the modernized build system for NeoZorKDEXArb, which use
 
 ### Optional Software
 
-- **uv** for Python testing: `pip install uv`
-- **pytest** for Python testing: `pip install pytest pytest-xdist`
+- **Google Test** for C++ testing (included via vcpkg)
+- **CMake** for build system and testing
 
 ## Build Methods
 
@@ -118,7 +118,7 @@ make -j$(sysctl -n hw.ncpu)
 
 Automatic testing of:
 - Executable functionality (help, version commands)
-- Python tests (if pytest/uv available)
+- C++ tests (Google Test framework)
 
 ## Configuration
 

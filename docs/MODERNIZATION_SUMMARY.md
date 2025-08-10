@@ -22,7 +22,7 @@
 
 ### 4. **Testing Infrastructure**
 - ✅ **C++ test framework** (SimpleTestFramework)
-- ✅ **Python test integration** (pytest with uv)
+- ✅ **C++ test integration** (Google Test with CMake)
 - ✅ **Automatic test execution** during build
 - ✅ **Test result reporting**
 

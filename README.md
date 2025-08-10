@@ -25,8 +25,7 @@ A high-performance C++ console application for scanning, analyzing, and identify
 - **C++23** compatible compiler (GCC 13+, Clang 17+, MSVC 2022+)
 - **CMake** 3.28 or higher
 - **libcurl** development libraries
-- **Python 3.8+** (for testing with pytest)
-- **uv** package manager (for Python dependencies)
+- **Google Test** framework for C++ testing
 
 ### Quick Install Dependencies
 
@@ -63,7 +62,7 @@ cmake --build . --config Release
 
 ## 🧪 Testing
 
-The project includes comprehensive C++ unit tests with 100% success rate:
+The project includes comprehensive C++ unit tests using Google Test framework with 100% success rate:
 
 ```bash
 # Build and run all tests

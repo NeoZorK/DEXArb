@@ -89,10 +89,9 @@
 
 ### Testing Infrastructure
 
-- **pytest**: Python testing framework for comprehensive test coverage
-- **pytest-cov**: Coverage reporting and analysis
-- **pytest-xdist**: Parallel test execution for faster feedback
-- **pytest-mock**: Mocking and test isolation
+- **Google Test**: C++ testing framework for comprehensive test coverage
+- **CMake**: Build system with integrated testing support
+- **CTest**: Test runner for CMake-based projects
 - **47 Test Cases**: Complete coverage of all functionality
 - **Parallel Execution**: Tests run in parallel for optimal performance
 

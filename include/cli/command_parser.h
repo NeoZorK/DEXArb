@@ -53,7 +53,7 @@ struct ParsedCommand {
 class CommandParser {
 public:
     // Parse command line arguments
-    static ParsedCommand parse(int argc, char* argv[]);
+    static ParsedCommand parse(int argc, const char* argv[]);
     
     // Validate parsed command
     static bool validate_command(const ParsedCommand& cmd);

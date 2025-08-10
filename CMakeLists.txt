@@ -149,6 +149,29 @@ add_executable(ModernFormatTests
     tests/cpp/test_modern_format.cpp
 )
 
+# New comprehensive test executables
+add_executable(AllFlagsAndResultsTests
+    tests/cpp/test_all_flags_and_results.cpp
+)
+
+add_executable(CommandLineFlagsTests
+    tests/cpp/test_command_line_flags.cpp
+)
+
+add_executable(CliCommandsTests
+    tests/cpp/test_cli_commands.cpp
+    src/cli/command_parser.cpp
+)
+
+add_executable(HelpDisplayTests
+    tests/cpp/test_help_display.cpp
+    src/cli/help_display.cpp
+)
+
+add_executable(ModernResultExtendedTests
+    tests/cpp/test_modern_result_extended.cpp
+)
+
 # Include directories for test executables
 target_include_directories(ModernResultTests PRIVATE 
     include
@@ -160,7 +183,32 @@ target_include_directories(ModernFormatTests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Link Google Test to modern tests
+target_include_directories(AllFlagsAndResultsTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(CommandLineFlagsTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(CliCommandsTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(HelpDisplayTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(ModernResultExtendedTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+# Link libraries to test executables
 target_link_libraries(ModernResultTests PRIVATE 
     GTest::gtest 
     GTest::gtest_main
@@ -171,10 +219,53 @@ target_link_libraries(ModernFormatTests PRIVATE
     GTest::gtest_main
 )
 
+# For tests that need the actual implementations, we need to include source files
+target_link_libraries(AllFlagsAndResultsTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(CommandLineFlagsTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(CliCommandsTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(HelpDisplayTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(ModernResultExtendedTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
 # Add tests
 add_test(NAME NeoZorKDEXArbTests COMMAND NeoZorKDEXArbTests)
 add_test(NAME ModernResultTests COMMAND ModernResultTests)
 add_test(NAME ModernFormatTests COMMAND ModernFormatTests)
+add_test(NAME AllFlagsAndResultsTests COMMAND AllFlagsAndResultsTests)
+add_test(NAME CommandLineFlagsTests COMMAND CommandLineFlagsTests)
+add_test(NAME CliCommandsTests COMMAND CliCommandsTests)
+add_test(NAME HelpDisplayTests COMMAND HelpDisplayTests)
+add_test(NAME ModernResultExtendedTests COMMAND ModernResultExtendedTests)
+
+# Set test properties
+set_tests_properties(AllFlagsAndResultsTests PROPERTIES TIMEOUT 300)
+set_tests_properties(CommandLineFlagsTests PROPERTIES TIMEOUT 300)
+set_tests_properties(CliCommandsTests PROPERTIES TIMEOUT 300)
+set_tests_properties(HelpDisplayTests PROPERTIES TIMEOUT 300)
+set_tests_properties(ModernResultExtendedTests PROPERTIES TIMEOUT 300)
 
 # Set output directories
 set_target_properties(NeoZorKDEXArb PROPERTIES

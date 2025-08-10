@@ -4,14 +4,14 @@
 //
 //  Created by Rostyslav S. on 10.08.2025.
 //
-#include "cli/command_parser.h"
-#include "blockchain.h"
+#include "../../include/cli/command_parser.h"
+#include "../../include/blockchain.h"
 #include <algorithm>
 #include <cctype>
 
 namespace cli {
 
-ParsedCommand CommandParser::parse(int argc, char* argv[]) {
+ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
     ParsedCommand cmd;
     
     if (argc < 2) {
@@ -35,7 +35,10 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
             if (argc >= 4) {
                 cmd.blockchain = argv[2];
                 cmd.value = argv[3];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Scan command requires blockchain and block count";
             }
@@ -44,7 +47,10 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
         case CommandType::SHOW_DEXES:
             if (argc >= 3) {
                 cmd.blockchain = argv[2];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Show DEXes command requires blockchain";
             }
@@ -55,7 +61,10 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
             if (argc >= 4) {
                 cmd.blockchain = argv[2];
                 cmd.dex_name = argv[3];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Show pools/tokens command requires blockchain and DEX name";
             }
@@ -66,7 +75,10 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
         case CommandType::SHOW_SCAN_STAT:
             if (argc >= 3) {
                 cmd.blockchain = argv[2];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Show scan command requires blockchain";
             }
@@ -77,7 +89,10 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
                 cmd.blockchain = argv[2];
                 cmd.dex_name = argv[3];
                 cmd.token_address = argv[4];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Find token command requires blockchain, DEX name, and token address";
             }
@@ -87,13 +102,16 @@ ParsedCommand CommandParser::parse(int argc, char* argv[]) {
             if (argc >= 4) {
                 cmd.blockchain = argv[2];
                 cmd.token_address = argv[3];
-                cmd.is_valid = validate_command(cmd);
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
                 cmd.error_message = "Find tokens command requires blockchain and token address";
             }
             break;
             
-        default:
+        case CommandType::UNKNOWN:
             cmd.error_message = "Unknown command: " + flag;
             break;
     }
@@ -167,7 +185,7 @@ std::string CommandParser::get_command_description(CommandType type) {
         case CommandType::SHOW_SCAN_STAT: return "Show scan statistics";
         case CommandType::FIND_TOKEN: return "Find token in specific DEX";
         case CommandType::FIND_TOKENS: return "Find token across all DEXes";
-        default: return "Unknown command";
+        case CommandType::UNKNOWN: return "Unknown command";
     }
 }
 
@@ -176,7 +194,7 @@ bool CommandParser::requires_blockchain(CommandType type) {
 }
 
 bool CommandParser::requires_value(CommandType type) {
-    return type == CommandType::SCAN;
+    return type == CommandType::SCAN || type == CommandType::FIND_TOKEN || type == CommandType::FIND_TOKENS;
 }
 
 bool CommandParser::requires_dex(CommandType type) {
@@ -185,7 +203,7 @@ bool CommandParser::requires_dex(CommandType type) {
 }
 
 bool CommandParser::requires_token(CommandType type) {
-    return type == CommandType::FIND_TOKEN || type == CommandType::FIND_TOKENS;
+    return type == CommandType::FIND_TOKEN;
 }
 
 bool CommandParser::is_valid_blockchain(std::string_view blockchain) {
