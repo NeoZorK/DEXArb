@@ -49,7 +49,7 @@ set(SOURCES
     src/wallet.cpp
     src/profit_analyzer.cpp
     src/modern_utils.cpp
-    # New modular source files (temporarily disabled)
+    # New modular source files (temporarily disabled for testing)
     # src/cli/command_parser.cpp
     # src/cli/help_display.cpp
     # src/core/application.cpp
@@ -65,9 +65,21 @@ target_include_directories(NeoZorKDEXArb PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+# Include directories for test executables (temporarily disabled)
+# target_include_directories(ModernResultTests PRIVATE 
+#     include
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src
+# )
+# 
+# target_include_directories(ModernFormatTests PRIVATE 
+#     include
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src
+# )
+
 # Find and link dependencies via vcpkg
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(GTest REQUIRED)
 
 # Link libraries
 target_link_libraries(NeoZorKDEXArb PRIVATE
@@ -132,13 +144,30 @@ set(CPACK_PACKAGE_CONTACT "rostyslav@neozork.com")
 # Testing configuration
 enable_testing()
 
-# Create test executable
+# Create test executables
 add_executable(NeoZorKDEXArbTests
     tests/test_main.cpp
 )
 
+# Modern test executables (temporarily disabled)
+# add_executable(ModernResultTests
+#     tests/cpp/test_modern_result.cpp
+# )
+# 
+# add_executable(ModernFormatTests
+#     tests/cpp/test_modern_format.cpp
+# )
+# 
+# # Link Google Test to modern tests
+# target_link_libraries(ModernResultTests PRIVATE 
+#     GTest::gtest 
+#     GTest::gtest_main
+# )
+
 # Add tests
 add_test(NAME NeoZorKDEXArbTests COMMAND NeoZorKDEXArbTests)
+# add_test(NAME ModernResultTests COMMAND ModernResultTests)
+# add_test(NAME ModernFormatTests COMMAND ModernFormatTests)
 
 # Set output directories
 set_target_properties(NeoZorKDEXArb PROPERTIES

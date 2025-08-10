@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Modern Build Script for NeoZorKDEXArb using Apple Container CLI
+# Modern Build Script for NeoZorKDEXArb for macOS
 # Created by Rostyslav S. on 26.02.2025
+# Updated to work without Apple Container
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
 
@@ -40,20 +41,10 @@ log() {
 check_dependencies() {
     log "INFO" "Checking build dependencies..."
     
-    # Check for Apple Container CLI
-    if ! command -v container &> /dev/null; then
-        log "ERROR" "Apple Container CLI not found. Please install it from Xcode or Command Line Tools."
-        log "INFO" "Install Command Line Tools: xcode-select --install"
-        exit 1
-    fi
-    
-    # Check Apple Container CLI version
-    local container_version=$(container version 2>/dev/null | head -n1 || echo "unknown")
-    log "INFO" "Apple Container CLI version: $container_version"
-    
     # Check for CMake
     if ! command -v cmake &> /dev/null; then
         log "ERROR" "CMake not found. Please install CMake 3.28 or higher."
+        log "INFO" "Install with: brew install cmake"
         exit 1
     fi
     
@@ -69,6 +60,13 @@ check_dependencies() {
     # Check for C++ compiler
     if ! command -v clang++ &> /dev/null; then
         log "ERROR" "clang++ not found. Please install Xcode Command Line Tools."
+        log "INFO" "Install with: xcode-select --install"
+        exit 1
+    fi
+    
+    # Check for git
+    if ! command -v git &> /dev/null; then
+        log "ERROR" "git not found. Please install git."
         exit 1
     fi
     
@@ -100,250 +98,190 @@ setup_vcpkg() {
         ./bootstrap-vcpkg.sh
     fi
     
-    # Install required packages from manifest
+    # Install required packages
     log "INFO" "Installing required packages from manifest..."
-    ./vcpkg install
-    
-    # Set CMAKE_TOOLCHAIN_FILE
-    export CMAKE_TOOLCHAIN_FILE="$(pwd)/scripts/buildsystems/vcpkg.cmake"
+    ./vcpkg install --triplet=arm64-osx
     
     cd ..
-    
     log "INFO" "vcpkg setup completed"
 }
 
-# Function to create Apple Container
-create_container() {
-    log "INFO" "Creating Apple Container for build environment..."
-    
-    # Create container configuration
-    cat > Containerfile << 'EOF'
-FROM swift:5.9-focal
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    curl \
-    libcurl4-openssl-dev \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /workspace
-
-# Copy source code
-COPY . .
-
-# Install vcpkg
-RUN git clone https://github.com/Microsoft/vcpkg.git && \
-    cd vcpkg && \
-    ./bootstrap-vcpkg.sh
-
-# Install dependencies from manifest
-RUN cd vcpkg && \
-    ./vcpkg install
-
-# Build the project
-RUN mkdir build && cd build && \
-    cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake && \
-    make -j$(nproc)
-
-# Set entrypoint
-ENTRYPOINT ["/bin/bash"]
-EOF
-    
-    log "INFO" "Containerfile created"
-}
-
-# Function to build with Apple Container
-build_with_container() {
-    log "INFO" "Building with Apple Container..."
-    
-    # Create container
-    if ! container build -t neozork-dexarb .; then
-        log "ERROR" "Container build failed"
-        exit 1
-    fi
-    
-    # Run container to build project
-    if ! container run --rm -v "$(pwd):/workspace" neozork-dexarb bash -c "
-        cd /workspace && \
-        mkdir -p build && cd build && \
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake && \
-        make -j$(nproc) && \
-        echo 'Build completed successfully!'
-    "; then
-        log "ERROR" "Build in container failed"
-        exit 1
-    fi
-    
-    log "INFO" "Build completed successfully in container"
-}
-
-# Function to build locally with vcpkg
-build_locally() {
-    log "INFO" "Building locally with vcpkg..."
+# Function to create build environment
+create_build_environment() {
+    log "INFO" "Creating build environment..."
     
     # Create build directory
-    if [ -d "build" ]; then
+    local build_dir="build-apple"
+    if [ -d "$build_dir" ]; then
         log "INFO" "Cleaning existing build directory..."
-        rm -rf build
+        rm -rf "$build_dir"
     fi
     
-    mkdir -p build
-    cd build
+    mkdir -p "$build_dir"
+    log "INFO" "Build directory created: $build_dir"
+}
+
+# Function to build project
+build_project() {
+    local build_dir="build-apple"
+    cd "$build_dir"
+    
+    log "INFO" "Configuring project with CMake..."
     
     # Configure with CMake
-    if ! cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake; then
+    cmake .. \
+        -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_CXX_STANDARD=23
+    
+    if [ $? -ne 0 ]; then
         log "ERROR" "CMake configuration failed"
         exit 1
     fi
     
-    # Build
-    local cores=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)
-    log "INFO" "Using $cores CPU cores for parallel build"
+    log "INFO" "CMake configuration completed successfully"
     
-    if ! make -j$cores; then
+    # Build project
+    log "INFO" "Building project..."
+    local cpu_count=$(sysctl -n hw.ncpu 2>/dev/null || echo "4")
+    log "INFO" "Using $cpu_count CPU cores for parallel build"
+    
+    make -j"$cpu_count"
+    
+    if [ $? -ne 0 ]; then
         log "ERROR" "Build failed"
         exit 1
     fi
     
+    log "INFO" "Build completed successfully"
     cd ..
-    log "INFO" "Local build completed successfully"
 }
 
 # Function to run tests
 run_tests() {
     log "INFO" "Running tests..."
     
-    if [ -f "build/bin/NeoZorKDEXArb" ]; then
-        log "INFO" "Testing executable..."
-        
-        # Test help command
-        if ! ./build/bin/NeoZorKDEXArb -h &> /dev/null; then
-            log "ERROR" "Help command test failed"
-            exit 1
-        fi
-        
-        # Test version command
-        if ! ./build/bin/NeoZorKDEXArb -v &> /dev/null; then
-            log "ERROR" "Version command test failed"
-            exit 1
-        fi
-        
-        log "INFO" "Basic tests passed"
-    else
-        log "WARN" "Executable not found, skipping tests"
-    fi
+    local build_dir="build-apple"
+    local test_executable="$build_dir/NeoZorKDEXArbTests"
     
-    # Run Python tests
-    if command -v uv &> /dev/null; then
-        log "INFO" "Running Python tests with uv..."
-        if ! uv run pytest tests -n auto; then
-            log "WARN" "Python tests failed"
-        fi
-    elif command -v pytest &> /dev/null; then
-        log "INFO" "Running Python tests with pytest..."
-        if ! pytest tests -n auto; then
-            log "WARN" "Python tests failed"
-        fi
+    if [ -f "$test_executable" ]; then
+        log "INFO" "Running C++ tests..."
+        cd "$build_dir"
+        ./NeoZorKDEXArbTests
+        cd ..
     else
-        log "WARN" "Python testing tools not found"
+        log "WARN" "Test executable not found, skipping tests"
     fi
 }
 
-# Function to create deployment package
+# Function to create distribution package
 create_package() {
-    log "INFO" "Creating deployment package..."
+    log "INFO" "Creating distribution package..."
     
-    local package_name="NeoZorKDEXArb-$(date +%Y%m%d-%H%M%S)"
-    local package_dir="$package_name"
+    local build_dir="build-apple"
+    local package_dir="dist"
+    local executable="$build_dir/bin/NeoZorKDEXArb"
     
+    if [ ! -f "$executable" ]; then
+        log "ERROR" "Executable not found: $executable"
+        exit 1
+    fi
+    
+    # Create distribution directory
     mkdir -p "$package_dir"
     
     # Copy executable
-    if [ -f "build/bin/NeoZorKDEXArb" ]; then
-        cp build/bin/NeoZorKDEXArb "$package_dir/"
-        log "INFO" "Executable copied to package"
+    cp "$executable" "$package_dir/"
+    
+    # Copy configuration files if they exist
+    if [ -f "config.json" ]; then
+        cp config.json "$package_dir/"
     fi
     
-    # Copy documentation
-    if [ -d "docs" ]; then
-        cp -r docs "$package_dir/"
-        log "INFO" "Documentation copied to package"
-    fi
+    # Create README for distribution
+    cat > "$package_dir/README.txt" << EOF
+NeoZorKDEXArb v1.0.7 - macOS Distribution
+
+This package contains the compiled DEX Arbitrage Scanner for macOS.
+
+Usage:
+  ./NeoZorKDEXArb -h          # Show help
+  ./NeoZorKDEXArb -v          # Show version
+  ./NeoZorKDEXArb -scan ethereum 5000  # Scan Ethereum blockchain
+
+For more information, see the main project documentation.
+EOF
     
-    # Copy configuration files
-    if [ -d "config" ]; then
-        cp -r config "$package_dir/"
-        log "INFO" "Configuration files copied to package"
-    fi
-    
-    # Create package archive
-    tar -czf "${package_name}.tar.gz" "$package_name"
-    
-    log "INFO" "Deployment package created: ${package_name}.tar.gz"
-    
-    # Clean up temporary directory
-    rm -rf "$package_name"
+    log "INFO" "Distribution package created in: $package_dir"
 }
 
-# Function to show usage
-show_usage() {
-    echo -e "${CYAN}Usage:${NC}"
-    echo -e "  ${GREEN}$0${NC} [options]"
-    echo
-    echo -e "${CYAN}Options:${NC}"
-    echo -e "  ${GREEN}--container${NC}     Build using Apple Container (default)"
-    echo -e "  ${GREEN}--local${NC}         Build locally with vcpkg"
-    echo -e "  ${GREEN}--package${NC}       Create deployment package after build"
-    echo -e "  ${GREEN}--help${NC}          Show this help message"
-    echo
-    echo -e "${CYAN}Examples:${NC}"
-    echo -e "  ${GREEN}$0${NC}                    # Build with container"
-    echo -e "  ${GREEN}$0 --local${NC}            # Build locally"
-    echo -e "  ${GREEN}$0 --container --package${NC} # Build with container and create package"
+# Function to show help
+show_help() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --help, -h          Show this help message"
+    echo "  --clean             Clean build directory before building"
+    echo "  --package           Create distribution package after build"
+    echo "  --test              Run tests after build"
+    echo "  --all               Build, test, and package (default)"
+    echo ""
+    echo "Examples:"
+    echo "  $0                  # Build, test, and package"
+    echo "  $0 --clean          # Clean and rebuild"
+    echo "  $0 --package        # Build and create package"
+    echo "  $0 --test           # Build and run tests"
 }
 
-# Main build process
+# Main function
 main() {
-    local build_method="container"
+    local clean_build=false
     local create_package_flag=false
+    local run_tests_flag=false
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --container)
-                build_method="container"
-                shift
+            --help|-h)
+                show_help
+                exit 0
                 ;;
-            --local)
-                build_method="local"
+            --clean)
+                clean_build=true
                 shift
                 ;;
             --package)
                 create_package_flag=true
                 shift
                 ;;
-            --help|-h)
-                show_usage
-                exit 0
+            --test)
+                run_tests_flag=true
+                shift
+                ;;
+            --all)
+                clean_build=true
+                create_package_flag=true
+                run_tests_flag=true
+                shift
                 ;;
             *)
                 log "ERROR" "Unknown option: $1"
-                show_usage
+                show_help
                 exit 1
                 ;;
         esac
     done
     
-    log "INFO" "Starting modern build process for NeoZorKDEXArb..."
-    log "INFO" "Build method: $build_method"
+    # Set defaults if no specific flags
+    if [ "$clean_build" = false ] && [ "$create_package_flag" = false ] && [ "$run_tests_flag" = false ]; then
+        clean_build=true
+        create_package_flag=true
+        run_tests_flag=true
+    fi
     
-    # Store original directory
-    local original_dir=$(pwd)
+    log "INFO" "Starting modern build process for NeoZorKDEXArb..."
+    log "INFO" "Build method: native macOS build"
     
     # Check dependencies
     check_dependencies
@@ -351,42 +289,34 @@ main() {
     # Setup vcpkg
     setup_vcpkg
     
-    # Build based on method
-    case $build_method in
-        "container")
-            create_container
-            build_with_container
-            ;;
-        "local")
-            build_locally
-            ;;
-        *)
-            log "ERROR" "Unknown build method: $build_method"
-            exit 1
-            ;;
-    esac
+    # Create build environment
+    create_build_environment
     
-    # Run tests
-    run_tests
+    # Build project
+    build_project
+    
+    # Run tests if requested
+    if [ "$run_tests_flag" = true ]; then
+        run_tests
+    fi
     
     # Create package if requested
     if [ "$create_package_flag" = true ]; then
         create_package
     fi
     
-    # Return to original directory
-    cd "$original_dir"
-    
     log "INFO" "Build process completed successfully!"
-    log "INFO" "Executable location: build/bin/NeoZorKDEXArb"
     
-    # Show usage
-    echo
-    echo -e "${CYAN}Usage examples:${NC}"
-    echo -e "  ${GREEN}$0${NC}                    # Build with container"
-    echo -e "  ${GREEN}$0 --local${NC}            # Build locally"
-    echo -e "  ${GREEN}$0 --package${NC}          # Build and create package"
-    echo
+    if [ -f "build-apple/bin/NeoZorKDEXArb" ]; then
+        log "INFO" "Executable location: build-apple/bin/NeoZorKDEXArb"
+    fi
+    
+    echo ""
+    echo "Usage examples:"
+    echo "  $0                  # Build, test, and package"
+    echo "  $0 --clean          # Clean and rebuild"
+    echo "  $0 --package        # Build and create package"
+    echo "  $0 --test           # Build and run tests"
 }
 
 # Run main function with all arguments
