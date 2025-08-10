@@ -100,9 +100,9 @@ setup_vcpkg() {
         ./bootstrap-vcpkg.sh
     fi
     
-    # Install required packages
-    log "INFO" "Installing required packages via vcpkg..."
-    ./vcpkg install curl nlohmann-json
+    # Install required packages from manifest
+    log "INFO" "Installing required packages from manifest..."
+    ./vcpkg install
     
     # Set CMAKE_TOOLCHAIN_FILE
     export CMAKE_TOOLCHAIN_FILE="$(pwd)/scripts/buildsystems/vcpkg.cmake"
@@ -141,9 +141,9 @@ RUN git clone https://github.com/Microsoft/vcpkg.git && \
     cd vcpkg && \
     ./bootstrap-vcpkg.sh
 
-# Install dependencies
+# Install dependencies from manifest
 RUN cd vcpkg && \
-    ./vcpkg install curl nlohmann-json
+    ./vcpkg install
 
 # Build the project
 RUN mkdir build && cd build && \
@@ -172,7 +172,8 @@ build_with_container() {
         cd /workspace && \
         mkdir -p build && cd build && \
         cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake && \
-        make -j$(nproc)
+        make -j$(nproc) && \
+        echo 'Build completed successfully!'
     "; then
         log "ERROR" "Build in container failed"
         exit 1

@@ -8,10 +8,10 @@
     },
     {
       "name": "nlohmann-json",
-      "version>=": "3.11.0"
+      "version>=": "3.11.3"
     }
   ],
-  "builtin-baseline": "2024-12-19",
+  "builtin-baseline": "d30fdf55cfca16e12bc3ad99cbc615997014b61b",
   "overrides": [
     {
       "name": "curl",

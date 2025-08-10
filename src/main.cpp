@@ -14,7 +14,7 @@
 #include <iostream>         // For console I/O
 
 // Global Project Version
-const std::string VERSION = "1.0.7";
+const std::string PROJECT_VERSION = "1.0.7";
 
 // Forward declarations
 void show_help();
@@ -26,7 +26,7 @@ void show_help() {
     
     std::cout << "\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
     std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
     std::cout << "\n";
     
@@ -80,11 +80,11 @@ void show_version() {
     
     std::cout << "\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
     std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
     std::cout << "\n";
     std::cout << YELLOW << "📋 BUILD INFORMATION" << RESET << '\n';
-    std::cout << "   " << BLUE << "•" << RESET << " Version: " << GREEN << VERSION << RESET << '\n';
+    std::cout << "   " << BLUE << "•" << RESET << " Version: " << GREEN << PROJECT_VERSION << RESET << '\n';
     std::cout << "   " << BLUE << "•" << RESET << " Purpose: Blockchain arbitrage opportunities detection\n";
     std::cout << "   " << BLUE << "•" << RESET << " Language: C++20 (Modern C++)\n";
     std::cout << "   " << BLUE << "•" << RESET << " Platform: Cross-platform\n";
@@ -105,10 +105,10 @@ int main(int argc, char* argv[]) {
     
     // Initialize logger
     g_logger.set_level(modern::Logger::INFO);
-    g_logger.info("Starting DEX Arbitrage Scanner v" + VERSION);
+    g_logger.info("Starting DEX Arbitrage Scanner v" + PROJECT_VERSION);
    
     // Show the project version
-    std::cout << "Starting DEX Arbitrage, VERSION: "<<VERSION<<"\n";
+    std::cout << "Starting DEX Arbitrage, PROJECT_VERSION: "<<PROJECT_VERSION<<"\n";
     
     
     // Check if there are any arguments
