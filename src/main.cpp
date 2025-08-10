@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
             std::vector<DexInfo> dex_list;
             
             // Scan for factories
-            find_factory_contracts(rpc_endpoints, blockchain, scan_range, thread_count, mtx, dex_list, scan_stats);
+            find_factory_contracts(rpc_endpoints, blockchain, static_cast<uint64_t>(scan_range), thread_count, mtx, dex_list, scan_stats);
             
             // Add scan stats
             stats_list.emplace_back("find_factory_contracts", scan_stats);

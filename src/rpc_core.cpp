@@ -62,9 +62,17 @@ std::string parse_json_result(const std::string& json) {
     // Check if result is a string (starts with quote)
     if (json[result_pos] == '"') {
         result_pos++; // Skip opening quote
+        if (result_pos >= json.length()) {
+            std::cout << "DEBUG: Reached end of string after opening quote" << std::endl;
+            return "";
+        }
         size_t end_pos = json.find('"', result_pos);
         if (end_pos == std::string::npos) {
             std::cout << "DEBUG: No closing quote found" << std::endl;
+            return "";
+        }
+        if (end_pos <= result_pos) {
+            std::cout << "DEBUG: Invalid quote positions" << std::endl;
             return "";
         }
         std::string result = json.substr(result_pos, end_pos - result_pos);
@@ -80,6 +88,11 @@ std::string parse_json_result(const std::string& json) {
             (json[end_pos] >= 'A' && json[end_pos] <= 'F') || 
             json[end_pos] == 'x')) {
         end_pos++;
+    }
+    
+    if (end_pos <= result_pos) {
+        std::cout << "DEBUG: Invalid number positions" << std::endl;
+        return "";
     }
     
     std::string result = json.substr(result_pos, end_pos - result_pos);
@@ -111,7 +124,7 @@ void print_progress_bar(uint64_t current, uint64_t total, const std::string& lab
         else std::cout << " ";
     }
     // Close the bar and print the percentage
-    std::cout << RESET << "] " << YELLOW << int(progress * 100.0) << "%" << RESET << "\r";
+    std::cout << RESET << "] " << YELLOW << int(progress * 100.0f) << "%" << RESET << "\r";
     // Flush the output to update the display
     std::cout.flush();
     // Delay to make the progress bar visible
@@ -137,6 +150,8 @@ std::string get_latest_block_number(const std::string& rpc_url, int request_limi
     std::string result = make_rpc_call(rpc_url, payload, request_limit, stats);
     
     std::cout << "DEBUG: RPC result: '" << result << "'" << std::endl;
+    std::cout << "DEBUG: RPC result length: " << result.length() << std::endl;
+    std::cout << "DEBUG: RPC result empty: " << (result.empty() ? "true" : "false") << std::endl;
     
     return result;
 }
@@ -206,6 +221,8 @@ std::string make_rpc_call(const std::string& rpc_url, const std::string& payload
     
     // Add debug output to see what we're getting
     std::cout << "DEBUG: RPC response: " << read_buffer << std::endl;
+    std::cout << "DEBUG: RPC response length: " << read_buffer.length() << std::endl;
+    std::cout << "DEBUG: RPC response empty: " << (read_buffer.empty() ? "true" : "false") << std::endl;
     
     // Parse and return the result from the response
     return parse_json_result(read_buffer);

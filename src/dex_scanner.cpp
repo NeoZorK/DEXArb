@@ -24,8 +24,8 @@
 // - mtx: Mutex for synchronizing access to shared dex_list
 // - dex_list: Vector to store discovered DEX factory contracts
 // - stats: Reference to FunctionStats for performance tracking
-void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType chain, uint64_t scan_range,
-                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType /* chain */, uint64_t scan_range,
+                           int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     try {
         std::cout << "DEBUG: find_factory_contracts called with " << rpc_endpoints.size() << " endpoints" << std::endl;
         
@@ -53,7 +53,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
         }
         
         // Validate hex string format
-        if (latest_block_hex.length() < 3 || latest_block_hex.substr(0, 2) != "0x") {
+        if (latest_block_hex.empty() || latest_block_hex.length() < 3 || latest_block_hex.substr(0, 2) != "0x") {
             std::cerr << RED << "Invalid block number format: " << latest_block_hex << RESET << '\n';
             return;
         }
@@ -70,7 +70,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
         // Vector to store thread objects
         std::vector<std::thread> threads;
         // Calculate number of blocks each thread will process
-        uint64_t blocks_per_thread = scan_range / thread_count + 1;
+        uint64_t blocks_per_thread = scan_range / static_cast<uint64_t>(thread_count) + 1;
 
         // List of known factory contract event signatures (e.g., PairCreated)
         std::vector<std::string> factory_signatures = {
@@ -83,7 +83,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
         // Launch threads for parallel block scanning
         for (int t = 0; t < thread_count; ++t) {
             // Calculate the start block for this thread
-            uint64_t start_block = from_block + (t * blocks_per_thread);
+            uint64_t start_block = from_block + (static_cast<uint64_t>(t) * blocks_per_thread);
             // Calculate the end block, ensuring it doesn't exceed the latest block
             uint64_t end_block = std::min(start_block + blocks_per_thread, latest_block);
             // Skip if the start block is beyond the latest block
@@ -122,8 +122,8 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                         // Construct the RPC payload to fetch block data
                         std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getBlockByNumber\",\"params\":[\"" +
                                               block_hex.str() + "\", true],\"id\":1}";
-                        // Record the size of the outbound payload
-                        size_t outbound_size = payload.size();
+                        // Record the size of the outbound payload (unused for now)
+                        // size_t outbound_size = payload.size();
                         // Set the payload for the POST request
                         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
 
@@ -148,7 +148,7 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                             // Start position after "transactions": [
                             size_t pos = tx_pos + 17;
                             // Iterate through transactions
-                            while (pos < tx_end) {
+                            while (pos < tx_end && pos < json.length()) {
                                 // Find the "to" field in the transaction
                                 size_t to_pos = json.find("\"to\": \"", pos);
                                 if (to_pos == std::string::npos || to_pos >= tx_end) break;
@@ -158,13 +158,16 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, Block
                                 size_t addr_end = json.find('"', to_pos);
                                 if (addr_end == std::string::npos || addr_end >= tx_end) break;
                                 
-                                std::string contract_addr = json.substr(to_pos, addr_end - to_pos);
-                                
-                                // Check if this is a factory contract by looking for known signatures
-                                for (const auto& sig : factory_signatures) {
-                                    if (json.find(sig, pos) != std::string::npos) {
-                                        local_factories.insert(contract_addr);
-                                        break;
+                                // Validate string bounds before substr
+                                if (to_pos < json.length() && addr_end < json.length() && to_pos < addr_end) {
+                                    std::string contract_addr = json.substr(to_pos, addr_end - to_pos);
+                                    
+                                    // Check if this is a factory contract by looking for known signatures
+                                    for (const auto& sig : factory_signatures) {
+                                        if (json.find(sig, pos) != std::string::npos) {
+                                            local_factories.insert(contract_addr);
+                                            break;
+                                        }
                                     }
                                 }
                                 

@@ -52,7 +52,7 @@ void create_config_file(int thread_count, FunctionStats& stats) {
 #else
         struct stat file_stat; // Structure for file stats
         stat("neozork-config", &file_stat); // Get file stats
-        stats.disk_usage_bytes = file_stat.st_size; // Update disk usage
+        stats.disk_usage_bytes = static_cast<size_t>(file_stat.st_size); // Update disk usage
 #endif
     }
 

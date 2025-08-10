@@ -12,14 +12,14 @@
 #include <sstream>          // For stringstream in payload construction
 #include <iomanip>          // For hex formatting
 
-uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int request_limit, FunctionStats& stats) {
+uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_address, int /* request_limit */, FunctionStats& stats) {
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
     // Prepare payload for eth_call to get allPairsLength
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + factory_address +
                           "\",\"data\":\"0x90e18a69\"},\"latest\"],\"id\":1}";
-    std::string result = make_rpc_call(rpc_url, payload, request_limit, stats); // Make RPC call
+    std::string result = make_rpc_call(rpc_url, payload, 0, stats); // Make RPC call
 
     // Parse the result
     if (!result.empty() && result != "0x0") { // Check if result is valid
@@ -32,7 +32,7 @@ uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_a
     return 0; // Return 0 if call failed or no pools
 }
 
-std::string get_pool_address(const std::string& rpc_url, const std::string& factory_address, uint64_t index, int request_limit, FunctionStats& stats) {
+std::string get_pool_address(const std::string& rpc_url, const std::string& factory_address, uint64_t index, int /* request_limit */, FunctionStats& stats) {
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -41,7 +41,7 @@ std::string get_pool_address(const std::string& rpc_url, const std::string& fact
     data << "0x1e83409a" << std::setfill('0') << std::setw(64) << std::hex << index; // Build call data
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + factory_address +
                           "\",\"data\":\"" + data.str() + "\"},\"latest\"],\"id\":1}";
-    std::string result = make_rpc_call(rpc_url, payload, request_limit, stats); // Make RPC call
+    std::string result = make_rpc_call(rpc_url, payload, 0, stats); // Make RPC call
 
     // Parse the result
     if (!result.empty() && result != "0x") { // Check if result is valid
@@ -54,14 +54,14 @@ std::string get_pool_address(const std::string& rpc_url, const std::string& fact
     return ""; // Return empty string if call failed
 }
 
-uint64_t get_pool_liquidity(const std::string& rpc_url, const std::string& pool_address, int request_limit, FunctionStats& stats) {
+uint64_t get_pool_liquidity(const std::string& rpc_url, const std::string& pool_address, int /* request_limit */, FunctionStats& stats) {
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
     // Prepare payload for eth_call to get reserves
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + pool_address +
                           "\",\"data\":\"0x1a686502\"},\"latest\"],\"id\":1}";
-    std::string result = make_rpc_call(rpc_url, payload, request_limit, stats); // Make RPC call
+    std::string result = make_rpc_call(rpc_url, payload, 0, stats); // Make RPC call
 
     // Parse the result
     if (!result.empty() && result != "0x0") { // Check if result is valid

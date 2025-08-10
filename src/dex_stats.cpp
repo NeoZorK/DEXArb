@@ -11,7 +11,7 @@
 #include <sstream>          // For payload construction
 
 void get_pool_swap_stats_thread(const std::string& rpc_url, const std::string& pool_address, uint64_t from_block, uint64_t to_block,
-                                int request_limit, uint64_t& volume, uint64_t& tx_count, std::mutex& mtx, std::atomic<int>& progress, int total_pools) {
+                                int /* request_limit */, uint64_t& volume, uint64_t& tx_count, std::mutex& mtx, std::atomic<int>& progress, int total_pools) {
     // Start timing the function
     FunctionStats stats; // Local stats for this thread
     auto start = std::chrono::high_resolution_clock::now();
@@ -24,7 +24,7 @@ void get_pool_swap_stats_thread(const std::string& rpc_url, const std::string& p
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getLogs\",\"params\":[{\"fromBlock\":\"" +
                           from_block_hex.str() + "\",\"toBlock\":\"" + to_block_hex.str() +
                           "\",\"address\":\"" + pool_address + "\",\"topics\":[\"0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822\"]}],\"id\":1}";
-    std::string result = make_rpc_call(rpc_url, payload, request_limit, stats); // Make RPC call
+    std::string result = make_rpc_call(rpc_url, payload, 0, stats); // Make RPC call
 
     // Parse logs to calculate volume and transaction count
     size_t pos = 0; // Position in the result string
@@ -50,7 +50,7 @@ void get_pool_swap_stats_thread(const std::string& rpc_url, const std::string& p
 
     // Update progress bar
     progress++; // Increment progress
-    print_progress_bar(progress, total_pools, "Fetching swap stats"); // Show progress
+    print_progress_bar(static_cast<uint64_t>(progress), static_cast<uint64_t>(total_pools), "Fetching swap stats"); // Show progress
 
     // Finalize stats
     auto end = std::chrono::high_resolution_clock::now(); // End timing

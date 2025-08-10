@@ -23,39 +23,72 @@
 std::vector<DexInfo> load_dexes_from_config() {
     std::vector<DexInfo> dex_list;
     std::ifstream config_file("neozork-config"); // Open config file
-    if (!config_file.is_open()) return dex_list; // Return empty list if file doesn't exist
+    if (!config_file.is_open()) {
+        std::cout << "DEBUG: Config file not found or cannot be opened" << std::endl;
+        return dex_list; // Return empty list if file doesn't exist
+    }
 
     std::stringstream buffer; // Buffer for file content
     buffer << config_file.rdbuf(); // Read file into buffer
     std::string content = buffer.str(); // Convert to string
     config_file.close(); // Close file
 
+    std::cout << "DEBUG: Config file content length: " << content.length() << std::endl;
+    std::cout << "DEBUG: Config file content preview: " << content.substr(0, 200) << "..." << std::endl;
+
     for (const auto& chain : {"ethereum", "fantom", "bsc", "polygon", "avalanche", "solana"}) {
         size_t chain_pos = content.find("\"" + std::string(chain) + "\": {"); // Find blockchain section
-        if (chain_pos == std::string::npos) continue; // Skip if not found
+        if (chain_pos == std::string::npos) {
+            std::cout << "DEBUG: Chain " << chain << " not found in config" << std::endl;
+            continue; // Skip if not found
+        }
+
+        std::cout << "DEBUG: Found chain " << chain << " at position " << chain_pos << std::endl;
 
         size_t dex_pos = content.find("\"dex\": [", chain_pos); // Find DEX array
         if (dex_pos != std::string::npos) { // Check if DEX section exists
             size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
+            if (dex_end == std::string::npos) {
+                std::cout << "DEBUG: DEX section end not found for " << chain << std::endl;
+                continue;
+            }
+            
+            std::cout << "DEBUG: DEX section for " << chain << " from " << dex_pos << " to " << dex_end << std::endl;
+            
             size_t pos = dex_pos + 8; // Move past "dex": [
-            while (pos < dex_end) { // Loop through DEX entries
+            while (pos < dex_end && pos < content.length()) { // Loop through DEX entries
                 size_t addr_start = content.find("\"factory_address\": \"", pos); // Find factory address field
                 if (addr_start == std::string::npos || addr_start > dex_end) break;
+                
                 addr_start += 19; // Move past "factory_address": "
                 size_t addr_end = content.find('"', addr_start); // Find end of address
-                std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
+                if (addr_end == std::string::npos || addr_end > dex_end) break;
+                
+                // Validate string bounds before substr
+                if (addr_start < content.length() && addr_end < content.length() && addr_start < addr_end) {
+                    std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
+                    std::cout << "DEBUG: Found factory address: " << factory_address << std::endl;
 
-                // Fix: create DexInfo object and set only required fields
-                DexInfo dex;
-                dex.name = "Unknown_" + factory_address.substr(2, 6);
-                dex.factory_address = factory_address;
-                dex_list.push_back(dex); // Add to list
+                    // Fix: create DexInfo object and set only required fields
+                    DexInfo dex;
+                    if (factory_address.length() >= 8) {
+                        dex.name = "Unknown_" + factory_address.substr(2, 6);
+                    } else {
+                        dex.name = "Unknown_" + factory_address;
+                    }
+                    dex.factory_address = factory_address;
+                    dex_list.push_back(dex); // Add to list
+                }
 
                 pos = content.find("{", pos + 1); // Move to next entry
                 if (pos == std::string::npos) break; // Exit if no more entries
             }
+        } else {
+            std::cout << "DEBUG: No DEX section found for " << chain << std::endl;
         }
     }
+    
+    std::cout << "DEBUG: Loaded " << dex_list.size() << " DEXes from config" << std::endl;
     return dex_list; // Return list of DEXes
 }
 
@@ -145,7 +178,7 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::
 #else
         struct stat file_stat; // Structure for file stats on Unix
         stat("neozork-config", &file_stat); // Get file stats
-        stats.disk_usage_bytes = file_stat.st_size; // Update disk usage
+        stats.disk_usage_bytes = static_cast<size_t>(file_stat.st_size); // Update disk usage
 #endif
     }
 
