@@ -4,16 +4,18 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "dex_scanner.h"    // Include own header for declarations
-#include "rpc_core.h"       // For get_latest_block_number, make_rpc_call
-#include "dex_pools.h"      // For get_pool_count
-#include "measure.h"        // For update_stats
-#include <thread>           // For multi-threading
+#include "dex_scanner.h"
+#include "main.h"           // For RpcEndpoint, BlockchainType, DexInfo, FunctionStats, and color constants
+#include "rpc_core.h"       // For get_latest_block_number, write_callback, print_progress_bar
 #include <iostream>         // For console output
-#include <iomanip>          // For hex formatting
 #include <sstream>          // For stringstream
-#include <curl/curl.h>      // For CURL HTTP requests
-#include <set>              // For unique factory addresses
+#include <chrono>           // For timing
+#include <thread>           // For thread management
+#include <mutex>            // For mutex
+#include <atomic>           // For atomic operations
+#include <set>              // For set operations
+#include <string>           // For std::string
+#include <curl/curl.h>      // For HTTP requests
 
 // Function to scan a blockchain for factory contracts of decentralized exchanges (DEXes)
 // Parameters:
@@ -24,7 +26,7 @@
 // - mtx: Mutex for synchronizing access to shared dex_list
 // - dex_list: Vector to store discovered DEX factory contracts
 // - stats: Reference to FunctionStats for performance tracking
-void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, BlockchainType /* chain */, uint64_t scan_range,
+void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[maybe_unused]] BlockchainType chain, uint64_t scan_range,
                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     try {
         std::cout << "DEBUG: find_factory_contracts called with " << rpc_endpoints.size() << " endpoints" << std::endl;

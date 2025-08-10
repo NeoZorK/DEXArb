@@ -114,24 +114,21 @@ public:
     // Value access
     T& unwrap() & {
         if (!is_ok()) {
-            throw std::runtime_error("Attempted to unwrap error result: " + 
-                                   std::string(error_));
+            throw std::runtime_error("Attempted to unwrap error result");
         }
         return value_;
     }
     
     const T& unwrap() const& {
         if (!is_ok()) {
-            throw std::runtime_error("Attempted to unwrap error result: " + 
-                                   std::string(error_));
+            throw std::runtime_error("Attempted to unwrap error result");
         }
         return value_;
     }
     
     T&& unwrap() && {
         if (!is_ok()) {
-            throw std::runtime_error("Attempted to unwrap error result: " + 
-                                   std::string(error_));
+            throw std::runtime_error("Attempted to unwrap error result");
         }
         return std::move(value_);
     }

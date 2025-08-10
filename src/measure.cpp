@@ -50,6 +50,7 @@ void StopTimeMeasure(const ENUM_TIME_UNITS timeUnits) {
                 break;
                 
             default:
+                std::cout << "Unknown time unit" << std::endl;
                 break;
         }
 }

@@ -33,12 +33,12 @@ const std::string CYAN = "\033[36m";     // Cyan color for progress bars
 
 // Structure for RPC endpoint details
 struct RpcEndpoint {
-    int request_limit;     // Maximum requests per second allowed by the endpoint
     std::string url;       // URL of the RPC endpoint
+    int request_limit;     // Maximum requests per second allowed by the endpoint
     
     // Modern constructor with validation
     RpcEndpoint(const std::string& endpoint_url, int limit) 
-        : request_limit(limit), url(endpoint_url) {
+        : url(endpoint_url), request_limit(limit) {
         if (request_limit <= 0) request_limit = 10; // Default limit
     }
     
