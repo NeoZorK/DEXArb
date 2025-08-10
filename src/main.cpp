@@ -212,6 +212,10 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-showDEXES") {
             g_logger.info("Showing DEXes for " + blockchain_str);
             show_dexes(rpc_endpoints);
+        } else if (flag == "-showTOKENS") {
+            // showTOKENS requires blockchain only (shows all tokens across all DEXes)
+            g_logger.info("Showing all tokens for " + blockchain_str);
+            show_all_tokens(rpc_endpoints);
         } else {
             g_logger.error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
@@ -223,6 +227,7 @@ int main(int argc, char* argv[]) {
             g_logger.info("Showing pools for DEX: " + std::string(argv[3]));
             show_pools(rpc_endpoints, argv[3]);
         } else if (flag == "-showTOKENS") {
+            // showTOKENS with DEX parameter shows tokens for specific DEX
             g_logger.info("Showing tokens for DEX: " + std::string(argv[3]));
             show_tokens(rpc_endpoints, argv[3]);
         } else if (flag == "-findTOKENS") {

@@ -65,16 +65,7 @@ target_include_directories(NeoZorKDEXArb PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Include directories for test executables (temporarily disabled)
-# target_include_directories(ModernResultTests PRIVATE 
-#     include
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src
-# )
-# 
-# target_include_directories(ModernFormatTests PRIVATE 
-#     include
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src
-# )
+
 
 # Find and link dependencies via vcpkg
 find_package(CURL REQUIRED)
@@ -149,25 +140,41 @@ add_executable(NeoZorKDEXArbTests
     tests/test_main.cpp
 )
 
-# Modern test executables (temporarily disabled)
-# add_executable(ModernResultTests
-#     tests/cpp/test_modern_result.cpp
-# )
-# 
-# add_executable(ModernFormatTests
-#     tests/cpp/test_modern_format.cpp
-# )
-# 
-# # Link Google Test to modern tests
-# target_link_libraries(ModernResultTests PRIVATE 
-#     GTest::gtest 
-#     GTest::gtest_main
-# )
+# Modern test executables
+add_executable(ModernResultTests
+    tests/cpp/test_modern_result.cpp
+)
+
+add_executable(ModernFormatTests
+    tests/cpp/test_modern_format.cpp
+)
+
+# Include directories for test executables
+target_include_directories(ModernResultTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(ModernFormatTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+# Link Google Test to modern tests
+target_link_libraries(ModernResultTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+)
+
+target_link_libraries(ModernFormatTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+)
 
 # Add tests
 add_test(NAME NeoZorKDEXArbTests COMMAND NeoZorKDEXArbTests)
-# add_test(NAME ModernResultTests COMMAND ModernResultTests)
-# add_test(NAME ModernFormatTests COMMAND ModernFormatTests)
+add_test(NAME ModernResultTests COMMAND ModernResultTests)
+add_test(NAME ModernFormatTests COMMAND ModernFormatTests)
 
 # Set output directories
 set_target_properties(NeoZorKDEXArb PROPERTIES

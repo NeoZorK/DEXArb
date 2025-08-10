@@ -16,6 +16,9 @@ void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string
 // Function to show tokens for a DEX
 void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier);
 
+// Function to show all tokens across all DEXes in a blockchain
+void show_all_tokens(const std::vector<RpcEndpoint>& rpc_endpoints);
+
 // Function to find a token in a specific DEX
 void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier, const std::string& token_address);
 

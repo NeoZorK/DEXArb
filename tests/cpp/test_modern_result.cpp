@@ -34,13 +34,13 @@ TEST_F(ModernResultTest, BasicConstruction) {
 
 // Test Result with different types
 TEST_F(ModernResultTest, DifferentTypes) {
-    // String result
-    auto string_result = Result<std::string>::ok("hello world");
+    // String result with int error type
+    auto string_result = Result<std::string, int>::ok("hello world");
     EXPECT_TRUE(string_result.is_ok());
     EXPECT_EQ(string_result.unwrap(), "hello world");
     
-    // Vector result
-    auto vector_result = Result<std::vector<int>>::ok({1, 2, 3, 4, 5});
+    // Vector result with string error type
+    auto vector_result = Result<std::vector<int>, std::string>::ok({1, 2, 3, 4, 5});
     EXPECT_TRUE(vector_result.is_ok());
     auto vec = vector_result.unwrap();
     EXPECT_EQ(vec.size(), 5);
@@ -82,7 +82,7 @@ TEST_F(ModernResultTest, PointerAccess) {
 
 // Test move semantics
 TEST_F(ModernResultTest, MoveSemantics) {
-    auto original = Result<std::string>::ok("hello");
+    auto original = Result<std::string, int>::ok("hello");
     auto moved = std::move(original);
     
     EXPECT_TRUE(moved.is_ok());
@@ -94,7 +94,7 @@ TEST_F(ModernResultTest, MoveSemantics) {
 
 // Test copy semantics
 TEST_F(ModernResultTest, CopySemantics) {
-    auto original = Result<std::string>::ok("hello");
+    auto original = Result<std::string, int>::ok("hello");
     auto copied = original;
     
     EXPECT_TRUE(original.is_ok());
@@ -117,8 +117,8 @@ TEST_F(ModernResultTest, ErrorHandling) {
 
 // Test utility functions
 TEST_F(ModernResultTest, UtilityFunctions) {
-    auto ok_result = ok(42);
-    auto err_result = err("error");
+    auto ok_result = Result<int>::ok(42);
+    auto err_result = Result<int>::err("error");
     
     EXPECT_TRUE(ok_result.is_ok());
     EXPECT_TRUE(err_result.is_err());
@@ -128,8 +128,8 @@ TEST_F(ModernResultTest, UtilityFunctions) {
 
 // Test type aliases
 TEST_F(ModernResultTest, TypeAliases) {
-    ResultT<int> ok_result = ok(42);
-    ResultStr<std::string> err_result = err("error");
+    ResultT<int> ok_result = ResultT<int>::ok(42);
+    ResultStr<int> err_result = ResultStr<int>::err("error");
     
     EXPECT_TRUE(ok_result.is_ok());
     EXPECT_TRUE(err_result.is_err());
@@ -146,7 +146,7 @@ TEST_F(ModernResultTest, ComplexTypes) {
         TestStruct(int v, std::string n) : value(v), name(std::move(n)) {}
     };
     
-    auto ok_result = Result<TestStruct>::ok(TestStruct(42, "test"));
+    auto ok_result = Result<TestStruct, std::string>::ok(TestStruct(42, "test"));
     EXPECT_TRUE(ok_result.is_ok());
     auto struct_val = ok_result.unwrap();
     EXPECT_EQ(struct_val.value, 42);

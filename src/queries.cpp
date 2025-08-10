@@ -146,3 +146,37 @@ void show_dexes(const std::vector<RpcEndpoint>& /* rpc_endpoints */) {
         std::cout << YELLOW << "Name: " << dex.name << ", Address: " << dex.factory_address << ", Pools: " << dex.pool_count << RESET << '\n'; // Print DEX details
     }
 }
+
+void show_all_tokens(const std::vector<RpcEndpoint>& /* rpc_endpoints */) {
+    // Load all DEXes from config
+    std::vector<DexInfo> dex_list = load_dexes_from_config(); // Get DEX list
+    
+    // Vector to store unique tokens across all DEXes
+    std::vector<std::string> all_unique_tokens;
+    
+    // Collect tokens from all DEXes
+    for (auto& dex : dex_list) { // Loop through all DEXes
+        dex.pools.clear(); // Clear existing pools
+        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
+            FunctionStats stats; // Stats for this operation
+            std::string addr = get_pool_address("", dex.factory_address, i, 0, stats); // Get pool address
+            if (!addr.empty()) { // Check if address is valid
+                auto [token0, token1] = get_pool_tokens("", addr, 0, stats); // Get tokens
+                if (!token0.empty() && std::find(all_unique_tokens.begin(), all_unique_tokens.end(), token0) == all_unique_tokens.end()) {
+                    all_unique_tokens.push_back(token0); // Add token0 if valid and unique
+                }
+                if (!token1.empty() && std::find(all_unique_tokens.begin(), all_unique_tokens.end(), token1) == all_unique_tokens.end()) {
+                    all_unique_tokens.push_back(token1); // Add token1 if valid and unique
+                }
+            }
+        }
+    }
+    
+    // Display all unique tokens
+    std::cout << GREEN << "All unique tokens found across all DEXes:" << RESET << '\n'; // Header
+    std::cout << YELLOW << "Total unique tokens: " << all_unique_tokens.size() << RESET << '\n'; // Token count
+    
+    for (const auto& token : all_unique_tokens) { // Loop through unique tokens
+        std::cout << "Token: " << token << '\n'; // Print token address
+    }
+}
