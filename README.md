@@ -1,9 +1,11 @@
 # NeoZorKDEXArb - DEX Arbitrage Scanner
 
-[![C++](https://img.shields.io/badge/C++-17-blue.svg)](https://isocpp.org/)
+[![C++](https://img.shields.io/badge/C++-23-blue.svg)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-47%20passed-brightgreen.svg)]()
+[![Version](https://img.shields.io/badge/Version-1.0.7-blue.svg)]()
 
 A high-performance C++ console application for scanning, analyzing, and identifying arbitrage opportunities across decentralized exchanges (DEX) on multiple blockchains.
 
@@ -19,9 +21,11 @@ A high-performance C++ console application for scanning, analyzing, and identify
 
 ## 📋 Prerequisites
 
-- **C++17** compatible compiler (GCC 7+, Clang 6+, MSVC 2019+)
+- **C++23** compatible compiler (GCC 13+, Clang 17+, MSVC 2022+)
 - **CMake** 3.28 or higher
 - **libcurl** development libraries
+- **Python 3.8+** (for testing with pytest)
+- **uv** package manager (for Python dependencies)
 
 ### Quick Install Dependencies
 
@@ -53,6 +57,7 @@ cd DEXArb
 mkdir build && cd build
 cmake ..
 cmake --build . --config Release
+# Binary will be created in build/bin/NeoZorKDEXArb
 ```
 
 ### Using Build Script (Recommended)
