@@ -32,8 +32,59 @@ size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer
 // - json: The JSON string to parse
 // Returns: The value of the "result" field or an empty string if not found
 std::string parse_json_result(const std::string& json) {
-    // Use modern JSON parser instead of manual string manipulation
-    return modern::JsonParser::extract_field(json, "result");
+    std::cout << "DEBUG: parse_json_result called with: '" << json << "'" << std::endl;
+    
+    // Simple string-based JSON parser for RPC responses
+    // Look for "result": "value" pattern
+    size_t result_pos = json.find("\"result\":");
+    if (result_pos == std::string::npos) {
+        std::cout << "DEBUG: No 'result' field found in JSON" << std::endl;
+        return ""; // No result field found
+    }
+    
+    std::cout << "DEBUG: Found 'result' at position: " << result_pos << std::endl;
+    
+    // Move past "result":
+    result_pos += 9;
+    
+    // Skip whitespace
+    while (result_pos < json.length() && (json[result_pos] == ' ' || json[result_pos] == '\t' || json[result_pos] == '\n')) {
+        result_pos++;
+    }
+    
+    if (result_pos >= json.length()) {
+        std::cout << "DEBUG: Reached end of string after 'result:'" << std::endl;
+        return "";
+    }
+    
+    std::cout << "DEBUG: After whitespace, position: " << result_pos << ", char: '" << json[result_pos] << "'" << std::endl;
+    
+    // Check if result is a string (starts with quote)
+    if (json[result_pos] == '"') {
+        result_pos++; // Skip opening quote
+        size_t end_pos = json.find('"', result_pos);
+        if (end_pos == std::string::npos) {
+            std::cout << "DEBUG: No closing quote found" << std::endl;
+            return "";
+        }
+        std::string result = json.substr(result_pos, end_pos - result_pos);
+        std::cout << "DEBUG: Extracted string result: '" << result << "'" << std::endl;
+        return result;
+    }
+    
+    // Check if result is a number (no quotes)
+    size_t end_pos = result_pos;
+    while (end_pos < json.length() && 
+           ((json[end_pos] >= '0' && json[end_pos] <= '9') || 
+            (json[end_pos] >= 'a' && json[end_pos] <= 'f') || 
+            (json[end_pos] >= 'A' && json[end_pos] <= 'F') || 
+            json[end_pos] == 'x')) {
+        end_pos++;
+    }
+    
+    std::string result = json.substr(result_pos, end_pos - result_pos);
+    std::cout << "DEBUG: Extracted number result: '" << result << "'" << std::endl;
+    return result;
 }
 
 // Function to display a progress bar in the console
@@ -74,10 +125,20 @@ void print_progress_bar(uint64_t current, uint64_t total, const std::string& lab
 // - stats: Reference to FunctionStats for performance tracking
 // Returns: Latest block number in hex format or empty string if failed
 std::string get_latest_block_number(const std::string& rpc_url, int request_limit, FunctionStats& stats) {
+    std::cout << "DEBUG: get_latest_block_number called with URL: " << rpc_url << std::endl;
+    
     // Define the RPC payload to fetch the block number
     std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}";
+    
+    std::cout << "DEBUG: Calling RPC endpoint: " << rpc_url << std::endl;
+    std::cout << "DEBUG: Payload: " << payload << std::endl;
+    
     // Perform the RPC call and return the result
-    return make_rpc_call(rpc_url, payload, request_limit, stats);
+    std::string result = make_rpc_call(rpc_url, payload, request_limit, stats);
+    
+    std::cout << "DEBUG: RPC result: '" << result << "'" << std::endl;
+    
+    return result;
 }
 
 // Function to perform a generic RPC call to a blockchain
@@ -98,35 +159,43 @@ std::string make_rpc_call(const std::string& rpc_url, const std::string& payload
     size_t outbound_size = payload.size();
 
     // Check if CURL initialization succeeded
-    if (curl) {
-        // Set the RPC URL for the request
-        curl_easy_setopt(curl, CURLOPT_URL, rpc_url.c_str());
-        // Set the payload for the POST request
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-        // Set the callback function to handle response data
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        // Set the buffer to write response data into
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
-        // Set HTTP headers for JSON content type
-        curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json");
-        // Apply the headers to the CURL request
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    if (!curl) {
+        std::cerr << RED << "Failed to initialize CURL" << RESET << '\n';
+        return ""; // Return empty string if CURL init failed
+    }
 
-        // Perform the RPC request
-        CURLcode res = curl_easy_perform(curl);
-        // Check if the request failed
-        if (res != CURLE_OK) {
-            // Print error message with CURL error details
-            std::cerr << RED << "RPC call failed: " << curl_easy_strerror(res) << RESET << '\n';
-        }
+    // Set the RPC URL for the request
+    curl_easy_setopt(curl, CURLOPT_URL, rpc_url.c_str());
+    // Set the payload for the POST request
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    // Set the callback function to handle response data
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+    // Set the buffer to write response data into
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
+    // Set HTTP headers for JSON content type
+    curl_slist* headers = curl_slist_append(nullptr, "Content-Type: application/json");
+    // Apply the headers to the CURL request
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
+    // Perform the RPC request
+    CURLcode res = curl_easy_perform(curl);
+    // Check if the request failed
+    if (res != CURLE_OK) {
+        // Print error message with CURL error details
+        std::cerr << RED << "RPC call failed: " << curl_easy_strerror(res) << RESET << '\n';
         // Free the CURL headers
         curl_slist_free_all(headers);
         // Clean up the CURL handle
         curl_easy_cleanup(curl);
-        // Throttle requests to respect the RPC limit
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / request_limit));
+        return ""; // Return empty string if RPC call failed
     }
+
+    // Free the CURL headers
+    curl_slist_free_all(headers);
+    // Clean up the CURL handle
+    curl_easy_cleanup(curl);
+    // Throttle requests to respect the RPC limit
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / request_limit));
 
     // Record the end time for performance measurement
     auto end = std::chrono::high_resolution_clock::now();
@@ -134,6 +203,10 @@ std::string make_rpc_call(const std::string& rpc_url, const std::string& payload
     update_stats(stats, start, end, outbound_size, read_buffer.size());
     // Calculate and set the network latency
     stats.latency_ms = stats.execution_time_ms - (1000.0 / request_limit);
+    
+    // Add debug output to see what we're getting
+    std::cout << "DEBUG: RPC response: " << read_buffer << std::endl;
+    
     // Parse and return the result from the response
     return parse_json_result(read_buffer);
 }

@@ -14,7 +14,7 @@ std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain) {
         case BlockchainType::Ethereum:
             return {{"https://rpc.ankr.com/eth", 20}, {"https://eth.llamarpc.com", 25}}; // Free Ethereum RPCs
         case BlockchainType::Fantom:
-            return {{"https://rpc.ftm.tools", 25}, {"https://rpc.ankr.com/fantom", 30}}; // Free Fantom RPCs
+            return {{"https://rpc.fantom.network", 25}, {"https://fantom.publicnode.com", 30}}; // Working Fantom RPCs
         case BlockchainType::BSC:
             return {{"https://bsc-dataseed.binance.org", 50}, {"https://rpc.ankr.com/bsc", 30}}; // Free BSC RPCs
         case BlockchainType::Polygon:

@@ -12,6 +12,7 @@
 #include "queries.h"        // For query functions
 #include "input.h"          // For input/output functions
 #include <iostream>         // For console I/O
+#include <algorithm>        // For std::transform
 
 // Global Project Version
 const std::string PROJECT_VERSION = "1.0.7";
@@ -22,11 +23,12 @@ void show_version();
 
 // Function to display usage instructions
 void show_help() {
+    std::cout << "DEBUG: show_help() called" << std::endl;
     g_logger.info("Displaying help information");
     
     std::cout << "\n";
     std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
+    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                         " << CYAN << "║" << RESET << '\n';
     std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
     std::cout << "\n";
     
@@ -99,6 +101,10 @@ void show_version() {
 //          MAIN FUNCTION
 //
 int main(int argc, char* argv[]) {
+    std::cout << "DEBUG: main() called with argc=" << argc << std::endl;
+    for (int i = 0; i < argc; i++) {
+        std::cout << "DEBUG: argv[" << i << "] = '" << argv[i] << "'" << std::endl;
+    }
     
     // Start the Main timer
     StartTimeMeasure();
@@ -169,8 +175,15 @@ int main(int argc, char* argv[]) {
     // Stats for different operations
     FunctionStats config_stats, scan_stats, update_stats;
     
+    // Convert blockchain string to lowercase for config file lookup
+    std::string blockchain_lower = blockchain_str;
+    std::transform(blockchain_lower.begin(), blockchain_lower.end(), blockchain_lower.begin(), ::tolower);
+    
+    // Debug: Print what we're about to pass to read_config_file
+    std::cout << "DEBUG: About to call read_config_file with blockchain_lower: '" << blockchain_lower << "'" << std::endl;
+    
     // Read config file
-    auto [rpc_endpoints, thread_count] = read_config_file(blockchain_str, config_stats);
+    auto [rpc_endpoints, thread_count] = read_config_file(blockchain_lower, config_stats);
     
     // Add config stats to list
     stats_list.emplace_back("read_config_file", config_stats);

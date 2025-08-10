@@ -11,15 +11,7 @@
 #include "main.h"       // Include main header for shared structures
 #include <string>       // For string handling in function parameters
 
-// Supported blockchain types as an enum
-enum class BlockchainType {
-    Ethereum,    // Ethereum blockchain
-    Fantom,      // Fantom blockchain
-    BSC,         // Binance Smart Chain
-    Polygon,     // Polygon (Matic) blockchain
-    Avalanche,   // Avalanche C-Chain
-    Solana       // Solana blockchain
-};
+
 
 // Function to get default RPC endpoints for a blockchain
 std::vector<RpcEndpoint> get_default_endpoints(BlockchainType chain);

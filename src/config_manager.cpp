@@ -73,6 +73,19 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::
     // Fetch latest block number for 24-hour range
     FunctionStats block_stats; // Stats for block fetch
     std::string latest_block = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats); // Get latest block
+    
+    // Check if block fetch failed
+    if (latest_block.empty()) {
+        std::cerr << "Failed to fetch latest block for config update" << std::endl;
+        return; // Exit early if block fetch failed
+    }
+    
+    // Validate hex string format
+    if (latest_block.length() < 3 || latest_block.substr(0, 2) != "0x") {
+        std::cerr << "Invalid block number format: " << latest_block << std::endl;
+        return; // Exit early if format is invalid
+    }
+    
     uint64_t latest_block_num = std::stoull(latest_block.substr(2), nullptr, 16); // Convert to integer
     uint64_t from_block = latest_block_num - (24 * 60 * 60 / 2); // Calculate block 24 hours ago (assuming 2s block time)
 

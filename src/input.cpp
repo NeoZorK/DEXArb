@@ -62,6 +62,9 @@ void create_config_file(int thread_count, FunctionStats& stats) {
 }
 
 std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blockchain, FunctionStats& stats) {
+    // Debug: Print function entry
+    std::cout << "DEBUG: read_config_file called with blockchain: '" << blockchain << "'" << std::endl;
+    
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<RpcEndpoint> endpoints; // List to store RPC endpoints
@@ -80,8 +83,13 @@ std::pair<std::vector<RpcEndpoint>, int> read_config_file(const std::string& blo
     std::string content = buffer.str(); // Convert to string
     config_file.close(); // Close file
 
+    // Debug: Print what we're looking for and what we found
+    std::cout << "DEBUG: Looking for blockchain: '" << blockchain << "'" << std::endl;
+    std::cout << "DEBUG: Config file content preview: " << content.substr(0, 200) << "..." << std::endl;
+
     // Parse blockchain section
     size_t chain_pos = content.find("\"" + blockchain + "\": {"); // Find blockchain section
+    std::cout << "DEBUG: Chain position found at: " << chain_pos << std::endl;
     if (chain_pos == std::string::npos) return {endpoints, thread_count}; // Return empty if not found
 
     size_t rpc_pos = content.find("\"rpc\": [", chain_pos); // Find RPC array
