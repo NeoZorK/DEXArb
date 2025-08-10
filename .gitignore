@@ -185,6 +185,25 @@ wheels/
 *.egg
 MANIFEST
 
+# Python testing and caching
+.pytest_cache/
+.pytest_cache/*
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
 # Node.js
 node_modules/
 npm-debug.log*
