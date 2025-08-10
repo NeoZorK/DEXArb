@@ -11,6 +11,7 @@
 #include <string_view>
 #include <ostream>
 #include <iostream>
+#include <vector>
 
 namespace cli {
 

@@ -69,7 +69,11 @@ target_include_directories(NeoZorKDEXArb PRIVATE
 # Find and link dependencies via vcpkg
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(GTest REQUIRED)
+
+# Only find GTest if testing is enabled
+if(BUILD_TESTING)
+    find_package(GTest REQUIRED)
+endif()
 
 # Link libraries
 target_link_libraries(NeoZorKDEXArb PRIVATE
@@ -93,14 +97,38 @@ if(APPLE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(NeoZorKDEXArb PRIVATE -mcpu=apple-m1)
     endif()
+    target_compile_definitions(NeoZorKDEXArb PRIVATE PLATFORM_MACOS)
 elseif(UNIX AND NOT APPLE)
     message(STATUS "Configuring for Linux")
     # Linux-specific optimizations
     target_compile_options(NeoZorKDEXArb PRIVATE -D_GNU_SOURCE)
+    
+    # Check for musl vs glibc
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles(
+        "#include <gnu/libc-version.h>
+         int main() { return 0; }"
+        HAS_GLIBC
+    )
+    if(NOT HAS_GLIBC)
+        message(STATUS "Detected musl libc")
+        target_compile_definitions(NeoZorKDEXArb PRIVATE PLATFORM_LINUX PLATFORM_MUSL)
+    else()
+        message(STATUS "Detected glibc")
+        target_compile_definitions(NeoZorKDEXArb PRIVATE PLATFORM_LINUX PLATFORM_GLIBC)
+    endif()
 elseif(WIN32)
     message(STATUS "Configuring for Windows")
     target_link_libraries(NeoZorKDEXArb PRIVATE ws2_32)
+    target_compile_definitions(NeoZorKDEXArb PRIVATE PLATFORM_WINDOWS)
 endif()
+
+# Include platform header
+target_include_directories(NeoZorKDEXArb PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 # Set compile definitions
 target_compile_definitions(NeoZorKDEXArb PRIVATE
@@ -171,6 +199,53 @@ add_executable(ModernResultExtendedTests
     tests/cpp/test_modern_result_extended.cpp
 )
 
+add_executable(PlatformCompatibilityTests
+    tests/cpp/test_platform_compatibility.cpp
+)
+
+add_executable(ProfitAnalyzerTests
+    tests/cpp/test_profit_analyzer.cpp
+    src/core/profit_analyzer.cpp
+)
+
+add_executable(DexScannerTests
+    tests/cpp/test_dex_scanner.cpp
+    src/dex/dex_scanner.cpp
+    src/network/rpc_core.cpp
+    src/utils/measure.cpp
+)
+
+add_executable(DexPoolsTests
+    tests/cpp/test_dex_pools.cpp
+    src/dex/dex_pools.cpp
+    src/network/rpc_core.cpp
+    src/utils/measure.cpp
+)
+
+add_executable(DexTokensTests
+    tests/cpp/test_dex_tokens.cpp
+    src/dex/dex_tokens.cpp
+    src/network/rpc_core.cpp
+    src/utils/measure.cpp
+)
+
+add_executable(ArbitrageTests
+    tests/cpp/test_arbitrage.cpp
+    src/core/arbitrage.cpp
+    src/core/profit_analyzer.cpp
+    src/dex/dex_pools.cpp
+    src/dex/dex_tokens.cpp
+    src/network/rpc_core.cpp
+    src/utils/measure.cpp
+)
+
+add_executable(BlockchainTests
+    tests/cpp/test_blockchain.cpp
+    src/core/blockchain.cpp
+    src/network/rpc_core.cpp
+    src/utils/measure.cpp
+)
+
 # Include directories for test executables
 target_include_directories(ModernResultTests PRIVATE 
     include
@@ -203,6 +278,41 @@ target_include_directories(HelpDisplayTests PRIVATE
 )
 
 target_include_directories(ModernResultExtendedTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(PlatformCompatibilityTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(ProfitAnalyzerTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(DexScannerTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(DexPoolsTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(DexTokensTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(ArbitrageTests PRIVATE 
+    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_include_directories(BlockchainTests PRIVATE 
     include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
@@ -249,6 +359,25 @@ target_link_libraries(ModernResultExtendedTests PRIVATE
     Threads::Threads
 )
 
+target_link_libraries(PlatformCompatibilityTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(ProfitAnalyzerTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+)
+
+target_link_libraries(DexScannerTests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    Threads::Threads
+    CURL::libcurl
+)
+
 # Add tests
 add_test(NAME NeoZorKDEXArbTests COMMAND NeoZorKDEXArbTests)
 add_test(NAME ModernResultTests COMMAND ModernResultTests)
@@ -258,6 +387,9 @@ add_test(NAME CommandLineFlagsTests COMMAND CommandLineFlagsTests)
 add_test(NAME CliCommandsTests COMMAND CliCommandsTests)
 add_test(NAME HelpDisplayTests COMMAND HelpDisplayTests)
 add_test(NAME ModernResultExtendedTests COMMAND ModernResultExtendedTests)
+add_test(NAME PlatformCompatibilityTests COMMAND PlatformCompatibilityTests)
+add_test(NAME ProfitAnalyzerTests COMMAND ProfitAnalyzerTests)
+add_test(NAME DexScannerTests COMMAND DexScannerTests)
 
 # Set test properties
 set_tests_properties(AllFlagsAndResultsTests PROPERTIES TIMEOUT 300)
@@ -265,6 +397,8 @@ set_tests_properties(CommandLineFlagsTests PROPERTIES TIMEOUT 300)
 set_tests_properties(CliCommandsTests PROPERTIES TIMEOUT 300)
 set_tests_properties(HelpDisplayTests PROPERTIES TIMEOUT 300)
 set_tests_properties(ModernResultExtendedTests PROPERTIES TIMEOUT 300)
+set_tests_properties(ProfitAnalyzerTests PROPERTIES TIMEOUT 300)
+set_tests_properties(DexScannerTests PROPERTIES TIMEOUT 300)
 
 # Set output directories
 set_target_properties(NeoZorKDEXArb PROPERTIES

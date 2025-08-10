@@ -88,26 +88,47 @@ ctest --output-on-failure
 - **Execution Time**: <0.01 seconds
 - **Coverage**: Modern utilities, core functionality, error handling
 
-### Using Build Script (Recommended)
+### Using Build Scripts (Recommended)
+
+The project includes organized build scripts in the `scripts/` directory:
 
 ```bash
-chmod +x build-and-deploy.sh
-./build-and-deploy.sh
+# Make scripts executable
+chmod +x scripts/**/*.sh
+
+# Modern build (recommended)
+./scripts/build/build-modern.sh
+
+# Multi-platform build
+./scripts/build/build-multi-platform.sh
+
+# Apple Silicon container build
+./scripts/build/build-apple-container.sh
 ```
 
-This script will:
-- Check dependencies automatically
-- Pull latest changes from git
-- Build project with CMake
-- Copy binary to `bin/` directory
-- Commit and push changes
+### Using Container Scripts
 
-### Using Legacy Deploy Script
+For containerized development:
 
 ```bash
-chmod +x DeployBins.sh
-./DeployBins.sh
+# Run in lightweight Alpine container (recommended)
+./scripts/container/run-alpine-simple.sh -- --help
+
+# Quick testing
+./scripts/test/quick-test.sh
+
+# Deploy binaries
+./scripts/deploy/DeployBins.sh
 ```
+
+**Scripts Directory Structure:**
+- **`scripts/build/`** - Build and compilation scripts
+- **`scripts/container/`** - Docker and container management
+- **`scripts/test/`** - Testing and validation
+- **`scripts/deploy/`** - Deployment automation
+- **`scripts/utils/`** - Utility and helper scripts
+
+See [scripts/README.md](scripts/README.md) for detailed usage information.
 
 ## 🎯 Usage
 
