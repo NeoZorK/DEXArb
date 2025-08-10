@@ -1,0 +1,35 @@
+# Use Ubuntu 22.04 as base image
+FROM ubuntu:22.04
+
+# Set environment variables to avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV WINEARCH=win64
+ENV WINEPREFIX=/root/.wine64
+
+# Install required packages including Wine
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    wget \
+    gnupg2 \
+    curl \
+    unzip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Wine from Ubuntu repositories (supports ARM64)
+RUN apt-get update && apt-get install -y \
+    wine \
+    wine64 \
+    winetricks \
+    libwine \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory and copy files
+WORKDIR /app
+COPY app/ .
+
+# Initialize Wine prefix
+RUN wine wineboot --init
+
+# Set default command
+CMD ["/bin/bash"]

@@ -49,7 +49,28 @@ cd vcpkg && ./bootstrap-vcpkg.bat
 
 ## 🛠️ Building
 
-### Using CMake (Recommended)
+### Using Container Runners (Recommended for Development)
+
+The project includes container runners for different environments:
+
+```bash
+# Make scripts executable
+chmod +x scripts/container/*.sh
+
+# Run in Alpine Linux (lightweight)
+./scripts/container/run-alpine-simple.sh
+
+# Run in Ubuntu Linux (full compatibility)
+./scripts/container/run-ubuntu-container.sh
+
+# Run Windows apps in Ubuntu via Wine
+./scripts/container/run-windows-in-ubuntu-wine.sh --create
+
+# Show help for any runner
+./scripts/container/run-ubuntu-container.sh --help
+```
+
+### Using CMake (Traditional)
 
 ```bash
 git clone <repository-url>

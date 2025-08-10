@@ -22,6 +22,9 @@ Run DEXArb in Alpine Linux container using Apple Container CLI.
 ### [Ubuntu Container Runner](UBUNTU_CONTAINER_RUNNER.md)
 Run DEXArb in Ubuntu Linux container using Apple Container CLI.
 
+### [Windows in Ubuntu Wine](WINDOWS_IN_UBUNTU_WINE.md)
+Run Windows applications in Ubuntu container using Wine and MinGW cross-compiler.
+
 ## 🚀 For New Users
 
 1. **Start here**: [Quick Start Guide](QUICK_START.md)
@@ -33,7 +36,7 @@ Run DEXArb in Ubuntu Linux container using Apple Container CLI.
 1. **Modern build**: [Modern Build Guide](BUILD_MODERN.md)
 2. **Automation**: [Build Script](BUILD_SCRIPT.md)
 3. **Advanced usage**: [Build and Usage Guide](BUILD_AND_USAGE.md)
-4. **Container runners**: [Alpine](ALPINE_CONTAINER_RUNNER.md) | [Ubuntu](UBUNTU_CONTAINER_RUNNER.md)
+4. **Container runners**: [Alpine](ALPINE_CONTAINER_RUNNER.md) | [Ubuntu](UBUNTU_CONTAINER_RUNNER.md) | [Windows Wine](WINDOWS_IN_UBUNTU_WINE.md)
 
 ## 📋 Quick Reference
 
@@ -45,3 +48,4 @@ Run DEXArb in Ubuntu Linux container using Apple Container CLI.
 | [Modern Build](BUILD_MODERN.md) | Advanced build | 15 minutes |
 | [Alpine Runner](ALPINE_CONTAINER_RUNNER.md) | Alpine container | 10 minutes |
 | [Ubuntu Runner](UBUNTU_CONTAINER_RUNNER.md) | Ubuntu container | 10 minutes |
+| [Windows Wine](WINDOWS_IN_UBUNTU_WINE.md) | Windows in Ubuntu | 15 minutes |
