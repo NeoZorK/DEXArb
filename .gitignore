@@ -7,6 +7,11 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 *.cmake
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+**/*.cmake
 
 # Dependencies
 vcpkg/
@@ -18,6 +23,37 @@ vcpkg_installed/
 *.swp
 *.swo
 *~
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+*.iws
+*.ipr
+*.iml
+# Editor files
+*~
+*.swp
+*.swo
+*.swn
+*.bak
+*.orig
+*.rej
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
 
 # OS generated files
 .DS_Store
@@ -27,6 +63,21 @@ vcpkg_installed/
 .Trashes
 ehthumbs.db
 Thumbs.db
+# macOS specific
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 # Temporary files
 *.tmp
@@ -35,6 +86,17 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock
+logs/
+*.log.*
+*.log.1
+*.log.2
+*.log.3
+*.log.4
+*.log.5
+*.log.6
+*.log.7
+*.log.8
+*.log.9
 
 # Compiled Object files
 *.slo
@@ -87,3 +149,96 @@ coverage/
 .env
 .env.local
 config.local.*
+
+# Project specific exclusions
+build-modern.sh
+include/modern_utils.h
+src/modern_utils.cpp
+cmake-build-*/
+cmake-build-debug/
+.pytest_cache/
+.benchmarks/
+.venv/
+.coverage
+bin/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Rust
+target/
+Cargo.lock
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# C/C++ specific
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+*.exp
+*.manifest
+*.lib
+*.a
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.ipa
+*.apk
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+*.7z
+*.rar
