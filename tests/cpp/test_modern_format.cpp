@@ -4,191 +4,228 @@
 //
 //  Created by Rostyslav S. on 10.08.2025.
 //
+#include <gtest/gtest.h>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <chrono>
-
-// Simple test framework for now
-#define ASSERT_EQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_EQ failed: " << (a) << " != " << (b) << std::endl; return false; }
-#define ASSERT_TRUE(a) if (!(a)) { std::cerr << "ASSERT_TRUE failed" << std::endl; return false; }
-#define ASSERT_FALSE(a) if (a) { std::cerr << "ASSERT_FALSE failed" << std::endl; return false; }
 
 // Include our format utilities
 #include "utils/modern_format.h"
 
 using namespace modern;
 
-static bool test_basic_formatting() {
-    std::cout << "Testing basic formatting..." << std::endl;
+class ModernFormatTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        // Setup test data if needed
+    }
     
+    void TearDown() override {
+        // Cleanup if needed
+    }
+};
+
+// Test basic formatting
+TEST_F(ModernFormatTest, BasicFormatting) {
     auto result = Format::format("Hello {}!", "World");
-    ASSERT_EQ(result, "Hello World!");
+    EXPECT_EQ(result, "Hello World!");
     
     auto result2 = Format::format("Number: {}, String: {}", 42, "test");
-    ASSERT_EQ(result2, "Number: 42, String: test");
+    EXPECT_EQ(result2, "Number: 42, String: test");
     
     auto result3 = Format::format("Multiple: {} {} {}", 1, 2, 3);
-    ASSERT_EQ(result3, "Multiple: 1 2 3");
-    
-    return true;
+    EXPECT_EQ(result3, "Multiple: 1 2 3");
 }
 
-static bool test_number_formatting() {
-    std::cout << "Testing number formatting..." << std::endl;
-    
-    std::cout << "Testing 1234567..." << std::endl;
+// Test number formatting
+TEST_F(ModernFormatTest, NumberFormatting) {
     auto result = Format::format_number(1234567);
-    std::cout << "Result: " << result << std::endl;
-    ASSERT_EQ(result, "1,234,567");
+    EXPECT_EQ(result, "1,234,567");
     
-    std::cout << "Testing 1000..." << std::endl;
     auto result2 = Format::format_number(1000);
-    std::cout << "Result: " << result2 << std::endl;
-    ASSERT_EQ(result2, "1,000");
+    EXPECT_EQ(result2, "1,000");
     
-    std::cout << "Testing 999..." << std::endl;
     auto result3 = Format::format_number(999);
-    std::cout << "Result: " << result3 << std::endl;
-    ASSERT_EQ(result3, "999");
+    EXPECT_EQ(result3, "999");
     
-    return true;
+    auto result4 = Format::format_number(0);
+    EXPECT_EQ(result4, "0");
 }
 
-static bool test_bytes_formatting() {
-    std::cout << "Testing bytes formatting..." << std::endl;
-    
+// Test bytes formatting
+TEST_F(ModernFormatTest, BytesFormatting) {
     auto result = Format::format_bytes(1024);
-    ASSERT_EQ(result, "1.00 KB");
+    EXPECT_EQ(result, "1.00 KB");
     
     auto result2 = Format::format_bytes(1048576);
-    ASSERT_EQ(result2, "1.00 MB");
+    EXPECT_EQ(result2, "1.00 MB");
     
     auto result3 = Format::format_bytes(500);
-    ASSERT_EQ(result3, "500 B");
+    EXPECT_EQ(result3, "500 B");
     
-    return true;
+    auto result4 = Format::format_bytes(1073741824);
+    EXPECT_EQ(result4, "1.00 GB");
 }
 
-static bool test_percentage_formatting() {
-    std::cout << "Testing percentage formatting..." << std::endl;
-    
+// Test percentage formatting
+TEST_F(ModernFormatTest, PercentageFormatting) {
     auto result = Format::format_percentage(0.5);
-    ASSERT_EQ(result, "50.00%");
+    EXPECT_EQ(result, "50.00%");
     
     auto result2 = Format::format_percentage(0.123, 1);
-    ASSERT_EQ(result2, "12.3%");
+    EXPECT_EQ(result2, "12.3%");
     
-    return true;
+    auto result3 = Format::format_percentage(1.0);
+    EXPECT_EQ(result3, "100.00%");
+    
+    auto result4 = Format::format_percentage(0.0);
+    EXPECT_EQ(result4, "0.00%");
 }
 
-static bool test_progress_bar() {
-    std::cout << "Testing progress bar..." << std::endl;
-    
+// Test progress bar
+TEST_F(ModernFormatTest, ProgressBar) {
     auto result = Format::format_progress_bar(0.5);
-    ASSERT_TRUE(result.find("50.00%") != std::string::npos);
-    ASSERT_TRUE(result.find("[") != std::string::npos);
-    ASSERT_TRUE(result.find("]") != std::string::npos);
+    EXPECT_TRUE(result.find("50.00%") != std::string::npos);
+    EXPECT_TRUE(result.find("[") != std::string::npos);
+    EXPECT_TRUE(result.find("]") != std::string::npos);
     
-    return true;
+    auto result2 = Format::format_progress_bar(0.0);
+    EXPECT_TRUE(result2.find("0.00%") != std::string::npos);
+    
+    auto result3 = Format::format_progress_bar(1.0);
+    EXPECT_TRUE(result3.find("100.00%") != std::string::npos);
 }
 
-static bool test_address_formatting() {
-    std::cout << "Testing address formatting..." << std::endl;
-    
+// Test address formatting
+TEST_F(ModernFormatTest, AddressFormatting) {
     std::string long_address = "0x1234567890abcdef1234567890abcdef12345678";
     auto result = Format::format_address(long_address);
-    ASSERT_TRUE(result.length() <= 20);
-    ASSERT_TRUE(result.find("...") != std::string::npos);
+    EXPECT_EQ(result.length(), 20);
+    EXPECT_TRUE(result.find("...") != std::string::npos);
     
-    std::string short_address = "0x123";
+    std::string short_address = "0x1234";
     auto result2 = Format::format_address(short_address);
-    ASSERT_EQ(result2, short_address);
-    
-    return true;
+    EXPECT_EQ(result2, short_address);
 }
 
-static bool test_string_utils() {
-    std::cout << "Testing string utilities..." << std::endl;
-    
+// Test string utilities
+TEST_F(ModernFormatTest, StringUtilities) {
     // Test join
     std::vector<std::string> vec = {"a", "b", "c"};
-    auto result = StringUtils::join(vec, ",");
-    ASSERT_EQ(result, "a,b,c");
+    auto join_result = StringUtils::join(vec, ",");
+    EXPECT_EQ(join_result, "a,b,c");
     
     // Test split
     auto split_result = StringUtils::split("a,b,c", ",");
-    ASSERT_EQ(split_result.size(), 3);
-    ASSERT_EQ(split_result[0], "a");
-    ASSERT_EQ(split_result[1], "b");
-    ASSERT_EQ(split_result[2], "c");
+    EXPECT_EQ(split_result.size(), 3);
+    EXPECT_EQ(split_result[0], "a");
+    EXPECT_EQ(split_result[1], "b");
+    EXPECT_EQ(split_result[2], "c");
     
     // Test trim
     auto trim_result = StringUtils::trim("  hello world  ");
-    ASSERT_EQ(trim_result, "hello world");
+    EXPECT_EQ(trim_result, "hello world");
     
     // Test to_lower
     auto lower_result = StringUtils::to_lower("HELLO WORLD");
-    ASSERT_EQ(lower_result, "hello world");
+    EXPECT_EQ(lower_result, "hello world");
     
     // Test to_upper
     auto upper_result = StringUtils::to_upper("hello world");
-    ASSERT_EQ(upper_result, "HELLO WORLD");
+    EXPECT_EQ(upper_result, "HELLO WORLD");
     
     // Test starts_with
-    ASSERT_TRUE(StringUtils::starts_with("hello world", "hello"));
-    ASSERT_FALSE(StringUtils::starts_with("hello world", "world"));
+    EXPECT_TRUE(StringUtils::starts_with("hello world", "hello"));
+    EXPECT_FALSE(StringUtils::starts_with("hello world", "world"));
     
     // Test ends_with
-    ASSERT_TRUE(StringUtils::ends_with("hello world", "world"));
-    ASSERT_FALSE(StringUtils::ends_with("hello world", "hello"));
+    EXPECT_TRUE(StringUtils::ends_with("hello world", "world"));
+    EXPECT_FALSE(StringUtils::ends_with("hello world", "hello"));
     
-    return true;
+    // Test replace_all
+    auto replace_result = StringUtils::replace_all("hello world", "o", "0");
+    EXPECT_EQ(replace_result, "hell0 w0rld");
 }
 
-static bool test_table_formatting() {
-    std::cout << "Testing table formatting..." << std::endl;
-    
+// Test table formatting
+TEST_F(ModernFormatTest, TableFormatting) {
     auto result = Format::format_table_row("Name", "Age", "City");
-    ASSERT_TRUE(result.find("|") != std::string::npos);
-    ASSERT_TRUE(result.find("Name") != std::string::npos);
-    ASSERT_TRUE(result.find("Age") != std::string::npos);
-    ASSERT_TRUE(result.find("City") != std::string::npos);
-    
-    return true;
+    EXPECT_TRUE(result.find("|") != std::string::npos);
+    EXPECT_TRUE(result.find("Name") != std::string::npos);
+    EXPECT_TRUE(result.find("Age") != std::string::npos);
+    EXPECT_TRUE(result.find("City") != std::string::npos);
 }
 
-static bool test_duration_formatting() {
-    std::cout << "Testing duration formatting..." << std::endl;
-    
+// Test duration formatting
+TEST_F(ModernFormatTest, DurationFormatting) {
     auto duration = std::chrono::milliseconds(1500);
     auto result = Format::format_duration(duration);
-    ASSERT_TRUE(result.find("1s") != std::string::npos);
-    ASSERT_TRUE(result.find("500ms") != std::string::npos);
+    EXPECT_TRUE(result.find("1s") != std::string::npos);
+    EXPECT_TRUE(result.find("500ms") != std::string::npos);
     
-    return true;
+    auto hours = std::chrono::hours(2) + std::chrono::minutes(30) + std::chrono::seconds(45);
+    auto result2 = Format::format_duration(hours);
+    EXPECT_TRUE(result2.find("2h") != std::string::npos);
+    EXPECT_TRUE(result2.find("30m") != std::string::npos);
+    EXPECT_TRUE(result2.find("45s") != std::string::npos);
 }
 
-int main() {
-    std::cout << "Running modern format tests..." << std::endl;
+// Test colored formatting
+TEST_F(ModernFormatTest, ColoredFormatting) {
+    auto result = Format::format_colored("\033[32m", "Hello {}", "World");
+    EXPECT_TRUE(result.find("\033[32m") != std::string::npos);
+    EXPECT_TRUE(result.find("\033[0m") != std::string::npos);
+    EXPECT_TRUE(result.find("Hello World") != std::string::npos);
+}
+
+// Test timestamp formatting
+TEST_F(ModernFormatTest, TimestampFormatting) {
+    auto now = std::chrono::system_clock::now();
+    auto result = Format::format_timestamp(now);
+    EXPECT_TRUE(result.find("-") != std::string::npos); // Should contain date
+    EXPECT_TRUE(result.find(":") != std::string::npos); // Should contain time
+}
+
+// Test edge cases
+TEST_F(ModernFormatTest, EdgeCases) {
+    // Empty format string
+    auto result = Format::format("");
+    EXPECT_EQ(result, "");
     
-    bool all_passed = true;
+    // No arguments
+    auto result2 = Format::format("Hello");
+    EXPECT_EQ(result2, "Hello");
     
-    all_passed &= test_basic_formatting();
-    all_passed &= test_number_formatting();
-    all_passed &= test_bytes_formatting();
-    all_passed &= test_percentage_formatting();
-    all_passed &= test_progress_bar();
-    all_passed &= test_address_formatting();
-    all_passed &= test_string_utils();
-    all_passed &= test_table_formatting();
-    all_passed &= test_duration_formatting();
+    // Very large numbers
+    auto result3 = Format::format_number(999999999999);
+    EXPECT_TRUE(result3.find(",") != std::string::npos);
     
-    if (all_passed) {
-        std::cout << "All tests passed!" << std::endl;
-        return 0;
-    } else {
-        std::cout << "Some tests failed!" << std::endl;
-        return 1;
+    // Zero bytes
+    auto result4 = Format::format_bytes(0);
+    EXPECT_EQ(result4, "0 B");
+    
+    // Empty strings in string utilities
+    EXPECT_EQ(StringUtils::trim(""), "");
+    EXPECT_EQ(StringUtils::to_lower(""), "");
+    EXPECT_EQ(StringUtils::to_upper(""), "");
+}
+
+// Test performance
+TEST_F(ModernFormatTest, Performance) {
+    const int iterations = 1000;
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < iterations; ++i) {
+        Format::format("Number: {}, String: {}", i, "test");
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    EXPECT_LT(duration.count(), 1000); // Should complete in less than 1 second
+}
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

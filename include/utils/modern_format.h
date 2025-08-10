@@ -30,7 +30,7 @@ public:
     // Format with color codes
     template<typename... Args>
     static std::string format_colored(std::string_view color, std::string_view fmt, Args&&... args) {
-        return color + format(fmt, std::forward<Args>(args)...) + "\033[0m";
+        return std::string(color) + format(fmt, std::forward<Args>(args)...) + "\033[0m";
     }
     
     // Format number with thousands separator

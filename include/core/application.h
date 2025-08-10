@@ -48,8 +48,7 @@ public:
     // Get build information
     static std::string get_build_info();
 
-private:
-    // Handle different command types
+    // Handle different command types (made public for testing)
     int handle_help_command();
     int handle_version_command();
     int handle_scan_command(const cli::ParsedCommand& cmd);
@@ -57,7 +56,7 @@ private:
     int handle_find_command(const cli::ParsedCommand& cmd);
     int handle_unknown_command(const cli::ParsedCommand& cmd);
     
-    // Command execution helpers
+    // Command execution helpers (made public for testing)
     int execute_scan(std::string_view blockchain, std::string_view blocks);
     int execute_show_dexes(std::string_view blockchain);
     int execute_show_pools(std::string_view blockchain, std::string_view dex_name);
@@ -69,16 +68,17 @@ private:
                           std::string_view token_address);
     int execute_find_tokens(std::string_view blockchain, std::string_view token_address);
     
-    // Validation helpers
+    // Validation helpers (made public for testing)
     bool validate_scan_parameters(std::string_view blockchain, std::string_view blocks);
     bool validate_show_parameters(const cli::ParsedCommand& cmd);
     bool validate_find_parameters(const cli::ParsedCommand& cmd);
     
-    // Error handling
+    // Error handling (made public for testing)
     void log_error(std::string_view error_message);
     void log_warning(std::string_view warning_message);
     void log_info(std::string_view info_message);
-    
+
+private:
     // Member variables
     std::unique_ptr<modern_utils::Logger> logger_;
     std::unique_ptr<interfaces::IConfigManager> config_manager_;

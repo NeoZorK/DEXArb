@@ -51,17 +51,14 @@ General testing status, results, and recommendations for improvement.
 4. **Report Issues**: Document any failures or performance issues
 
 ### Running Tests
-- **Unit Tests**: `uv run pytest tests -n auto`
 - **C++ Tests**: `ctest --output-on-failure`
-- **Performance Tests**: `uv run pytest tests/performance -n auto`
-- **Integration Tests**: `uv run pytest tests/integration -n auto`
+- **Performance Tests**: `ctest --output-on-failure -R performance`
+- **Integration Tests**: `ctest --output-on-failure -R integration`
 
 ## 🔧 Testing Tools
 
 ### Primary Tools
-- **pytest**: Python testing framework
 - **CTest**: C++ testing integration
-- **uv**: Fast Python package manager and test runner
 - **Coverage**: Test coverage analysis
 
 ### Automation

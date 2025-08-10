@@ -16,13 +16,13 @@
 #define ASSERT_EQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_EQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
 #define ASSERT_TRUE(a) if (!(a)) { std::cerr << "ASSERT_TRUE failed at line " << __LINE__ << std::endl; return false; }
 #define ASSERT_FALSE(a) if (a) { std::cerr << "ASSERT_FALSE failed at line " << __LINE__ << std::endl; return false; }
-#define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
+#define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) != (b) << " at line " << __LINE__ << std::endl; return false; }
 
 // Include our arbitrage structures and enums
-#include "../../include/arbitrage.h"
-#include "../../include/dex_pools.h"
-#include "../../include/dex_tokens.h"
-#include "../../include/dex_stats.h"
+#include "../include/arbitrage.h"
+#include "../include/dex_pools.h"
+#include "../include/dex_tokens.h"
+#include "../include/dex_stats.h"
 
 // Mock arbitrage data structures for testing
 namespace mock {
