@@ -49,6 +49,11 @@ set(SOURCES
     src/wallet.cpp
     src/profit_analyzer.cpp
     src/modern_utils.cpp
+    # New modular source files (temporarily disabled)
+    # src/cli/command_parser.cpp
+    # src/cli/help_display.cpp
+    # src/core/application.cpp
+    # src/di/service_container.cpp
 )
 
 # Create main executable
