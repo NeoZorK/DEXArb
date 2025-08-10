@@ -17,19 +17,76 @@ app/*.rar
 *.temp
 *.log
 
-# Build artifacts
+# Build artifacts and build directories
+build/
+build-*/
 build-*/
 *.o
 *.so
 *.dll
 *.exe
+*.obj
+*.a
+*.lib
+*.dylib
+*.app
+
+# CMake build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Package managers
+vcpkg/
+vcpkg_installed/
+vcpkg-container/
+node_modules/
+vendor/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+*.lnk
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Test artifacts
+*.test
+*.prof
+*.gcov
+*.gcda
+*.gcno
+
+# Documentation build
+docs/_build/
+docs/build/
+site/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+*.sql
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Cache directories
+.cache/
+cache/
+tmp/
+temp/
