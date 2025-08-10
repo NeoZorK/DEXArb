@@ -235,3 +235,166 @@ replay_pid*
 *.zip
 *.7z
 *.rar
+
+# Additional build directories
+build-apple/
+out/
+dist/
+
+# Coverage files
+.coverage
+
+# IDE workspace files
+DEXArb.code-workspace
+
+# Additional IDE files
+.idea/workspace.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/modules.xml
+.idea/DEXArb.iml
+
+# Additional build artifacts
+**/vcpkg-manifest-install.log
+**/CPackSourceConfig.cmake
+**/CPackConfig.cmake
+**/CTestTestfile.cmake
+
+# Additional temporary files
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Additional OS files
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Additional backup files
+*.backup
+*.old
+
+# Additional local configuration
+config.local.*
+.env.local
+
+# Additional test files
+**/Testing/
+**/.cmake/
+
+# Additional package files
+*.7z
+*.rar
+
+# Additional profiling data
+*.profraw
+
+# Additional test coverage
+*.gcov
+*.gcda
+*.gcno
+coverage/
+
+# Additional backup files
+*.bak
+*.backup
+*.old
+
+# Additional local configuration
+.env
+.env.local
+config.local.*
+
+# Additional project specific exclusions
+build-modern.sh
+include/modern_utils.h
+src/modern_utils.cpp
+cmake-build-*/
+cmake-build-debug/
+.benchmarks/
+bin/
+
+# Additional C++ build artifacts
+build/
+dist/
+lib/
+lib64/
+*.a
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.ipa
+*.apk
+*.deb
+*.rpm
+
+# Additional Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Additional Rust
+target/
+Cargo.lock
+
+# Additional Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Additional Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Additional C/C++ specific
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+*.exp
+*.manifest
+*.lib
+*.a
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.ipa
+*.apk
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+*.7z
+*.rar
