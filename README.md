@@ -55,19 +55,19 @@ The project includes container runners for different environments:
 
 ```bash
 # Make scripts executable
-chmod +x scripts/container/*.sh
+chmod +x scripts/containers/*.sh
 
 # Run in Alpine Linux (lightweight)
-./scripts/container/run-alpine-simple.sh
+./scripts/containers/run-alpine-simple.sh
 
 # Run in Ubuntu Linux (full compatibility)
-./scripts/container/run-ubuntu-container.sh
+./scripts/containers/run-ubuntu-container.sh
 
 # Run Windows apps in Ubuntu via Wine
-./scripts/container/run-windows-in-ubuntu-wine.sh --create
+./scripts/containers/run-windows-in-ubuntu-wine.sh --create
 
 # Show help for any runner
-./scripts/container/run-ubuntu-container.sh --help
+./scripts/containers/run-ubuntu-container.sh --help
 ```
 
 ### Using CMake (Traditional)
@@ -125,6 +125,9 @@ chmod +x scripts/**/*.sh
 
 # Apple Silicon container build
 ./scripts/build/build-apple-container.sh
+
+# Basic CMake build
+./scripts/build/cmake.sh
 ```
 
 ### Using Container Scripts
@@ -133,21 +136,22 @@ For containerized development:
 
 ```bash
 # Run in lightweight Alpine container (recommended)
-./scripts/container/run-alpine-simple.sh -- --help
+./scripts/containers/run-alpine-simple.sh -- --help
 
 # Quick testing
-./scripts/test/quick-test.sh
+./scripts/testing/quick-test.sh
 
 # Deploy binaries
-./scripts/deploy/DeployBins.sh
+./scripts/deployment/DeployBins.sh
 ```
 
 **Scripts Directory Structure:**
 - **`scripts/build/`** - Build and compilation scripts
-- **`scripts/container/`** - Docker and container management
-- **`scripts/test/`** - Testing and validation
-- **`scripts/deploy/`** - Deployment automation
-- **`scripts/utils/`** - Utility and helper scripts
+- **`scripts/containers/`** - Container management scripts
+- **`scripts/docker/`** - Docker files and configurations
+- **`scripts/testing/`** - Testing and validation scripts
+- **`scripts/deployment/`** - Deployment automation
+- **`scripts/utilities/`** - Utility and helper scripts
 
 See [scripts/README.md](scripts/README.md) for detailed usage information.
 

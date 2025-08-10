@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  wine-ubuntu:
+    build:
+      context: .
+      dockerfile: Dockerfile.wine
+    container_name: wine-ubuntu
+    volumes:
+      - ./app:/app
+      - wine-data:/root/.wine64
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - WINEARCH=win64
+      - WINEPREFIX=/root/.wine64
+    network_mode: host
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  wine-data:
+    driver: local

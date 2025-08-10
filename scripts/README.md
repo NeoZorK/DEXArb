@@ -1,105 +1,55 @@
 # Scripts Directory
 
-This directory contains all build, deployment, testing, and utility scripts for the DEXArb project, organized into logical subdirectories for better maintainability.
+This directory contains all scripts organized by functionality for the DEXArb project.
 
 ## Directory Structure
 
-```
-scripts/
-├── build/           # Build and compilation scripts
-├── deploy/          # Deployment and distribution scripts
-├── container/       # Docker and container management scripts
-├── test/            # Testing and validation scripts
-├── utils/           # Utility and helper scripts
-└── README.md        # This file
-```
+### `containers/`
+Contains scripts for running different container environments:
+- Alpine Linux containers
+- Ubuntu containers  
+- Windows containers
+- Wine containers for Windows compatibility
 
-## Quick Navigation
+### `docker/`
+Contains Docker-related files:
+- Dockerfiles
+- Docker Compose configurations
+- Docker build scripts
 
-### 🏗️ Build Scripts
-- **`build/`** - All build-related scripts including cross-platform builds and container builds
-- See [build/README.md](build/README.md) for detailed information
+### `build/`
+Contains build-related scripts and configurations:
+- CMake scripts
+- Build configurations for different platforms
+- Compilation scripts
 
-### 🚀 Deployment Scripts
-- **`deploy/`** - Binary deployment and distribution automation
-- See [deploy/README.md](deploy/README.md) for detailed information
+### `testing/`
+Contains testing scripts and executables:
+- Platform-specific test scripts
+- Test executables
+- PowerShell and batch test scripts
+- C++ test files
 
-### 🐳 Container Scripts
-- **`container/`** - Alpine Linux container runners and management
-- See [container/README.md](container/README.md) for detailed information
+### `deployment/`
+Contains deployment and distribution scripts:
+- Binary deployment scripts
+- Installation scripts
+- Distribution utilities
 
-### 🧪 Test Scripts
-- **`test/`** - Quick testing and comprehensive platform testing
-- See [test/README.md](test/README.md) for detailed information
+### `utilities/`
+Contains utility scripts and tools:
+- Neozork configuration tools
+- Scan statistics tools
+- Wine-Docker utilities
+- General utility scripts
 
-### 🔧 Utility Scripts
-- **`utils/`** - Helper scripts for blockchain scanning and data processing
-- See [utils/README.md](utils/README.md) for detailed information
+## Usage
 
-## Common Operations
+Each subdirectory contains scripts specific to its purpose. Refer to individual README files in each subdirectory for detailed usage instructions.
 
-### Setup Permissions
-```bash
-# Make all scripts executable
-chmod +x scripts/**/*.sh
+## Organization Principles
 
-# Make specific category executable
-chmod +x scripts/build/*.sh
-chmod +x scripts/container/*.sh
-```
-
-### Quick Start Examples
-```bash
-# Build the project
-./scripts/build/build-modern.sh
-
-# Run in Alpine container
-./scripts/container/run-alpine-simple.sh -- --help
-
-# Run quick tests
-./scripts/test/quick-test.sh
-
-# Deploy binaries
-./scripts/deploy/DeployBins.sh
-```
-
-## Script Categories
-
-| Category | Purpose | Key Scripts |
-|----------|---------|-------------|
-| **Build** | Compilation and linking | `build-modern.sh`, `build-multi-platform.sh` |
-| **Deploy** | Distribution and installation | `DeployBins.sh` |
-| **Container** | Docker/container management | `run-alpine-simple.sh` |
-| **Test** | Testing and validation | `quick-test.sh`, `test-all-platforms.sh` |
-| **Utils** | Helper and utility functions | `scan-fantom.sh` |
-
-## Best Practices
-
-1. **Always run scripts from project root directory**
-2. **Check script permissions before execution**
-3. **Review script dependencies and requirements**
-4. **Monitor script output for errors and warnings**
-5. **Use appropriate script for your use case**
-
-## Troubleshooting
-
-- **Permission denied**: Run `chmod +x scripts/**/*.sh`
-- **Script not found**: Ensure you're in the project root directory
-- **Build failures**: Check dependencies and system requirements
-- **Container issues**: Verify Docker installation and permissions
-
-## Documentation
-
-Each subdirectory contains detailed README files with:
-- Script descriptions and usage examples
-- Dependencies and requirements
-- Troubleshooting guides
-- Best practices and tips
-
-## Contributing
-
-When adding new scripts:
-1. Place them in the appropriate subdirectory
-2. Update the relevant README.md file
-3. Ensure proper permissions and documentation
-4. Test the script thoroughly before committing
+- **Separation of Concerns**: Each directory has a specific purpose
+- **Platform Independence**: Scripts are organized by functionality, not platform
+- **Maintainability**: Clear structure makes it easier to find and maintain scripts
+- **Documentation**: Each directory has its own README with usage examples
