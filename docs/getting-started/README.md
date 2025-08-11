@@ -1,51 +1,89 @@
-# Getting Started
+# Getting Started with DEXArb
 
-This directory contains all the documentation needed to get started with the DEXArb project.
+Welcome to DEXArb! This guide will help you get up and running quickly with our decentralized exchange arbitrage tool.
 
-## 📚 Quick Start Guides
+## 🚀 Quick Start (5 minutes)
 
-### [Quick Start Guide](QUICK_START.md)
-Get up and running with DEXArb in 5 minutes. Perfect for new users who want to start immediately.
+### Prerequisites
+- **C++17 compatible compiler** (GCC 7+, Clang 5+, MSVC 2017+)
+- **CMake 3.15+**
+- **Git**
 
-### [Build and Usage Guide](BUILD_AND_USAGE.md)
-Comprehensive setup and usage instructions. Covers everything from installation to advanced features.
+### 1. Clone and Setup
+```bash
+git clone <repository-url>
+cd DEXArb
+```
 
-### [Build Script](BUILD_SCRIPT.md)
-Automated build and deploy script documentation. For developers who want to automate their workflow.
+### 2. Build the Project
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
 
-### [Modern Build Guide](BUILD_MODERN.md)
-Modern build system documentation with CMake and vcpkg integration.
+### 3. Run Your First Scan
+```bash
+./DEXArb --help
+./DEXArb --scan --network ethereum
+```
 
-### [Alpine Container Runner](ALPINE_CONTAINER_RUNNER.md)
-Run DEXArb in Alpine Linux container using Apple Container CLI.
+## 📋 What You'll Learn
 
-### [Ubuntu Container Runner](UBUNTU_CONTAINER_RUNNER.md)
-Run DEXArb in Ubuntu Linux container using Apple Container CLI.
+This section covers:
+- [**Build Instructions**](build/README.md) - Complete build guide for all platforms
+- [**Platform Setup**](platforms/README.md) - Alpine, Ubuntu, and Windows/Wine configurations
+- [**First Steps**](first-steps.md) - Your first arbitrage scan
+- [**Configuration**](configuration.md) - Setting up networks and parameters
 
-### [Windows in Ubuntu Wine](WINDOWS_IN_UBUNTU_WINE.md)
-Run Windows applications in Ubuntu container using Wine and MinGW cross-compiler.
+## 🎯 Choose Your Path
 
-## 🚀 For New Users
+### For New Users
+1. **Start here** → Read this guide
+2. **Choose your platform** → [Platform Setup](platforms/README.md)
+3. **Build the project** → [Build Instructions](build/README.md)
+4. **Run your first scan** → [First Steps](first-steps.md)
 
-1. **Start here**: [Quick Start Guide](QUICK_START.md)
-2. **Get detailed**: [Build and Usage Guide](BUILD_AND_USAGE.md)
-3. **Automate**: [Build Script](BUILD_SCRIPT.md)
+### For Developers
+1. **Quick build** → [Build Instructions](build/README.md)
+2. **Development setup** → [Development Guide](../development/development-guide.md)
+3. **API reference** → [API Documentation](../development/api/README.md)
 
-## 🔧 For Developers
+### For System Administrators
+1. **Production deployment** → [Deployment Guide](../deployment/README.md)
+2. **Container setup** → [Container Usage](../deployment/containers/README.md)
+3. **Monitoring** → [Monitoring Setup](../deployment/monitoring.md)
 
-1. **Modern build**: [Modern Build Guide](BUILD_MODERN.md)
-2. **Automation**: [Build Script](BUILD_SCRIPT.md)
-3. **Advanced usage**: [Build and Usage Guide](BUILD_AND_USAGE.md)
-4. **Container runners**: [Alpine](ALPINE_CONTAINER_RUNNER.md) | [Ubuntu](UBUNTU_CONTAINER_RUNNER.md) | [Windows Wine](WINDOWS_IN_UBUNTU_WINE.md)
+## 🔧 System Requirements
 
-## 📋 Quick Reference
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **RAM** | 4 GB | 8 GB+ |
+| **Storage** | 10 GB | 20 GB+ |
+| **CPU** | 2 cores | 4+ cores |
+| **Network** | 10 Mbps | 100 Mbps+ |
 
-| Document | Purpose | Time to Read |
-|----------|---------|--------------|
-| [Quick Start](QUICK_START.md) | Immediate setup | 5 minutes |
-| [Build & Usage](BUILD_AND_USAGE.md) | Complete guide | 15-20 minutes |
-| [Build Script](BUILD_SCRIPT.md) | Automation | 10 minutes |
-| [Modern Build](BUILD_MODERN.md) | Advanced build | 15 minutes |
-| [Alpine Runner](ALPINE_CONTAINER_RUNNER.md) | Alpine container | 10 minutes |
-| [Ubuntu Runner](UBUNTU_CONTAINER_RUNNER.md) | Ubuntu container | 10 minutes |
-| [Windows Wine](WINDOWS_IN_UBUNTU_WINE.md) | Windows in Ubuntu | 15 minutes |
+## 🌐 Supported Platforms
+
+- **Linux**: Ubuntu 18.04+, Alpine 3.14+
+- **macOS**: 10.15+ (Catalina)
+- **Windows**: 10+ (via Wine or native)
+
+## 📚 Next Steps
+
+After completing this guide:
+- Explore [**Development**](../development/README.md) for contributing
+- Check [**Reference**](../reference/README.md) for technical details
+- Review [**Testing**](../testing/README.md) for quality assurance
+- Learn about [**Deployment**](../deployment/README.md) for production use
+
+## 🆘 Need Help?
+
+- **Documentation Issues**: Submit a PR to fix documentation
+- **Build Problems**: Check [Build Troubleshooting](build/troubleshooting.md)
+- **Runtime Errors**: See [Common Issues](troubleshooting.md)
+- **Feature Requests**: Open a GitHub issue
+
+---
+
+*Ready to start? Choose your platform setup below!*
