@@ -5,8 +5,9 @@
 #include <gmock/gmock.h>
 #include <string>
 #include <chrono>
-#include "network/rpc_core.h"
-#include "main.h"
+#include <curl/curl.h>
+#include "../include/network/rpc_core.h"
+#include "../include/main.h"
 
 class RpcCoreTest : public ::testing::Test {
 protected:
@@ -282,7 +283,7 @@ TEST_F(RpcCoreTest, MakeRpcCall_StatsRecording) {
     EXPECT_GE(stats.execution_time_ms, 0.0);
     
     // Should record outbound size
-    EXPECT_EQ(stats.outbound_bytes, payload.size());
+    EXPECT_EQ(stats.outbound_traffic, payload.size());
 }
 
 // Test edge cases

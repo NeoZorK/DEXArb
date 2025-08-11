@@ -5,20 +5,16 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "../include/main.h"
 
 // Forward declarations for the functions we're testing
-void connect_wallet(const std::string& private_key, void& stats);
-void disconnect_wallet(void& stats);
-uint64_t check_wallet_balance(const std::string& token_address, void& stats);
+void connect_wallet(const std::string& private_key, FunctionStats& stats);
+void disconnect_wallet(FunctionStats& stats);
+uint64_t check_wallet_balance(const std::string& token_address, FunctionStats& stats);
 
-// Mock FunctionStats structure for testing
-struct FunctionStats {
-    // Placeholder for stats
-};
+// Use FunctionStats from main.h
 
-// Mock color constants
-const char* YELLOW = "\033[33m";
-const char* RESET = "\033[0m";
+// Use color constants from main.h
 
 // Test fixture for wallet tests
 class WalletTest : public ::testing::Test {
@@ -48,7 +44,7 @@ protected:
 // Test connect_wallet function
 TEST_F(WalletTest, ConnectWalletBasic) {
     // Test basic functionality
-    connect_wallet(test_private_key, reinterpret_cast<void&>(stats));
+    connect_wallet(test_private_key, stats);
     
     std::string output = buffer.str();
     
@@ -73,7 +69,7 @@ TEST_F(WalletTest, ConnectWalletDifferentKeys) {
         buffer.str(""); // Clear buffer
         buffer.clear();
         
-        connect_wallet(key, reinterpret_cast<void&>(stats));
+        connect_wallet(key, stats);
         
         std::string output = buffer.str();
         
@@ -88,7 +84,7 @@ TEST_F(WalletTest, ConnectWalletDifferentKeys) {
 TEST_F(WalletTest, ConnectWalletShortKey) {
     std::string short_key = "0x123";
     
-    connect_wallet(short_key, reinterpret_cast<void&>(stats));
+    connect_wallet(short_key, stats);
     
     std::string output = buffer.str();
     
@@ -102,7 +98,7 @@ TEST_F(WalletTest, ConnectWalletShortKey) {
 TEST_F(WalletTest, ConnectWalletEmptyKey) {
     std::string empty_key = "";
     
-    connect_wallet(empty_key, reinterpret_cast<void&>(stats));
+    connect_wallet(empty_key, stats);
     
     std::string output = buffer.str();
     
@@ -115,7 +111,7 @@ TEST_F(WalletTest, ConnectWalletEmptyKey) {
 // Test disconnect_wallet function
 TEST_F(WalletTest, DisconnectWalletBasic) {
     // Test basic functionality
-    disconnect_wallet(reinterpret_cast<void&>(stats));
+    disconnect_wallet(stats);
     
     std::string output = buffer.str();
     
@@ -132,7 +128,7 @@ TEST_F(WalletTest, DisconnectWalletMultiple) {
         buffer.str(""); // Clear buffer
         buffer.clear();
         
-        disconnect_wallet(reinterpret_cast<void&>(stats));
+        disconnect_wallet(stats);
         
         std::string output = buffer.str();
         
@@ -144,7 +140,7 @@ TEST_F(WalletTest, DisconnectWalletMultiple) {
 // Test check_wallet_balance function
 TEST_F(WalletTest, CheckWalletBalanceBasic) {
     // Test basic functionality
-    uint64_t balance = check_wallet_balance(test_token_address, reinterpret_cast<void&>(stats));
+    uint64_t balance = check_wallet_balance(test_token_address, stats);
     
     // Verify return value
     EXPECT_EQ(balance, 0);
@@ -172,7 +168,7 @@ TEST_F(WalletTest, CheckWalletBalanceDifferentTokens) {
         buffer.str(""); // Clear buffer
         buffer.clear();
         
-        uint64_t balance = check_wallet_balance(token, reinterpret_cast<void&>(stats));
+        uint64_t balance = check_wallet_balance(token, stats);
         
         // Verify return value
         EXPECT_EQ(balance, 0);
@@ -190,7 +186,7 @@ TEST_F(WalletTest, CheckWalletBalanceDifferentTokens) {
 TEST_F(WalletTest, CheckWalletBalanceShortToken) {
     std::string short_token = "0x123";
     
-    uint64_t balance = check_wallet_balance(short_token, reinterpret_cast<void&>(stats));
+    uint64_t balance = check_wallet_balance(short_token, stats);
     
     // Verify return value
     EXPECT_EQ(balance, 0);
@@ -207,7 +203,7 @@ TEST_F(WalletTest, CheckWalletBalanceShortToken) {
 TEST_F(WalletTest, CheckWalletBalanceEmptyToken) {
     std::string empty_token = "";
     
-    uint64_t balance = check_wallet_balance(empty_token, reinterpret_cast<void&>(stats));
+    uint64_t balance = check_wallet_balance(empty_token, stats);
     
     // Verify return value
     EXPECT_EQ(balance, 0);
@@ -225,9 +221,9 @@ TEST_F(WalletTest, FunctionsWithNullStats) {
     // Test that functions work with null stats
     FunctionStats* null_stats = nullptr;
     
-    EXPECT_NO_THROW(connect_wallet(test_private_key, reinterpret_cast<void&>(*null_stats)));
-    EXPECT_NO_THROW(disconnect_wallet(reinterpret_cast<void&>(*null_stats)));
-    EXPECT_NO_THROW(check_wallet_balance(test_token_address, reinterpret_cast<void&>(*null_stats)));
+    EXPECT_NO_THROW(connect_wallet(test_private_key, *null_stats));
+    EXPECT_NO_THROW(disconnect_wallet(*null_stats));
+    EXPECT_NO_THROW(check_wallet_balance(test_token_address, *null_stats));
 }
 
 // Test function parameter handling
@@ -240,21 +236,21 @@ TEST_F(WalletTest, ParameterHandling) {
     // Test connect_wallet
     buffer.str("");
     buffer.clear();
-    connect_wallet(test_key, reinterpret_cast<void&>(test_stats));
+    connect_wallet(test_key, test_stats);
     std::string output = buffer.str();
     EXPECT_TRUE(output.find(test_key.substr(0, 6)) != std::string::npos);
     
     // Test disconnect_wallet
     buffer.str("");
     buffer.clear();
-    disconnect_wallet(reinterpret_cast<void&>(test_stats));
+    disconnect_wallet(test_stats);
     output = buffer.str();
     EXPECT_TRUE(output.find("Disconnecting wallet") != std::string::npos);
     
     // Test check_wallet_balance
     buffer.str("");
     buffer.clear();
-    uint64_t balance = check_wallet_balance(test_token, reinterpret_cast<void&>(test_stats));
+    uint64_t balance = check_wallet_balance(test_token, test_stats);
     EXPECT_EQ(balance, 0);
     output = buffer.str();
     EXPECT_TRUE(output.find(test_token) != std::string::npos);
@@ -263,7 +259,7 @@ TEST_F(WalletTest, ParameterHandling) {
 // Test output formatting
 TEST_F(WalletTest, OutputFormatting) {
     // Test that output is properly formatted
-    connect_wallet(test_private_key, reinterpret_cast<void&>(stats));
+    connect_wallet(test_private_key, stats);
     
     std::string output = buffer.str();
     
@@ -287,7 +283,7 @@ TEST_F(WalletTest, MultipleFunctionCalls) {
         buffer.clear();
         
         // Connect wallet
-        connect_wallet(test_private_key, reinterpret_cast<void&>(stats));
+        connect_wallet(test_private_key, stats);
         std::string output = buffer.str();
         EXPECT_TRUE(output.find("Connecting wallet") != std::string::npos);
         
@@ -295,7 +291,7 @@ TEST_F(WalletTest, MultipleFunctionCalls) {
         buffer.clear();
         
         // Check balance
-        uint64_t balance = check_wallet_balance(test_token_address, reinterpret_cast<void&>(stats));
+        uint64_t balance = check_wallet_balance(test_token_address, stats);
         EXPECT_EQ(balance, 0);
         output = buffer.str();
         EXPECT_TRUE(output.find("Checking balance") != std::string::npos);
@@ -304,7 +300,7 @@ TEST_F(WalletTest, MultipleFunctionCalls) {
         buffer.clear();
         
         // Disconnect wallet
-        disconnect_wallet(reinterpret_cast<void&>(stats));
+        disconnect_wallet(stats);
         output = buffer.str();
         EXPECT_TRUE(output.find("Disconnecting wallet") != std::string::npos);
     }
@@ -318,13 +314,13 @@ TEST_F(WalletTest, EdgeCases) {
     
     buffer.str("");
     buffer.clear();
-    connect_wallet(long_key, reinterpret_cast<void&>(stats));
+    connect_wallet(long_key, stats);
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Connecting wallet") != std::string::npos);
     
     buffer.str("");
     buffer.clear();
-    uint64_t balance = check_wallet_balance(long_token, reinterpret_cast<void&>(stats));
+    uint64_t balance = check_wallet_balance(long_token, stats);
     EXPECT_EQ(balance, 0);
     output = buffer.str();
     EXPECT_TRUE(output.find("Checking balance") != std::string::npos);
@@ -333,13 +329,13 @@ TEST_F(WalletTest, EdgeCases) {
 // Test error handling
 TEST_F(WalletTest, ErrorHandling) {
     // Test that functions don't throw exceptions
-    EXPECT_NO_THROW(connect_wallet(test_private_key, reinterpret_cast<void&>(stats)));
-    EXPECT_NO_THROW(disconnect_wallet(reinterpret_cast<void&>(stats)));
-    EXPECT_NO_THROW(check_wallet_balance(test_token_address, reinterpret_cast<void&>(stats)));
+    EXPECT_NO_THROW(connect_wallet(test_private_key, stats));
+    EXPECT_NO_THROW(disconnect_wallet(stats));
+    EXPECT_NO_THROW(check_wallet_balance(test_token_address, stats));
     
     // Test with empty strings
-    EXPECT_NO_THROW(connect_wallet("", reinterpret_cast<void&>(stats)));
-    EXPECT_NO_THROW(check_wallet_balance("", reinterpret_cast<void&>(stats)));
+    EXPECT_NO_THROW(connect_wallet("", stats));
+    EXPECT_NO_THROW(check_wallet_balance("", stats));
 }
 
 // Test function independence
@@ -349,7 +345,7 @@ TEST_F(WalletTest, FunctionIndependence) {
     buffer.clear();
     
     // Only call connect_wallet
-    connect_wallet(test_private_key, reinterpret_cast<void&>(stats));
+    connect_wallet(test_private_key, stats);
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Connecting wallet") != std::string::npos);
     EXPECT_TRUE(output.find("Disconnecting wallet") == std::string::npos);
@@ -359,7 +355,7 @@ TEST_F(WalletTest, FunctionIndependence) {
     buffer.clear();
     
     // Only call disconnect_wallet
-    disconnect_wallet(reinterpret_cast<void&>(stats));
+    disconnect_wallet(stats);
     output = buffer.str();
     EXPECT_TRUE(output.find("Disconnecting wallet") != std::string::npos);
     EXPECT_TRUE(output.find("Connecting wallet") == std::string::npos);
@@ -369,7 +365,7 @@ TEST_F(WalletTest, FunctionIndependence) {
     buffer.clear();
     
     // Only call check_wallet_balance
-    uint64_t balance = check_wallet_balance(test_token_address, reinterpret_cast<void&>(stats));
+    uint64_t balance = check_wallet_balance(test_token_address, stats);
     EXPECT_EQ(balance, 0);
     output = buffer.str();
     EXPECT_TRUE(output.find("Checking balance") != std::string::npos);

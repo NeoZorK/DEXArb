@@ -160,7 +160,7 @@ TEST_F(ConfigManagerTest, UpdateConfigWithDex_InvalidRpcEndpoint) {
         {"", 0} // Invalid endpoint
     };
     std::vector<DexInfo> dex_list = {
-        {"TestDEX", "0x1234567890123456789012345678901234567890", 0, 0, 0, 0, {}}
+        DexInfo("TestDEX", "0x1234567890123456789012345678901234567890")
     };
     FunctionStats stats;
     
@@ -175,7 +175,7 @@ TEST_F(ConfigManagerTest, UpdateConfigWithDex_ConfigFileNotFound) {
         {"https://test.com", 1000}
     };
     std::vector<DexInfo> dex_list = {
-        {"TestDEX", "0x1234567890123456789012345678901234567890", 0, 0, 0, 0, {}}
+        DexInfo("TestDEX", "0x1234567890123456789012345678901234567890")
     };
     FunctionStats stats;
     
@@ -257,7 +257,7 @@ TEST_F(ConfigManagerTest, UpdateConfigWithDex_ExecutionTime) {
         {"https://test.com", 1000}
     };
     std::vector<DexInfo> dex_list = {
-        {"TestDEX", "0x1234567890123456789012345678901234567890", 0, 0, 0, 0, {}}
+        DexInfo("TestDEX", "0x1234567890123456789012345678901234567890")
     };
     FunctionStats stats;
     
@@ -273,7 +273,7 @@ TEST_F(ConfigManagerTest, UpdateConfigWithDex_FileSizeTracking) {
         {"https://test.com", 1000}
     };
     std::vector<DexInfo> dex_list = {
-        {"TestDEX", "0x1234567890123456789012345678901234567890", 0, 0, 0, 0, {}}
+        DexInfo("TestDEX", "0x1234567890123456789012345678901234567890")
     };
     FunctionStats stats;
     

@@ -20,9 +20,9 @@
 #define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
 
 // Include our dex_tokens structures and enums
-#include "../../include/dex_tokens.h"
-#include "../../include/dex_pools.h"
-#include "../../include/dex_stats.h"
+#include "../include/dex/dex_tokens.h"
+#include "../include/dex/dex_pools.h"
+#include "../include/dex/dex_stats.h"
 
 // Mock DEX tokens data structures for testing
 namespace mock {
@@ -117,8 +117,8 @@ namespace mock {
         token.name = "Wrapped Ether";
         token.symbol = "WETH";
         token.decimals = 18;
-        token.total_supply = 100000000000000000000ULL; // 100M WETH
-        token.circulating_supply = 80000000000000000000ULL; // 80M WETH
+        token.total_supply = 10000000000000000000ULL; // 10M WETH
+        token.circulating_supply = 8000000000000000000ULL; // 8M WETH
         token.owner = "0x0000000000000000000000000000000000000000";
         token.is_verified = true;
         token.contract_code = "0x608060405234801561001057600080fd5b50610150806100206000396000f3fe";
@@ -266,7 +266,7 @@ static bool test_token_structure() {
     ASSERT_STREQ(weth.name, "Wrapped Ether");
     ASSERT_STREQ(weth.symbol, "WETH");
     ASSERT_EQ(weth.decimals, 18);
-    ASSERT_EQ(weth.total_supply, 100000000000000000000ULL);
+    ASSERT_EQ(weth.total_supply, 10000000000000000000ULL);
     ASSERT_EQ(weth.price_usd, 2000.0);
     ASSERT_EQ(weth.price_change_24h, 2.5);
     

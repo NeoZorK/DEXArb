@@ -20,9 +20,9 @@
 #define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
 
 // Include our dex_pools structures and enums
-#include "../../include/dex_pools.h"
-#include "../../include/dex_tokens.h"
-#include "../../include/dex_stats.h"
+#include "../include/dex/dex_pools.h"
+#include "../include/dex/dex_tokens.h"
+#include "../include/dex/dex_stats.h"
 
 // Mock DEX pools data structures for testing
 namespace mock {

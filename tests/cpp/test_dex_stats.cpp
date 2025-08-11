@@ -8,16 +8,18 @@
 #include <atomic>
 #include <string>
 #include <sstream>
+#include <thread>
+#include "../include/main.h"
 
 // Mock the external dependencies
 class MockRPCClient {
 public:
-    MOCK_METHOD(std::string, make_rpc_call, (const std::string&, const std::string&, int, void&), ());
+    MOCK_METHOD(std::string, make_rpc_call, (const std::string&, const std::string&, int, FunctionStats&), ());
 };
 
 class MockMeasure {
 public:
-    MOCK_METHOD(void, update_stats, (void&, const std::chrono::high_resolution_clock::time_point&, 
+    MOCK_METHOD(void, update_stats, (FunctionStats&, const std::chrono::high_resolution_clock::time_point&, 
                                     const std::chrono::high_resolution_clock::time_point&, size_t, size_t), ());
     MOCK_METHOD(void, print_progress_bar, (uint64_t, uint64_t, const std::string&), ());
 };

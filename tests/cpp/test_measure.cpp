@@ -5,29 +5,16 @@
 #include <chrono>
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include "../include/main.h"
 
 // Forward declarations for the functions we're testing
-void update_stats(void& stats, const std::chrono::high_resolution_clock::time_point& start,
+void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,
                   const std::chrono::high_resolution_clock::time_point& end, size_t outbound_size, size_t inbound_size);
 void StartTimeMeasure();
-void StopTimeMeasure(int timeUnits);
+void StopTimeMeasure(const ENUM_TIME_UNITS time_units);
 
-// Mock FunctionStats structure for testing
-struct FunctionStats {
-    double execution_time_ms = 0.0;
-    size_t outbound_traffic = 0;
-    size_t inbound_traffic = 0;
-    double cpu_usage_percent = 0.0;
-    int virtual_memory_kb = 0;
-};
-
-// Mock time units enum
-enum ENUM_TIME_UNITS {
-    NANOSECONDS = 0,
-    MICROSECONDS = 1,
-    MILLISECONDS = 2,
-    SECONDS = 3
-};
+// Use FunctionStats and ENUM_TIME_UNITS from main.h
 
 // Test fixture for measure tests
 class MeasureTest : public ::testing::Test {
@@ -55,7 +42,7 @@ TEST_F(MeasureTest, UpdateStatsBasic) {
     size_t outbound_size = 1024;
     size_t inbound_size = 2048;
     
-    update_stats(reinterpret_cast<void&>(stats), start_time, end_time, outbound_size, inbound_size);
+    update_stats(stats, start_time, end_time, outbound_size, inbound_size);
     
     // Verify execution time is calculated
     EXPECT_GT(stats.execution_time_ms, 0.0);
@@ -81,7 +68,7 @@ TEST_F(MeasureTest, UpdateStatsDifferentSizes) {
     
     for (const auto& [outbound, inbound] : test_sizes) {
         FunctionStats test_stats{};
-        update_stats(reinterpret_cast<void&>(test_stats), start_time, end_time, outbound, inbound);
+        update_stats(test_stats, start_time, end_time, outbound, inbound);
         
         EXPECT_EQ(test_stats.outbound_traffic, outbound);
         EXPECT_EQ(test_stats.inbound_traffic, inbound);
@@ -97,7 +84,7 @@ TEST_F(MeasureTest, UpdateStatsTimingAccuracy) {
     auto test_end = std::chrono::high_resolution_clock::now();
     
     FunctionStats test_stats{};
-    update_stats(reinterpret_cast<void&>(test_stats), test_start, test_end, 100, 200);
+    update_stats(test_stats, test_start, test_end, 100, 200);
     
     // Execution time should be approximately 10ms (with some tolerance)
     EXPECT_GT(test_stats.execution_time_ms, 9.0);
@@ -109,7 +96,7 @@ TEST_F(MeasureTest, UpdateStatsZeroDuration) {
     auto same_time = std::chrono::high_resolution_clock::now();
     
     FunctionStats test_stats{};
-    update_stats(reinterpret_cast<void&>(test_stats), same_time, same_time, 100, 200);
+    update_stats(test_stats, same_time, same_time, 100, 200);
     
     // Execution time should be 0 or very close to 0
     EXPECT_GE(test_stats.execution_time_ms, 0.0);
@@ -123,7 +110,7 @@ TEST_F(MeasureTest, UpdateStatsShortDuration) {
     auto test_end = std::chrono::high_resolution_clock::now();
     
     FunctionStats test_stats{};
-    update_stats(reinterpret_cast<void&>(test_stats), test_start, test_end, 100, 200);
+    update_stats(test_stats, test_start, test_end, 100, 200);
     
     // Execution time should be approximately 0.1ms
     EXPECT_GT(test_stats.execution_time_ms, 0.09);
@@ -137,7 +124,7 @@ TEST_F(MeasureTest, UpdateStatsLongDuration) {
     auto test_end = std::chrono::high_resolution_clock::now();
     
     FunctionStats test_stats{};
-    update_stats(reinterpret_cast<void&>(test_stats), test_start, test_end, 100, 200);
+    update_stats(test_stats, test_start, test_end, 100, 200);
     
     // Execution time should be approximately 100ms
     EXPECT_GT(test_stats.execution_time_ms, 99.0);
@@ -237,7 +224,7 @@ TEST_F(MeasureTest, StopTimeMeasureUnknownUnit) {
     std::stringstream buffer;
     std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
     
-    StopTimeMeasure(999); // Unknown time unit
+    StopTimeMeasure(static_cast<ENUM_TIME_UNITS>(999)); // Unknown time unit
     
     std::cout.rdbuf(old_cout);
     std::string output = buffer.str();
@@ -345,8 +332,8 @@ TEST_F(MeasureTest, ErrorHandling) {
     EXPECT_NO_THROW(StopTimeMeasure(NANOSECONDS));
     
     // Test with invalid time units
-    EXPECT_NO_THROW(StopTimeMeasure(-1));
-    EXPECT_NO_THROW(StopTimeMeasure(1000));
+    EXPECT_NO_THROW(StopTimeMeasure(static_cast<ENUM_TIME_UNITS>(-1)));
+    EXPECT_NO_THROW(StopTimeMeasure(static_cast<ENUM_TIME_UNITS>(1000)));
 }
 
 // Main function to run all tests

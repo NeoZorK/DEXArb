@@ -86,7 +86,7 @@ public:
     }
     
     std::vector<RpcEndpoint> get_rpc_endpoints(std::string_view blockchain) const override {
-        return {{"https://rpc.example.com", "test_api_key", 30}};
+        return {RpcEndpoint("https://rpc.example.com", 30)};
     }
     
     int get_thread_count() const override {
@@ -108,24 +108,24 @@ public:
         // Mock implementation
     }
     
-    bool has_key(std::string_view key) const override {
+    bool has_key(std::string_view key) const {
         std::vector<std::string> valid_keys = {"rpc_url", "api_key", "timeout"};
         return std::find(valid_keys.begin(), valid_keys.end(), std::string(key)) != valid_keys.end();
     }
     
-    std::vector<std::string> get_all_keys() const override {
+    std::vector<std::string> get_all_keys() const {
         return {"rpc_url", "api_key", "timeout"};
     }
     
-    bool remove_key(std::string_view key) override {
+    bool remove_key(std::string_view key) {
         return !key.empty();
     }
     
-    void clear() override {
+    void clear() {
         // Mock implementation
     }
     
-    bool is_loaded() const override {
+    bool is_loaded() const {
         return true;
     }
 };
@@ -146,7 +146,7 @@ public:
         std::string_view endpoint,
         std::string_view method,
         std::string_view params,
-        const std::map<std::string, std::string>& headers) override {
+        const std::vector<std::pair<std::string, std::string>>& headers) override {
         return make_request(endpoint, method, params);
     }
     
@@ -155,7 +155,12 @@ public:
     }
     
     RequestStats get_stats() const override {
-        return {100, 0, 0.0};
+        RequestStats stats;
+        stats.total_requests = 100;
+        stats.successful_requests = 95;
+        stats.failed_requests = 5;
+        stats.average_response_time_ms = 50.0;
+        return stats;
     }
     
     void reset_stats() override {
@@ -251,9 +256,9 @@ TEST_F(InterfacesTest, ConfigManagerValues) {
     EXPECT_EQ(config->get_value("nonexistent"), "");
     
     // Test set_value
-    EXPECT_TRUE(config->set_value("new_key", "new_value"));
-    EXPECT_FALSE(config->set_value("", "value"));
-    EXPECT_FALSE(config->set_value("key", ""));
+    config->set_value("new_key", "new_value");
+    config->set_value("", "value");
+    config->set_value("key", "");
 }
 
 TEST_F(InterfacesTest, ConfigManagerKeys) {
@@ -287,46 +292,27 @@ TEST_F(InterfacesTest, ConfigManagerClear) {
 TEST_F(InterfacesTest, RpcClientInterface) {
     ASSERT_NE(rpc, nullptr);
     
-    // Test connect
-    EXPECT_TRUE(rpc->connect("https://rpc.example.com"));
-    EXPECT_FALSE(rpc->connect(""));
+    // Test make_request
+    EXPECT_EQ(rpc->make_request("https://rpc.example.com", "eth_blockNumber", ""), "0x12345");
+    EXPECT_EQ(rpc->make_request("https://rpc.example.com", "eth_getBalance", ""), "0x1000000000000000000");
+    EXPECT_EQ(rpc->make_request("https://rpc.example.com", "eth_call", ""), "0x");
+    EXPECT_EQ(rpc->make_request("https://rpc.example.com", "unknown", ""), "");
     
-    // Test disconnect
-    rpc->disconnect(); // Should not crash
-    
-    // Test is_connected
-    EXPECT_TRUE(rpc->is_connected());
+    // Test is_endpoint_available
+    EXPECT_TRUE(rpc->is_endpoint_available("https://rpc.example.com"));
+    EXPECT_FALSE(rpc->is_endpoint_available(""));
 }
 
-TEST_F(InterfacesTest, RpcClientRequests) {
-    // Test send_request
-    EXPECT_EQ(rpc->send_request("eth_blockNumber", ""), "0x12345");
-    EXPECT_EQ(rpc->send_request("eth_getBalance", ""), "0x1000000000000000000");
-    EXPECT_EQ(rpc->send_request("eth_call", ""), "0x");
-    EXPECT_EQ(rpc->send_request("unknown", ""), "");
+TEST_F(InterfacesTest, RpcClientStats) {
+    // Test get_stats
+    auto stats = rpc->get_stats();
+    EXPECT_EQ(stats.total_requests, 100);
+    EXPECT_EQ(stats.successful_requests, 95);
+    EXPECT_EQ(stats.failed_requests, 5);
+    EXPECT_GT(stats.average_response_time_ms, 0.0);
     
-    // Test send_request_async
-    EXPECT_TRUE(rpc->send_request_async("eth_blockNumber", ""));
-    EXPECT_FALSE(rpc->send_request_async("", ""));
-}
-
-TEST_F(InterfacesTest, RpcClientResponse) {
-    // Test get_last_response
-    EXPECT_EQ(rpc->get_last_response(), "0x12345");
-    
-    // Test has_error
-    EXPECT_FALSE(rpc->has_error());
-    
-    // Test get_last_error
-    EXPECT_EQ(rpc->get_last_error(), "");
-}
-
-TEST_F(InterfacesTest, RpcClientCounters) {
-    // Test get_request_count
-    EXPECT_EQ(rpc->get_request_count(), 100);
-    
-    // Test reset_request_count
-    rpc->reset_request_count(); // Should not crash
+    // Test reset_stats
+    rpc->reset_stats(); // Should not crash
 }
 
 // Test edge cases
@@ -334,13 +320,13 @@ TEST_F(InterfacesTest, EdgeCases) {
     // Test with empty strings
     EXPECT_FALSE(scanner->is_blockchain_supported(""));
     EXPECT_FALSE(config->load_config(""));
-    EXPECT_FALSE(rpc->connect(""));
+    EXPECT_FALSE(rpc->is_endpoint_available(""));
     
     // Test with very long strings
     std::string long_string(1000, 'a');
     EXPECT_FALSE(scanner->is_blockchain_supported(long_string));
     EXPECT_FALSE(config->load_config(long_string));
-    EXPECT_FALSE(rpc->connect(long_string));
+    EXPECT_FALSE(rpc->is_endpoint_available(long_string));
 }
 
 // Test performance
@@ -352,7 +338,7 @@ TEST_F(InterfacesTest, Performance) {
     for (int i = 0; i < iterations; ++i) {
         scanner->is_blockchain_supported("ethereum");
         config->has_key("rpc_url");
-        rpc->is_connected();
+        rpc->is_endpoint_available("https://rpc.example.com");
     }
     
     auto end = std::chrono::high_resolution_clock::now();
