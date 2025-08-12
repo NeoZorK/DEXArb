@@ -6,6 +6,7 @@
 //
 #include "utils/measure.h"
 #include <iostream>         // For console I/O
+#include <mutex>           // For thread synchronization
 
 void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock::time_point& start,
                   const std::chrono::high_resolution_clock::time_point& end, size_t outbound_size, size_t inbound_size) {
@@ -22,8 +23,10 @@ void update_stats(FunctionStats& stats, const std::chrono::high_resolution_clock
 }
 
 static auto start_time = std::chrono::high_resolution_clock::now();
+static std::mutex time_mutex;
 
 void StartTimeMeasure() {
+    std::lock_guard<std::mutex> lock(time_mutex);
     start_time = std::chrono::high_resolution_clock::now();
 }
 

@@ -59,12 +59,22 @@ std::vector<DexInfo> load_dexes_from_config() {
             
             std::cout << "DEBUG: DEX section for " << chain << " from " << dex_pos << " to " << dex_end << std::endl;
             
-            size_t pos = dex_pos + 8; // Move past "dex": [
+            size_t pos = dex_pos + 1; // Move past "["
             while (pos < dex_end && pos < content.length()) { // Loop through DEX entries
-                size_t addr_start = content.find("\"factory_address\": \"", pos); // Find factory address field
-                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                std::cout << "DEBUG: Looking for factory_address starting from position " << pos << std::endl;
+                // Look for factory_address with possible whitespace
+                size_t addr_start = content.find("\"factory_address\"", pos); // Find factory address field
+                if (addr_start == std::string::npos || addr_start > dex_end) {
+                    std::cout << "DEBUG: factory_address not found or beyond dex_end" << std::endl;
+                    break;
+                }
                 
-                addr_start += 19; // Move past "factory_address": "
+                // Skip to the colon and quote
+                addr_start = content.find(":", addr_start);
+                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                addr_start = content.find("\"", addr_start);
+                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                addr_start++; // Move past the quote
                 size_t addr_end = content.find('"', addr_start); // Find end of address
                 if (addr_end == std::string::npos || addr_end > dex_end) break;
                 
@@ -84,8 +94,8 @@ std::vector<DexInfo> load_dexes_from_config() {
                     dex_list.push_back(dex); // Add to list
                 }
 
-                pos = content.find("{", pos + 1); // Move to next entry
-                if (pos == std::string::npos) break; // Exit if no more entries
+                pos = addr_end + 1; // Move past the current address
+                if (pos >= dex_end) break; // Exit if we've reached the end
             }
         } else {
             std::cout << "DEBUG: No DEX section found for " << chain << std::endl;

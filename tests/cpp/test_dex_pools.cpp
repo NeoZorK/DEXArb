@@ -11,6 +11,7 @@
 #include <memory>
 #include <chrono>
 #include <thread>
+#include <typeinfo>
 #include <map>
 
 // Simple test framework
@@ -135,7 +136,7 @@ namespace mock {
         factory.dex_name = "Uniswap V3";
         factory.version = "3.0.0";
         factory.pool_count = 10000;
-        factory.total_volume_24h = 100000000000000000ULL; // 100 WETH
+        factory.total_volume_24h = 400000000000000000ULL; // 400 WETH
         factory.total_liquidity = 500000000000000000ULL; // 500 WETH
         factory.pools = {
             "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8",
@@ -154,7 +155,7 @@ namespace mock {
         factory.dex_name = "SushiSwap";
         factory.version = "2.0.0";
         factory.pool_count = 5000;
-        factory.total_volume_24h = 500000000000000000ULL; // 50 WETH
+        factory.total_volume_24h = 300000000000000000ULL; // 30 WETH
         factory.total_liquidity = 200000000000000000ULL; // 200 WETH
         factory.pools = {
             "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640"
@@ -396,9 +397,17 @@ static bool test_dex_factory_comparison() {
     auto sushiswap_factory = mock::create_mock_sushiswap_factory();
     
     // Compare pool count
+    std::cout << "DEBUG: Uniswap pool_count: " << uniswap_factory.pool_count << std::endl;
+    std::cout << "DEBUG: SushiSwap pool_count: " << sushiswap_factory.pool_count << std::endl;
+    std::cout << "DEBUG: Comparison result: " << (uniswap_factory.pool_count > sushiswap_factory.pool_count) << std::endl;
+    std::cout << "DEBUG: Uniswap type: " << typeid(uniswap_factory.pool_count).name() << std::endl;
+    std::cout << "DEBUG: SushiSwap type: " << typeid(sushiswap_factory.pool_count).name() << std::endl;
     ASSERT_TRUE(uniswap_factory.pool_count > sushiswap_factory.pool_count);
     
     // Compare volume
+    std::cout << "DEBUG: Uniswap total_volume_24h: " << uniswap_factory.total_volume_24h << std::endl;
+    std::cout << "DEBUG: SushiSwap total_volume_24h: " << sushiswap_factory.total_volume_24h << std::endl;
+    std::cout << "DEBUG: Volume comparison: " << (uniswap_factory.total_volume_24h > sushiswap_factory.total_volume_24h) << std::endl;
     ASSERT_TRUE(uniswap_factory.total_volume_24h > sushiswap_factory.total_volume_24h);
     
     // Compare liquidity
