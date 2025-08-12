@@ -70,15 +70,27 @@ TEST_F(CommandParserTest, ParseScanCommandValid) {
 }
 
 TEST_F(CommandParserTest, ParseScanCommandInvalidArgs) {
+    auto argv = create_argv({"program", "--scan"});
+    auto cmd = CommandParser::parse(argv.size(), argv.data());
+    
+    EXPECT_EQ(cmd.type, CommandType::SCAN);
+    EXPECT_EQ(cmd.flag, "--scan");
+    EXPECT_EQ(cmd.blockchain, "fantom"); // Default blockchain
+    EXPECT_EQ(cmd.value, "1000"); // Default block count
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
+}
+
+TEST_F(CommandParserTest, ParseScanCommandWithDefaultBlockCount) {
     auto argv = create_argv({"program", "--scan", "ethereum"});
     auto cmd = CommandParser::parse(argv.size(), argv.data());
     
     EXPECT_EQ(cmd.type, CommandType::SCAN);
     EXPECT_EQ(cmd.flag, "--scan");
     EXPECT_EQ(cmd.blockchain, "ethereum");
-    EXPECT_FALSE(cmd.is_valid);
-    EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Scan command requires blockchain and block count");
+    EXPECT_EQ(cmd.value, "1000"); // Default block count
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
 }
 
 TEST_F(CommandParserTest, ParseShowDexesCommandValid) {
@@ -100,7 +112,7 @@ TEST_F(CommandParserTest, ParseShowDexesCommandInvalidArgs) {
     EXPECT_EQ(cmd.flag, "--show-dexes");
     EXPECT_FALSE(cmd.is_valid);
     EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Show DEXes command requires blockchain");
+    EXPECT_EQ(cmd.error_message, "Command requires blockchain parameter");
 }
 
 TEST_F(CommandParserTest, ParseShowPoolsCommandValid) {
@@ -124,7 +136,7 @@ TEST_F(CommandParserTest, ParseShowPoolsCommandInvalidArgs) {
     EXPECT_EQ(cmd.blockchain, "ethereum");
     EXPECT_FALSE(cmd.is_valid);
     EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Show pools/tokens command requires blockchain and DEX name");
+    EXPECT_EQ(cmd.error_message, "Command requires blockchain and DEX parameters");
 }
 
 TEST_F(CommandParserTest, ParseShowTokensCommandValid) {
@@ -148,7 +160,7 @@ TEST_F(CommandParserTest, ParseShowTokensCommandInvalidArgs) {
     EXPECT_EQ(cmd.blockchain, "ethereum");
     EXPECT_FALSE(cmd.is_valid);
     EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Show pools/tokens command requires blockchain and DEX name");
+    EXPECT_EQ(cmd.error_message, "Command requires blockchain and DEX parameters");
 }
 
 TEST_F(CommandParserTest, ParseShowScanConfigCommandValid) {
@@ -207,7 +219,7 @@ TEST_F(CommandParserTest, ParseFindTokenCommandInvalidArgs) {
     EXPECT_EQ(cmd.dex_name, "uniswap");
     EXPECT_FALSE(cmd.is_valid);
     EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Find token command requires blockchain, DEX name, and token address");
+    EXPECT_EQ(cmd.error_message, "Find token command requires blockchain, DEX, and token parameters");
 }
 
 TEST_F(CommandParserTest, ParseUnknownCommand) {

@@ -23,12 +23,12 @@ find_package(CURL REQUIRED)
 find_package(GTest REQUIRED)
 
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_SOURCE_DIR}/../../src)
 
 # Source files for linking (excluding main.cpp)
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/../../src/*.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/../../src/main.cpp")
 
 # All test executables for 100% coverage
 add_executable(test_modern_result test_modern_result.cpp ${SOURCES})

@@ -99,6 +99,9 @@ private:
     // Validate block range
     static bool is_valid_block_range(std::string_view value);
     
+    // Validate address
+    static bool is_valid_address(std::string_view address);
+    
     // Validate network ID
     static bool is_valid_network_id(std::string_view network_id);
 };

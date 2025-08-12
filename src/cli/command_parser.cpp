@@ -106,6 +106,16 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
+            } else if (argc >= 3) {
+                // Set blockchain but mark as invalid due to missing DEX
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
+                cmd.is_valid = false;
+                cmd.error_message = "Command requires blockchain and DEX parameters";
             } else {
                 cmd.error_message = "Command requires blockchain and DEX parameters";
             }
@@ -125,6 +135,27 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
+            } else if (argc >= 4) {
+                // Set blockchain and DEX but mark as invalid due to missing token
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
+                cmd.dex_name = argv[3];
+                cmd.is_valid = false;
+                cmd.error_message = "Find token command requires blockchain, DEX, and token parameters";
+            } else if (argc >= 3) {
+                // Set blockchain but mark as invalid due to missing DEX and token
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
+                cmd.is_valid = false;
+                cmd.error_message = "Find token command requires blockchain, DEX, and token parameters";
             } else {
                 cmd.error_message = "Find token command requires blockchain, DEX, and token parameters";
             }
@@ -158,15 +189,22 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
 
 bool CommandParser::validate_command(const ParsedCommand& cmd) {
     // Validate blockchain if required
-    if (requires_blockchain(cmd.type) && !cmd.blockchain.empty()) {
-        if (!is_valid_blockchain(cmd.blockchain)) {
+    if (requires_blockchain(cmd.type)) {
+        if (cmd.blockchain.empty() || !is_valid_blockchain(cmd.blockchain)) {
             return false;
         }
     }
     
     // Validate value if required
-    if (requires_value(cmd.type) && !cmd.value.empty()) {
-        if (!is_valid_block_range(cmd.value)) {
+    if (requires_value(cmd.type)) {
+        if (cmd.value.empty() || !is_valid_block_range(cmd.value)) {
+            return false;
+        }
+    }
+    
+    // Validate token address if required
+    if (requires_token(cmd.type)) {
+        if (cmd.token_address.empty() || !is_valid_address(cmd.token_address)) {
             return false;
         }
     }
@@ -238,7 +276,7 @@ bool CommandParser::requires_dex(CommandType type) {
 }
 
 bool CommandParser::requires_token(CommandType type) {
-    return type == CommandType::FIND_TOKEN || type == CommandType::FIND_TOKENS;
+    return type == CommandType::FIND_TOKEN;
 }
 
 std::string CommandParser::network_id_to_blockchain(std::string_view network_id) {
@@ -291,6 +329,21 @@ bool CommandParser::is_valid_block_range(std::string_view value) {
     } catch (const std::exception&) {
         return false;
     }
+}
+
+bool CommandParser::is_valid_address(std::string_view address) {
+    // Basic Ethereum address validation (0x + 40 hex chars)
+    if (address.length() != 42 || address.substr(0, 2) != "0x") {
+        return false;
+    }
+    
+    for (size_t i = 2; i < address.length(); i++) {
+        if (!isxdigit(address[i])) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 bool CommandParser::is_valid_network_id(std::string_view network_id) {
