@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         // Show help if no arguments provided (Exit)
         modern_utils::Logger::info("No arguments provided, showing help");
-        show_help();
+        cli::HelpDisplay::show_help();
         return 0;
     }
     
@@ -157,10 +157,10 @@ int main(int argc, char* argv[]) {
     if (argc == 2) {
         std::string flag(argv[1]);
         if (flag == "-help" || flag == "-h") {
-            show_help();
+            cli::HelpDisplay::show_help();
             return 0;
         } else if (flag == "-version" || flag == "-v") {
-            show_version();
+            cli::HelpDisplay::show_version();
             return 0;
         } else if (flag == "-examples") {
             cli::HelpDisplay::show_examples();
@@ -311,7 +311,7 @@ int main(int argc, char* argv[]) {
         } else {
             modern_utils::Logger::error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
-            show_help();
+            cli::HelpDisplay::show_help();
             return 1;
         }
     } else if (argc == 4) {
@@ -369,7 +369,7 @@ int main(int argc, char* argv[]) {
         } else {
             modern_utils::Logger::error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
-            show_help();
+            cli::HelpDisplay::show_help();
             return 1;
         }
     } else if (argc == 5) {
@@ -385,7 +385,7 @@ int main(int argc, char* argv[]) {
     } else {
         modern_utils::Logger::error("Too many arguments: " + std::to_string(argc));
         std::cerr << RED << "Error: Too many arguments" << RESET << '\n';
-        show_help();
+        cli::HelpDisplay::show_help();
         return 1;
     }
     

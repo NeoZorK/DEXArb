@@ -42,6 +42,9 @@ int Application::run(int argc, const char* argv[]) {
         case cli::CommandType::VERSION_CMD:
             return handle_version_command();
             
+        case cli::CommandType::EXAMPLES:
+            return handle_examples_command();
+            
         case cli::CommandType::SCAN:
             return handle_scan_command(cmd);
             
@@ -100,6 +103,11 @@ int Application::handle_help_command() {
 
 int Application::handle_version_command() {
     cli::HelpDisplay::show_version();
+    return 0;
+}
+
+int Application::handle_examples_command() {
+    cli::HelpDisplay::show_examples();
     return 0;
 }
 

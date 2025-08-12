@@ -51,6 +51,7 @@ public:
     // Handle different command types (made public for testing)
     int handle_help_command();
     int handle_version_command();
+    int handle_examples_command();
     int handle_scan_command(const cli::ParsedCommand& cmd);
     int handle_show_command(const cli::ParsedCommand& cmd);
     int handle_find_command(const cli::ParsedCommand& cmd);

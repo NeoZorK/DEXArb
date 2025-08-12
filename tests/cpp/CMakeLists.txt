@@ -23,49 +23,54 @@ find_package(CURL REQUIRED)
 find_package(GTest REQUIRED)
 
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR}/../../include)
-include_directories(${CMAKE_SOURCE_DIR}/../../src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 
 # Source files for linking (excluding main.cpp)
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/../../src/*.cpp")
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/../../src/main.cpp")
+file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../../src/main.cpp")
+
+# Create static library from source files
+add_library(dexarb_lib STATIC ${SOURCES})
+target_link_libraries(dexarb_lib Threads::Threads CURL::libcurl)
 
 # All test executables for 100% coverage
-add_executable(test_modern_result test_modern_result.cpp ${SOURCES})
-add_executable(test_modern_result_extended test_modern_result_extended.cpp ${SOURCES})
-add_executable(test_modern_format test_modern_format.cpp ${SOURCES})
-add_executable(test_help_display test_help_display.cpp ${SOURCES})
-add_executable(test_cli_commands test_cli_commands.cpp ${SOURCES})
-add_executable(test_command_line_flags test_command_line_flags.cpp ${SOURCES})
-add_executable(test_all_flags_and_results test_all_flags_and_results.cpp ${SOURCES})
-add_executable(test_universal_build_script test_universal_build_script.cpp ${SOURCES})
+add_executable(test_modern_result test_modern_result.cpp)
+add_executable(test_modern_result_extended test_modern_result_extended.cpp)
+add_executable(test_modern_format test_modern_format.cpp)
+add_executable(test_help_display test_help_display.cpp)
+add_executable(test_cli_commands test_cli_commands.cpp)
+add_executable(test_examples_command test_examples_command.cpp)
+add_executable(test_command_line_flags test_command_line_flags.cpp)
+add_executable(test_all_flags_and_results test_all_flags_and_results.cpp)
+add_executable(test_universal_build_script test_universal_build_script.cpp)
 
 # Additional test executables for complete coverage
-add_executable(test_application test_application.cpp ${SOURCES})
-add_executable(test_arbitrage test_arbitrage.cpp ${SOURCES})
-add_executable(test_blockchain test_blockchain.cpp ${SOURCES})
-add_executable(test_command_parser test_command_parser.cpp ${SOURCES})
-add_executable(test_config_manager test_config_manager.cpp ${SOURCES})
-add_executable(test_dex_pools test_dex_pools.cpp ${SOURCES})
-add_executable(test_dex_scanner test_dex_scanner.cpp ${SOURCES})
-add_executable(test_dex_stats test_dex_stats.cpp ${SOURCES})
-add_executable(test_dex_tokens test_dex_tokens.cpp ${SOURCES})
-add_executable(test_input test_input.cpp ${SOURCES})
-add_executable(test_interfaces test_interfaces.cpp ${SOURCES})
-add_executable(test_main_structures test_main_structures.cpp ${SOURCES})
-add_executable(test_measure test_measure.cpp ${SOURCES})
-add_executable(test_platform test_platform.cpp ${SOURCES})
-add_executable(test_platform_compatibility test_platform_compatibility.cpp ${SOURCES})
-add_executable(test_profit_analyzer test_profit_analyzer.cpp ${SOURCES})
-add_executable(test_queries test_queries.cpp ${SOURCES})
-add_executable(test_rpc_core test_rpc_core.cpp ${SOURCES})
-add_executable(test_service_container test_service_container.cpp ${SOURCES})
-add_executable(test_wallet test_wallet.cpp ${SOURCES})
+add_executable(test_application test_application.cpp)
+add_executable(test_arbitrage test_arbitrage.cpp)
+add_executable(test_blockchain test_blockchain.cpp)
+add_executable(test_command_parser test_command_parser.cpp)
+add_executable(test_config_manager test_config_manager.cpp)
+add_executable(test_dex_pools test_dex_pools.cpp)
+add_executable(test_dex_scanner test_dex_scanner.cpp)
+add_executable(test_dex_stats test_dex_stats.cpp)
+add_executable(test_dex_tokens test_dex_tokens.cpp)
+add_executable(test_input test_input.cpp)
+add_executable(test_interfaces test_interfaces.cpp)
+add_executable(test_main_structures test_main_structures.cpp)
+add_executable(test_measure test_measure.cpp)
+add_executable(test_platform test_platform.cpp)
+add_executable(test_platform_compatibility test_platform_compatibility.cpp)
+add_executable(test_profit_analyzer test_profit_analyzer.cpp)
+add_executable(test_queries test_queries.cpp)
+add_executable(test_rpc_core test_rpc_core.cpp)
+add_executable(test_service_container test_service_container.cpp)
+add_executable(test_wallet test_wallet.cpp)
 
 # Link libraries for all test executables
 set(ALL_TEST_TARGETS
     test_modern_result test_modern_result_extended test_modern_format
-    test_help_display test_cli_commands test_command_line_flags test_all_flags_and_results
+    test_help_display test_cli_commands test_examples_command test_command_line_flags test_all_flags_and_results
     test_universal_build_script test_application test_arbitrage test_blockchain test_command_parser test_config_manager
     test_dex_pools test_dex_scanner test_dex_stats test_dex_tokens test_input
     test_interfaces test_main_structures test_measure test_platform test_platform_compatibility
@@ -74,6 +79,7 @@ set(ALL_TEST_TARGETS
 
 foreach(target ${ALL_TEST_TARGETS})
     target_link_libraries(${target} 
+        dexarb_lib
         Threads::Threads 
         GTest::gtest 
         GTest::gtest_main 
@@ -90,6 +96,7 @@ add_test(NAME ModernResultExtended COMMAND test_modern_result_extended)
 add_test(NAME ModernFormat COMMAND test_modern_format)
 add_test(NAME HelpDisplay COMMAND test_help_display)
 add_test(NAME CliCommands COMMAND test_cli_commands)
+add_test(NAME ExamplesCommand COMMAND test_examples_command)
 add_test(NAME CommandLineFlags COMMAND test_command_line_flags)
 add_test(NAME AllFlagsAndResults COMMAND test_all_flags_and_results)
 add_test(NAME UniversalBuildScript COMMAND test_universal_build_script)
@@ -121,9 +128,12 @@ foreach(test_name ModernResult ModernResultExtended ModernFormat HelpDisplay Cli
                     CommandLineFlags AllFlagsAndResults UniversalBuildScript Application Arbitrage Blockchain 
                     CommandParser ConfigManager DexPools DexScanner DexStats DexTokens 
                     Input Interfaces MainStructures Measure Platform PlatformCompatibility 
-                    ProfitAnalyzer Queries RpcCore ServiceContainer Wallet)
+                    ProfitAnalyzer Queries ServiceContainer Wallet)
     set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
 endforeach()
+
+# Set longer timeout for RpcCore test due to network requests
+set_tests_properties(RpcCore PROPERTIES TIMEOUT 120)
 
 # Custom target to run all tests with parallel execution
 add_custom_target(run_all_tests

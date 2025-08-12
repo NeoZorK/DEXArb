@@ -61,16 +61,16 @@ void HelpDisplay::show_examples(std::ostream& output) {
     output << "   " << format_text("*", BLUE) << " neozork -examples             " << format_text("Show detailed examples", CYAN) << '\n\n';
     
     output << format_text("Scanning & Discovery", GREEN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan fantom         " << format_text(" Scan Fantom (default 1000 blocks)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 250 5000       " << format_text(" Scan Fantom by network ID", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan ethereum 10000 " << format_text(" Scan Ethereum (10k blocks)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 1 50000        " << format_text(" Scan Ethereum by network ID", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan bsc 25000      " << format_text(" Scan BSC (25k blocks)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 56 100000      " << format_text(" Scan BSC by network ID", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan polygon 15000  " << format_text(" Scan Polygon (15k blocks)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 137 75000      " << format_text(" Scan Polygon by network ID", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan avalanche 30000" << format_text(" Scan Avalanche (30k blocks)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 43114 50000   " << format_text(" Scan Avalanche by network ID", CYAN) << '\n\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan fantom         " << format_text("Scan Fantom (default 1000 blocks)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 250 5000       " << format_text("Scan Fantom by network ID", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan ethereum 10000 " << format_text("Scan Ethereum (10k blocks)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 1 50000        " << format_text("Scan Ethereum by network ID", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan bsc 25000      " << format_text("Scan BSC (25k blocks)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 56 100000      " << format_text("Scan BSC by network ID", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan polygon 15000  " << format_text("Scan Polygon (15k blocks)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 137 75000      " << format_text("Scan Polygon by network ID", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan avalanche 30000" << format_text("Scan Avalanche (30k blocks)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 43114 50000   " << format_text("Scan Avalanche by network ID", CYAN) << '\n\n';
     
     output << format_text("DEX Analysis", GREEN) << '\n';
     output << "   " << format_text("*", BLUE) << " neozork -showDEXES fantom    " << format_text("Show all Fantom DEXes", CYAN) << '\n';
@@ -79,9 +79,9 @@ void HelpDisplay::show_examples(std::ostream& output) {
     output << "   " << format_text("*", BLUE) << " neozork -showTOKENS bsc 0x10ED43C718714eb63d5aA57B78B54704E256024E" << format_text("Show PancakeSwap tokens", CYAN) << '\n\n';
     
     output << format_text("Token Search", GREEN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -findTOKEN ethereum 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f 0xA0b86a33E6441b8C4C8C8C8C8C8C8C8C8C8C8C8C8" << format_text(" Find token in specific DEX", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -findTOKENS fantom 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75" << format_text(" Find USDC across all Fantom DEXes", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -findTOKENS 250 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75" << format_text(" Find USDC by network ID", CYAN) << '\n\n';
+    output << "   " << format_text("*", BLUE) << " neozork -findTOKEN ethereum 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f 0xA0b86a33E6441b8C4C8C8C8C8C8C8C8C8C8C8C8C8" << format_text("Find token in specific DEX", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -findTOKENS fantom 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75" << format_text("Find USDC across all Fantom DEXes", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -findTOKENS 250 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75" << format_text("Find USDC by network ID", CYAN) << '\n\n';
     
     output << format_text("Configuration & Statistics", GREEN) << '\n';
     output << "   " << format_text("*", BLUE) << " neozork -showSCAN-CONFIG fantom" << format_text("Show Fantom scan configuration", CYAN) << '\n';
@@ -120,19 +120,19 @@ void HelpDisplay::show_info(const std::string& message, std::ostream& output) {
 
 void HelpDisplay::show_usage_examples(std::ostream& output) {
     output << format_text("EXAMPLES", YELLOW) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -h                              " << format_text("Show this help", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -h                              " << format_text("Show this help (includes examples)", CYAN) << '\n';
     output << "   " << format_text("*", BLUE) << " neozork -v                              " << format_text("Show version", CYAN) << '\n';
     output << "   " << format_text("*", BLUE) << " neozork -examples                       " << format_text("Show detailed examples", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan fantom                    " << format_text(" Scan Fantom (default 1000)", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan ethereum 5000            " << format_text(" Scan Ethereum", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan fantom                    " << format_text("Scan Fantom (default 1000)", CYAN) << '\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan ethereum 5000            " << format_text("Scan Ethereum", CYAN) << '\n';
     output << "   " << format_text("*", BLUE) << " neozork -showDEXES bsc                 " << format_text("Show BSC DEXes", CYAN) << '\n';
-    output << "   " << format_text("*", BLUE) << " neozork -scan 250 10000                " << format_text(" Scan Fantom by network ID", CYAN) << '\n\n';
+    output << "   " << format_text("*", BLUE) << " neozork -scan 250 10000                " << format_text("Scan Fantom by network ID", CYAN) << '\n\n';
 }
 
 void HelpDisplay::show_command_flags(std::ostream& output) {
     output << format_text("COMMAND FLAGS", YELLOW) << '\n';
     output << "   " << format_text("Help & Info", GREEN) << '\n';
-    output << "      " << format_text("-h, -help", BLUE) << "                    " << format_text("Show this help message", CYAN) << '\n';
+    output << "      " << format_text("-h, -help", BLUE) << "                    " << format_text("Show this help message (includes examples)", CYAN) << '\n';
     output << "      " << format_text("-v, -version", BLUE) << "                 " << format_text("Show application version", CYAN) << '\n';
     output << "      " << format_text("-examples", BLUE) << "                    " << format_text("Show detailed examples", CYAN) << '\n\n';
     

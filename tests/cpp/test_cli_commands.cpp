@@ -33,8 +33,10 @@ namespace cli {
             case CommandType::SHOW_SCAN_STAT: return os << "SHOW_SCAN_STAT";
             case CommandType::FIND_TOKEN: return os << "FIND_TOKEN";
             case CommandType::FIND_TOKENS: return os << "FIND_TOKENS";
+            case CommandType::EXAMPLES: return os << "EXAMPLES";
             case CommandType::UNKNOWN: return os << "UNKNOWN";
         }
+        return os << "UNKNOWN";
     }
 }
 
@@ -68,6 +70,9 @@ static bool test_string_to_command_type() {
     
     ASSERT_EQ(CommandParser::string_to_command_type("--version"), CommandType::VERSION_CMD);
     ASSERT_EQ(CommandParser::string_to_command_type("-v"), CommandType::VERSION_CMD);
+    
+    ASSERT_EQ(CommandParser::string_to_command_type("--examples"), CommandType::EXAMPLES);
+    ASSERT_EQ(CommandParser::string_to_command_type("-examples"), CommandType::EXAMPLES);
     
     ASSERT_EQ(CommandParser::string_to_command_type("--scan"), CommandType::SCAN);
     
@@ -108,6 +113,7 @@ static bool test_command_requirements() {
     
     ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::HELP));
     ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::VERSION_CMD));
+    ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::EXAMPLES));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SCAN));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SHOW_DEXES));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SHOW_POOLS));
