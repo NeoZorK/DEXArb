@@ -17,18 +17,87 @@ uint64_t get_pool_count(const std::string& rpc_url, const std::string& factory_a
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Different method signatures for different DEX types
-    std::vector<std::string> pool_count_methods = {
-        "0x90e18a69", // allPairsLength() - Uniswap V2, SushiSwap, PancakeSwap V2
-        "0x783cca1c", // poolCount() - Some DEXes use this
-        "0xb4d9b203", // getPoolCount() - Another alternative
-        "0x112c2569", // poolLength() - Yet another alternative
-        "0x1e83409a"  // allPairs(uint256) - Alternative method (but needs parameter)
-    };
+    // First, check if this is a valid contract
+    std::string code_payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getCode\",\"params\":[\"" + factory_address + "\",\"latest\"],\"id\":1}";
+    std::string code_response = make_rpc_call(rpc_url, code_payload, request_limit, stats);
+    
+    if (code_response.find("\"result\":\"0x\"") != std::string::npos || 
+        code_response.find("\"result\":\"0x0\"") != std::string::npos) {
+        // Not a valid contract
+        auto end = std::chrono::high_resolution_clock::now();
+        update_stats(stats, start, end, code_payload.size(), code_response.size());
+        return 0;
+    }
+
+    // DEX-specific method signatures based on known addresses
+    std::vector<std::pair<std::string, std::string>> pool_count_methods;
+    
+    // Check if this is a known DEX and add specific methods
+    if (factory_address == "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f" || // Uniswap V2
+        factory_address == "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac" || // SushiSwap
+        factory_address == "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15" || // SpookySwap
+        factory_address == "0xEF45d134b73241eDa7703fa787148D9C9F4950b0" || // SpiritSwap
+        factory_address == "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73" || // PancakeSwap V2
+        factory_address == "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32" || // QuickSwap
+        factory_address == "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10" || // TraderJoe V2
+        factory_address == "0xefa94DE7a4656D787667C749f7E1223D71E9FD88") {  // Pangolin
+        // Uniswap V2 style DEXes - these use allPairsLength()
+        pool_count_methods = {
+            {"0x90e18a69", ""}, // allPairsLength() - no parameters
+            {"0x783cca1c", ""}, // poolCount() - no parameters
+            {"0xb4d9b203", ""}, // getPoolCount() - no parameters
+            {"0x112c2569", ""}, // poolLength() - no parameters
+            {"0x4d2301cc", ""}, // getPairCount() - no parameters
+            {"0x8a19c8bc", ""}  // poolCount() - alternative
+        };
+    } else if (factory_address == "0x1F98431c8aD98523631AE4a59f267346ea31F984") { // Uniswap V3
+        // Uniswap V3 style DEXes - these use poolCount()
+        pool_count_methods = {
+            {"0x783cca1c", ""}, // poolCount() - no parameters
+            {"0xb4d9b203", ""}, // getPoolCount() - no parameters
+            {"0x112c2569", ""}, // poolLength() - no parameters
+            {"0x90e18a69", ""}, // allPairsLength() (fallback)
+            {"0x4d2301cc", ""}, // getPairCount() - no parameters
+            {"0x8a19c8bc", ""}  // poolCount() - alternative
+        };
+    } else if (factory_address == "0xBA12222222228d8Ba445958a75a0704d566BF2C8") { // Balancer V2
+        // Balancer V2 style DEXes - these use getPoolCount()
+        pool_count_methods = {
+            {"0xb4d9b203", ""}, // getPoolCount() - no parameters
+            {"0x783cca1c", ""}, // poolCount() - no parameters
+            {"0x112c2569", ""}, // poolLength() - no parameters
+            {"0x90e18a69", ""}, // allPairsLength() (fallback)
+            {"0x4d2301cc", ""}, // getPairCount() - no parameters
+            {"0x8a19c8bc", ""}  // poolCount() - alternative
+        };
+    } else if (factory_address == "0x9DEB29c9a4c7A88a3C0257393b7f3335338D9A9D") { // Beethoven X
+        // Beethoven X style DEXes - these use poolCount()
+        pool_count_methods = {
+            {"0x783cca1c", ""}, // poolCount() - no parameters
+            {"0xb4d9b203", ""}, // getPoolCount() - no parameters
+            {"0x112c2569", ""}, // poolLength() - no parameters
+            {"0x90e18a69", ""}, // allPairsLength() (fallback)
+            {"0x4d2301cc", ""}, // getPairCount() - no parameters
+            {"0x8a19c8bc", ""}  // poolCount() - alternative
+        };
+    } else {
+        // Generic methods for unknown DEXes
+        pool_count_methods = {
+            {"0x90e18a69", ""}, // allPairsLength() - Uniswap V2, SushiSwap, PancakeSwap V2
+            {"0x783cca1c", ""}, // poolCount() - Some DEXes use this
+            {"0xb4d9b203", ""}, // getPoolCount() - Another alternative
+            {"0x112c2569", ""}, // poolLength() - Yet another alternative
+            {"0x4d2301cc", ""}, // getPairCount() - no parameters
+            {"0x8a19c8bc", ""}  // poolCount() - alternative
+        };
+    }
 
     // Try each method until one works
-    for (const auto& method : pool_count_methods) {
-        std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + factory_address + "\",\"data\":\"" + method + "\"}, \"latest\"],\"id\":1}";
+    for (const auto& method_pair : pool_count_methods) {
+        std::string method = method_pair.first;
+        std::string params = method_pair.second;
+        
+        std::string payload = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + factory_address + "\",\"data\":\"" + method + params + "\"}, \"latest\"],\"id\":1}";
         
         std::string response = make_rpc_call(rpc_url, payload, request_limit, stats);
         

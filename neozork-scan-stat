@@ -1,6 +1,6 @@
 {
   "find_factory_contracts": {
-    "execution_time_ms": 20423,
+    "execution_time_ms": 17572,
     "virtual_memory_kb": 0,
     "disk_usage_bytes": 0,
     "latency_ms": 0,
@@ -9,10 +9,10 @@
     "inbound_traffic": 0
   },
   "update_config_with_dex": {
-    "execution_time_ms": 22408,
+    "execution_time_ms": 45442.7,
     "virtual_memory_kb": 0,
-    "disk_usage_bytes": 10465,
-    "latency_ms": 198.842,
+    "disk_usage_bytes": 4854,
+    "latency_ms": 115.686,
     "cpu_usage_percent": 0,
     "outbound_traffic": 0,
     "inbound_traffic": 0
