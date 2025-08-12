@@ -76,7 +76,7 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
         case CommandType::SHOW_SCAN_CONFIG:
         case CommandType::SHOW_SCAN:
         case CommandType::SHOW_SCAN_STAT:
-            if (argc >= 3) {
+            if (argc == 3) {
                 std::string blockchain_or_id = argv[2];
                 if (is_network_id(blockchain_or_id)) {
                     cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
@@ -87,6 +87,8 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
+            } else if (argc > 3) {
+                cmd.error_message = "Command requires only blockchain parameter";
             } else {
                 cmd.error_message = "Command requires blockchain parameter";
             }

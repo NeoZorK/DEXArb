@@ -12,7 +12,7 @@
 #include <thread>           // For multi-threading
 #include <algorithm>        // For std::find_if
 
-void show_pools(const std::vector<RpcEndpoint>& /* rpc_endpoints */, const std::string& dex_identifier) {
+void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier) {
     // Load DEXes from config
     std::vector<DexInfo> dex_list = load_dexes_from_config(); // Get DEX list
     auto it = std::find_if(dex_list.begin(), dex_list.end(),
@@ -23,23 +23,33 @@ void show_pools(const std::vector<RpcEndpoint>& /* rpc_endpoints */, const std::
     }
     DexInfo& dex = *it; // Reference to found DEX
 
+    // Get RPC endpoint URL
+    std::string rpc_url = "";
+    if (!rpc_endpoints.empty()) {
+        rpc_url = rpc_endpoints[0].url; // Use first RPC endpoint
+    }
+
     // Fetch fresh pool data
     dex.pools.clear(); // Clear existing pools
     for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
         FunctionStats stats; // Stats for this operation
-        std::string addr = get_pool_address("", dex.factory_address, i, 0, stats); // Get pool address
+        std::string addr = get_pool_address(rpc_url, dex.factory_address, i, 0, stats); // Get pool address
         if (!addr.empty()) { // Check if address is valid
-            auto [token0, token1] = get_pool_tokens("", addr, 0, stats); // Get tokens
-            uint64_t liquidity = get_pool_liquidity("", addr, 0, stats); // Get liquidity
+            auto [token0, token1] = get_pool_tokens(rpc_url, addr, 0, stats); // Get tokens
+            uint64_t liquidity = get_pool_liquidity(rpc_url, addr, 0, stats); // Get liquidity
             dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
         }
     }
 
     // Display pool information
     std::cout << GREEN << "Pools for " << dex.name << " (" << dex.factory_address << "):" << RESET << '\n'; // Header
-    for (const auto& pool : dex.pools) { // Loop through pools
-        std::cout << YELLOW << "Pool: " << pool.address << ", Token0: " << pool.token0 << ", Token1: " << pool.token1
-                  << ", Liquidity: " << pool.liquidity << RESET << '\n'; // Print pool details
+    if (dex.pools.empty()) {
+        std::cout << YELLOW << "No pools found for this DEX" << RESET << '\n';
+    } else {
+        for (const auto& pool : dex.pools) { // Loop through pools
+            std::cout << YELLOW << "Pool: " << pool.address << ", Token0: " << pool.token0 << ", Token1: " << pool.token1
+                      << ", Liquidity: " << pool.liquidity << RESET << '\n'; // Print pool details
+        }
     }
 }
 

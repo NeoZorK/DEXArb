@@ -251,22 +251,20 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Get the flag from arguments
-    std::string flag(argv[1]);
+    // Parse command using the new CommandParser
+    auto cmd = cli::CommandParser::parse(argc, const_cast<const char**>(argv));
     
-    // Get the blockchain name from arguments
-    std::string blockchain_str(argv[2]);
-    
-    modern_utils::Logger::info("Processing command: " + flag + " for blockchain: " + blockchain_str);
-    
-    // Use command parser to handle blockchain names and network IDs
-    std::string normalized_blockchain;
-    if (cli::CommandParser::is_network_id(blockchain_str)) {
-        normalized_blockchain = cli::CommandParser::network_id_to_blockchain(blockchain_str);
-        modern_utils::Logger::info("Network ID " + blockchain_str + " converted to: " + normalized_blockchain);
-    } else {
-        normalized_blockchain = blockchain_str;
+    if (!cmd.is_valid) {
+        modern_utils::Logger::error("Invalid command: " + cmd.error_message);
+        cli::HelpDisplay::show_error(cmd.error_message);
+        cli::HelpDisplay::show_help();
+        return 1;
     }
+    
+    modern_utils::Logger::info("Processing command: " + cmd.flag + " for blockchain: " + cmd.blockchain);
+    
+    // Use normalized blockchain from command parser
+    std::string normalized_blockchain = cmd.blockchain;
     
     // Convert string to blockchain type
     BlockchainType blockchain;
@@ -283,7 +281,7 @@ int main(int argc, char* argv[]) {
     } else if (normalized_blockchain == "solana") {
         blockchain = BlockchainType::Solana;
     } else {
-        modern_utils::Logger::error("Unsupported blockchain: " + blockchain_str);
+        modern_utils::Logger::error("Unsupported blockchain: " + normalized_blockchain);
         std::cerr << RED << "Error: Unsupported blockchain" << RESET << '\n';
         return 1;
     }
@@ -291,7 +289,7 @@ int main(int argc, char* argv[]) {
     // Load configuration
     std::vector<RpcEndpoint> rpc_endpoints = load_rpc_endpoints_from_config(normalized_blockchain);
     if (rpc_endpoints.empty()) {
-        modern_utils::Logger::error("No RPC endpoints found for " + blockchain_str);
+        modern_utils::Logger::error("No RPC endpoints found for " + normalized_blockchain);
         std::cerr << RED << "Error: No RPC endpoints configured" << RESET << '\n';
         return 1;
     }
@@ -300,82 +298,11 @@ int main(int argc, char* argv[]) {
     int thread_count = get_thread_count_from_config();
     modern_utils::Logger::info("Using " + std::to_string(thread_count) + " threads");
 
-    // Process command-line flags
-    if (argc == 3) {
-        if (flag == "-scan") {
-            // Handle scan with default block count (1000)
-            modern_utils::Logger::info("Starting scan with default block count (1000)");
-            int scan_range = 1000;
-            
-            // Announce scan
-            modern_utils::Logger::info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
-            std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
-            
-            // Mutex for thread synchronization
-            std::mutex mtx;
-            
-            // List to store found DEXes
-            std::vector<DexInfo> dex_list;
-            
-            // Scan for factories
-            find_factory_contracts(rpc_endpoints, blockchain, static_cast<uint64_t>(scan_range), thread_count, mtx, dex_list, scan_stats);
-            
-            // Add scan stats
-            stats_list.emplace_back("find_factory_contracts", scan_stats);
-            
-            // Update config with results - FIX: Save DEXes to config
-            update_config_with_dex(rpc_endpoints, normalized_blockchain, dex_list, config_update_stats);
-            
-            // Add update stats
-            stats_list.emplace_back("update_config_with_dex", config_update_stats);
-            
-            // Save scan statistics
-            save_scan_stats(stats_list);
-            
-            // Show scan results
-            show_scan_results(dex_list);
-            
-            // End timing
-            StopTimeMeasure(MICROSECONDS);
-            return 0;
-        } else if (flag == "-showSCAN-CONFIG") {
-            modern_utils::Logger::info("Showing scan configuration");
-            show_scan_config();
-        } else if (flag == "-showSCAN-STAT") {
-            modern_utils::Logger::info("Showing scan statistics");
-            show_scan_stats();
-        } else if (flag == "-showSCAN") {
-            modern_utils::Logger::info("Loading and showing scan results");
-            std::vector<DexInfo> dex_list = load_dexes_from_config();
-            show_scan_results(dex_list);
-        } else if (flag == "-showDEXES") {
-            modern_utils::Logger::info("Showing DEXes for " + blockchain_str);
-            show_dexes(rpc_endpoints);
-        } else if (flag == "-showTOKENS") {
-            // showTOKENS requires blockchain only (shows all tokens across all DEXes)
-            modern_utils::Logger::info("Showing all tokens for " + blockchain_str);
-            show_all_tokens(rpc_endpoints);
-        } else {
-            modern_utils::Logger::error("Invalid flag: " + flag);
-            std::cerr << RED << "Invalid flag" << RESET << '\n';
-            cli::HelpDisplay::show_help();
-            return 1;
-        }
-    } else if (argc == 4) {
-        if (flag == "-showPOOLS") {
-            modern_utils::Logger::info("Showing pools for DEX: " + std::string(argv[3]));
-            show_pools(rpc_endpoints, argv[3]);
-        } else if (flag == "-showTOKENS") {
-            // showTOKENS with DEX parameter shows tokens for specific DEX
-            modern_utils::Logger::info("Showing tokens for DEX: " + std::string(argv[3]));
-            show_tokens(rpc_endpoints, argv[3]);
-        } else if (flag == "-findTOKENS") {
-            modern_utils::Logger::info("Finding tokens across DEXes: " + std::string(argv[3]));
-            find_tokens_across_dexes(rpc_endpoints, argv[3]);
-        } else if (flag == "-scan") {
-            
-            // Convert scan range to integer
-            int scan_range = std::stoi(argv[3]);
+    // Process command using the parsed command structure
+    switch (cmd.type) {
+        case cli::CommandType::SCAN: {
+            // Handle scan command
+            int scan_range = cmd.value.empty() ? 1000 : std::stoi(cmd.value);
             if (scan_range < 1000 || scan_range > 1000000) {
                 modern_utils::Logger::error("Invalid scan range: " + std::to_string(scan_range));
                 std::cerr << RED << "Error: scan_range must be 1000-1000000" << RESET << '\n';
@@ -383,8 +310,8 @@ int main(int argc, char* argv[]) {
             }
             
             // Announce scan
-            modern_utils::Logger::info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
-            std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
+            modern_utils::Logger::info("Starting scan of " + normalized_blockchain + " with range " + std::to_string(scan_range));
+            std::cout << GREEN << "Scanning " << normalized_blockchain << " with " << thread_count << " threads" << RESET << '\n';
             
             // Mutex for thread synchronization
             std::mutex mtx;
@@ -398,7 +325,7 @@ int main(int argc, char* argv[]) {
             // Add scan stats
             stats_list.emplace_back("find_factory_contracts", scan_stats);
             
-            // Update config with results - FIX: Save DEXes to config
+            // Update config with results
             update_config_with_dex(rpc_endpoints, normalized_blockchain, dex_list, config_update_stats);
             
             // Add update stats
@@ -409,31 +336,71 @@ int main(int argc, char* argv[]) {
             
             // Show scan results
             show_scan_results(dex_list);
-            
-            // End timing
-            StopTimeMeasure(MICROSECONDS);
-            return 0;
-        } else {
-            modern_utils::Logger::error("Invalid flag: " + flag);
-            std::cerr << RED << "Invalid flag" << RESET << '\n';
+            break;
+        }
+        
+        case cli::CommandType::SHOW_SCAN_CONFIG: {
+            modern_utils::Logger::info("Showing scan configuration");
+            show_scan_config();
+            break;
+        }
+        
+        case cli::CommandType::SHOW_SCAN_STAT: {
+            modern_utils::Logger::info("Showing scan statistics");
+            show_scan_stats();
+            break;
+        }
+        
+        case cli::CommandType::SHOW_SCAN: {
+            modern_utils::Logger::info("Loading and showing scan results");
+            std::vector<DexInfo> dex_list = load_dexes_from_config();
+            show_scan_results(dex_list);
+            break;
+        }
+        
+        case cli::CommandType::SHOW_DEXES: {
+            modern_utils::Logger::info("Showing DEXes for " + normalized_blockchain);
+            show_dexes(rpc_endpoints);
+            break;
+        }
+        
+        case cli::CommandType::SHOW_POOLS: {
+            modern_utils::Logger::info("Showing pools for DEX: " + cmd.dex_name);
+            show_pools(rpc_endpoints, cmd.dex_name);
+            break;
+        }
+        
+        case cli::CommandType::SHOW_TOKENS: {
+            if (cmd.dex_name.empty()) {
+                // showTOKENS without DEX parameter shows all tokens across all DEXes
+                modern_utils::Logger::info("Showing all tokens for " + normalized_blockchain);
+                show_all_tokens(rpc_endpoints);
+            } else {
+                // showTOKENS with DEX parameter shows tokens for specific DEX
+                modern_utils::Logger::info("Showing tokens for DEX: " + cmd.dex_name);
+                show_tokens(rpc_endpoints, cmd.dex_name);
+            }
+            break;
+        }
+        
+        case cli::CommandType::FIND_TOKEN: {
+            modern_utils::Logger::info("Finding token: " + cmd.token_address + " in DEX: " + cmd.dex_name);
+            find_token_in_dex(rpc_endpoints, cmd.dex_name, cmd.token_address);
+            break;
+        }
+        
+        case cli::CommandType::FIND_TOKENS: {
+            modern_utils::Logger::info("Finding tokens across DEXes: " + cmd.token_address);
+            find_tokens_across_dexes(rpc_endpoints, cmd.token_address);
+            break;
+        }
+        
+        default: {
+            modern_utils::Logger::error("Unsupported command type: " + cmd.flag);
+            std::cerr << RED << "Error: Unsupported command" << RESET << '\n';
             cli::HelpDisplay::show_help();
             return 1;
         }
-    } else if (argc == 5) {
-        if (flag == "-findTOKEN") {
-            modern_utils::Logger::info("Finding token: " + std::string(argv[4]) + " in DEX: " + std::string(argv[3]));
-            find_token_in_dex(rpc_endpoints, argv[3], argv[4]);
-        } else {
-            modern_utils::Logger::error("Invalid flag: " + flag);
-            std::cerr << RED << "Invalid flag" << RESET << '\n';
-            show_help();
-            return 1;
-        }
-    } else {
-        modern_utils::Logger::error("Too many arguments: " + std::to_string(argc));
-        std::cerr << RED << "Error: Too many arguments" << RESET << '\n';
-        cli::HelpDisplay::show_help();
-        return 1;
     }
     
     // End timing

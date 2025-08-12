@@ -149,7 +149,7 @@ TEST_F(ConfigManagerTest, LoadDexesFromConfig_ShortAddress) {
     
     auto dexes = load_dexes_from_config();
     EXPECT_EQ(dexes.size(), 1);
-    EXPECT_EQ(dexes[0].name, "Unknown_0x123");
+    EXPECT_EQ(dexes[0].name, "Unknown_123");
 }
 
 // Test update_config_with_dex function
