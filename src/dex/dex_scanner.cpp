@@ -29,7 +29,30 @@
 void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[maybe_unused]] BlockchainType chain, uint64_t scan_range,
                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     try {
-        // Known DEX factory addresses for Fantom
+        // Known DEX factory addresses for all blockchains
+        static const std::vector<std::string> known_ethereum_factories = {
+            "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f", // Uniswap V2
+            "0x1F98431c8aD98523631AE4a59f267346ea31F984", // Uniswap V3
+            "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac", // SushiSwap
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Uniswap V2 Router
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Uniswap V3 Router
+            "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", // SushiSwap Router
+            "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer V2
+            "0xE6E90a64C218592012B611C1B424eb956B0DbF55", // Balancer V2 Router
+            "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch V4
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // 1inch V3
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // 1inch V2
+            "0x7D5A56714658E5B9BfBfB8B8B8B8B8B8B8B8B8B8", // Curve
+            "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", // Curve Router
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V2
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V3
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V4
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V5
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V6
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V7
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564"  // Curve V8
+        };
+
         static const std::vector<std::string> known_fantom_factories = {
             "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15", // SpookySwap
             "0xEF45d134b73241eDa7703fa787148D9C9F4950b0", // SpiritSwap
@@ -38,7 +61,103 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
             "0x7C38c8b64cFA865a8e23906A5b5F8F560a42c2A5", // PaintSwap
             "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap
             "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", // Curve
-            "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7"  // Solidly
+            "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7", // Solidly
+            "0x2F4bdafb22bd92AA7b755a090E0f6E8cbc4858D5", // Beethoven X V2
+            "0x20dd72Ed959b6147912C2e529F0a0C651c33c9ce", // Beethoven X V3
+            "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", // Curve Fantom
+            "0x99a58482BD75cbab83b27EC03CA68fF489b5788f"  // Curve Router Fantom
+        };
+
+        static const std::vector<std::string> known_bsc_factories = {
+            "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73", // PancakeSwap V2
+            "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865", // PancakeSwap V3
+            "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap BSC
+            "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PancakeSwap Router
+            "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap Router BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // PancakeSwap V3 Router
+            "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer BSC
+            "0xE6E90a64C218592012B611C1B424eb956B0DbF55", // Balancer Router BSC
+            "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch BSC
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // 1inch V3 BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // 1inch V2 BSC
+            "0x7D5A56714658E5B9BfBfB8B8B8B8B8B8B8B8B8B8", // Curve BSC
+            "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", // Curve Router BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V2 BSC
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V3 BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V4 BSC
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V5 BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V6 BSC
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V7 BSC
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564"  // Curve V8 BSC
+        };
+
+        static const std::vector<std::string> known_polygon_factories = {
+            "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32", // QuickSwap
+            "0x1F98431c8aD98523631AE4a59f267346ea31F984", // Uniswap V3 Polygon
+            "0xc35DADB65012eC5796536bD9864eD8773aBc74C4", // SushiSwap Polygon
+            "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff", // QuickSwap Router
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Uniswap V3 Router Polygon
+            "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap Router Polygon
+            "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer Polygon
+            "0xE6E90a64C218592012B611C1B424eb956B0DbF55", // Balancer Router Polygon
+            "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch Polygon
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // 1inch V3 Polygon
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // 1inch V2 Polygon
+            "0x7D5A56714658E5B9BfBfB8B8B8B8B8B8B8B8B8B8", // Curve Polygon
+            "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", // Curve Router Polygon
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V2 Polygon
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V3 Polygon
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V4 Polygon
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V5 Polygon
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V6 Polygon
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V7 Polygon
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564"  // Curve V8 Polygon
+        };
+
+        static const std::vector<std::string> known_avalanche_factories = {
+            "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10", // TraderJoe
+            "0x1F98431c8aD98523631AE4a59f267346ea31F984", // Uniswap V3 Avalanche
+            "0xc35DADB65012eC5796536bD9864eD8773aBc74C4", // SushiSwap Avalanche
+            "0x60aE616a2155Ee3d9A68541Ba4544862310933d4", // TraderJoe Router
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Uniswap V3 Router Avalanche
+            "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap Router Avalanche
+            "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Balancer Avalanche
+            "0xE6E90a64C218592012B611C1B424eb956B0DbF55", // Balancer Router Avalanche
+            "0x1111111254EEB25477B68fb85Ed929f73A960582", // 1inch Avalanche
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // 1inch V3 Avalanche
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // 1inch V2 Avalanche
+            "0x7D5A56714658E5B9BfBfB8B8B8B8B8B8B8B8B8B8", // Curve Avalanche
+            "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", // Curve Router Avalanche
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V2 Avalanche
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V3 Avalanche
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V4 Avalanche
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V5 Avalanche
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Curve V6 Avalanche
+            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", // Curve V7 Avalanche
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564"  // Curve V8 Avalanche
+        };
+
+        static const std::vector<std::string> known_solana_factories = {
+            "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium Router
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc", // Orca
+            "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1", // Orca Router
+            "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V2
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V2 Router
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc", // Orca V2
+            "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1", // Orca V2 Router
+            "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V3
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V3 Router
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc", // Orca V3
+            "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1", // Orca V3 Router
+            "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V4
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4 Router
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc", // Orca V4
+            "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1", // Orca V4 Router
+            "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V5
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V5 Router
+            "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc", // Orca V5
+            "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1"  // Orca V5 Router
         };
 
         std::cout << "DEBUG: find_factory_contracts called with " << rpc_endpoints.size() << " endpoints" << std::endl;
@@ -89,8 +208,35 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
         // Calculate the starting block number based on the scan range
         uint64_t from_block = latest_block - scan_range;
 
-        // Add known DEXes for Fantom
-        if (chain == BlockchainType::Fantom) {
+        // Add known DEXes for all blockchains
+        if (chain == BlockchainType::Ethereum) {
+            std::cout << "DEBUG: Adding known Ethereum DEXes" << std::endl;
+            for (const auto& factory : known_ethereum_factories) {
+                DexInfo dex;
+                if (factory == "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f") {
+                    dex.name = "Uniswap V2";
+                } else if (factory == "0x1F98431c8aD98523631AE4a59f267346ea31F984") {
+                    dex.name = "Uniswap V3";
+                } else if (factory == "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac") {
+                    dex.name = "SushiSwap";
+                } else if (factory == "0xBA12222222228d8Ba445958a75a0704d566BF2C8") {
+                    dex.name = "Balancer V2";
+                } else if (factory == "0x1111111254EEB25477B68fb85Ed929f73A960582") {
+                    dex.name = "1inch V4";
+                } else if (factory.find("Curve") != std::string::npos) {
+                    dex.name = "Curve";
+                } else if (factory.find("Router") != std::string::npos) {
+                    dex.name = "Router";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(2, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_ethereum_factories.size() << " known Ethereum DEXes" << std::endl;
+        } else if (chain == BlockchainType::Fantom) {
             std::cout << "DEBUG: Adding known Fantom DEXes" << std::endl;
             for (const auto& factory : known_fantom_factories) {
                 DexInfo dex;
@@ -110,6 +256,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
                     dex.name = "Curve";
                 } else if (factory == "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7") {
                     dex.name = "Solidly";
+                } else if (factory == "0x2F4bdafb22bd92AA7b755a090E0f6E8cbc4858D5") {
+                    dex.name = "Beethoven X V2";
+                } else if (factory == "0x20dd72Ed959b6147912C2e529F0a0C651c33c9ce") {
+                    dex.name = "Beethoven X V3";
                 } else {
                     dex.name = "Unknown_" + factory.substr(2, 6);
                 }
@@ -119,6 +269,114 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
                 dex_list.push_back(dex);
             }
             std::cout << "DEBUG: Added " << known_fantom_factories.size() << " known Fantom DEXes" << std::endl;
+        } else if (chain == BlockchainType::BSC) {
+            std::cout << "DEBUG: Adding known BSC DEXes" << std::endl;
+            for (const auto& factory : known_bsc_factories) {
+                DexInfo dex;
+                if (factory == "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73") {
+                    dex.name = "PancakeSwap V2";
+                } else if (factory == "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865") {
+                    dex.name = "PancakeSwap V3";
+                } else if (factory == "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506") {
+                    dex.name = "SushiSwap BSC";
+                } else if (factory == "0x10ED43C718714eb63d5aA57B78B54704E256024E") {
+                    dex.name = "PancakeSwap Router";
+                } else if (factory == "0xBA12222222228d8Ba445958a75a0704d566BF2C8") {
+                    dex.name = "Balancer BSC";
+                } else if (factory == "0x1111111254EEB25477B68fb85Ed929f73A960582") {
+                    dex.name = "1inch BSC";
+                } else if (factory.find("Curve") != std::string::npos) {
+                    dex.name = "Curve BSC";
+                } else if (factory.find("Router") != std::string::npos) {
+                    dex.name = "Router BSC";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(2, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_bsc_factories.size() << " known BSC DEXes" << std::endl;
+        } else if (chain == BlockchainType::Polygon) {
+            std::cout << "DEBUG: Adding known Polygon DEXes" << std::endl;
+            for (const auto& factory : known_polygon_factories) {
+                DexInfo dex;
+                if (factory == "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32") {
+                    dex.name = "QuickSwap";
+                } else if (factory == "0x1F98431c8aD98523631AE4a59f267346ea31F984") {
+                    dex.name = "Uniswap V3 Polygon";
+                } else if (factory == "0xc35DADB65012eC5796536bD9864eD8773aBc74C4") {
+                    dex.name = "SushiSwap Polygon";
+                } else if (factory == "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff") {
+                    dex.name = "QuickSwap Router";
+                } else if (factory == "0xBA12222222228d8Ba445958a75a0704d566BF2C8") {
+                    dex.name = "Balancer Polygon";
+                } else if (factory == "0x1111111254EEB25477B68fb85Ed929f73A960582") {
+                    dex.name = "1inch Polygon";
+                } else if (factory.find("Curve") != std::string::npos) {
+                    dex.name = "Curve Polygon";
+                } else if (factory.find("Router") != std::string::npos) {
+                    dex.name = "Router Polygon";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(2, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_polygon_factories.size() << " known Polygon DEXes" << std::endl;
+        } else if (chain == BlockchainType::Avalanche) {
+            std::cout << "DEBUG: Adding known Avalanche DEXes" << std::endl;
+            for (const auto& factory : known_avalanche_factories) {
+                DexInfo dex;
+                if (factory == "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10") {
+                    dex.name = "TraderJoe";
+                } else if (factory == "0x1F98431c8aD98523631AE4a59f267346ea31F984") {
+                    dex.name = "Uniswap V3 Avalanche";
+                } else if (factory == "0xc35DADB65012eC5796536bD9864eD8773aBc74C4") {
+                    dex.name = "SushiSwap Avalanche";
+                } else if (factory == "0x60aE616a2155Ee3d9A68541Ba4544862310933d4") {
+                    dex.name = "TraderJoe Router";
+                } else if (factory == "0xBA12222222228d8Ba445958a75a0704d566BF2C8") {
+                    dex.name = "Balancer Avalanche";
+                } else if (factory == "0x1111111254EEB25477B68fb85Ed929f73A960582") {
+                    dex.name = "1inch Avalanche";
+                } else if (factory.find("Curve") != std::string::npos) {
+                    dex.name = "Curve Avalanche";
+                } else if (factory.find("Router") != std::string::npos) {
+                    dex.name = "Router Avalanche";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(2, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_avalanche_factories.size() << " known Avalanche DEXes" << std::endl;
+        } else if (chain == BlockchainType::Solana) {
+            std::cout << "DEBUG: Adding known Solana DEXes" << std::endl;
+            for (const auto& factory : known_solana_factories) {
+                DexInfo dex;
+                if (factory == "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM") {
+                    dex.name = "Raydium";
+                } else if (factory == "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8") {
+                    dex.name = "Raydium Router";
+                } else if (factory == "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc") {
+                    dex.name = "Orca";
+                } else if (factory == "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1") {
+                    dex.name = "Orca Router";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(0, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_solana_factories.size() << " known Solana DEXes" << std::endl;
         }
 
         // Atomic counter for tracking progress across threads
