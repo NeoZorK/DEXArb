@@ -1,2 +1,20 @@
 {
+  "find_factory_contracts": {
+    "execution_time_ms": 0,
+    "virtual_memory_kb": 0,
+    "disk_usage_bytes": 0,
+    "latency_ms": 0,
+    "cpu_usage_percent": 0,
+    "outbound_traffic": 0,
+    "inbound_traffic": 0
+  },
+  "update_config_with_dex": {
+    "execution_time_ms": 0,
+    "virtual_memory_kb": 0,
+    "disk_usage_bytes": 0,
+    "latency_ms": 0,
+    "cpu_usage_percent": 0,
+    "outbound_traffic": 0,
+    "inbound_traffic": 0
+  }
 }

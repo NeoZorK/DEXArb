@@ -41,6 +41,7 @@ private:
     
     // Format text with color
     static std::string format_text(const std::string& text, const std::string& color);
+    static std::string format_column(const std::string& text, int width);
     
     // Get project version
     static std::string get_project_version();
