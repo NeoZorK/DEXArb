@@ -72,7 +72,8 @@ public:
 class MockConfigManager : public IConfigManager {
 public:
     bool load_config(std::string_view config_path) override {
-        return !config_path.empty();
+        // Check for empty string and very long strings (more than 500 characters)
+        return !config_path.empty() && config_path.length() <= 500;
     }
     
     bool save_config(std::string_view config_path) override {
