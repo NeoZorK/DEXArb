@@ -106,7 +106,7 @@ std::vector<DexInfo> load_dexes_from_config() {
     return dex_list; // Return list of DEXes
 }
 
-void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& blockchain, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -161,18 +161,32 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::
         for (auto& t : threads) t.join(); // Wait for all threads to finish
     }
 
-    // Update the DEX section in the config
-    size_t dex_pos = content.find("\"dex\": ["); // Find DEX array
-    if (dex_pos != std::string::npos) { // Check if DEX section exists
-        size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
-        std::string new_dex = "\"dex\": [\n"; // Start new DEX section
-        for (size_t i = 0; i < dex_list.size(); ++i) { // Loop through DEXes
-            new_dex += "    {\"name\": \"" + dex_list[i].name + "\", \"address\": \"" + dex_list[i].factory_address +
-                       "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}"; // Build DEX entry
-            if (i < dex_list.size() - 1) new_dex += ",\n"; // Add comma if not last
+    // Update the DEX section in the config for the specific blockchain
+    std::string blockchain_section = "\"" + blockchain + "\":";
+    size_t blockchain_pos = content.find(blockchain_section);
+    std::cout << "DEBUG: Looking for blockchain section: " << blockchain_section << std::endl;
+    std::cout << "DEBUG: Blockchain position: " << blockchain_pos << std::endl;
+    if (blockchain_pos != std::string::npos) {
+        // Find the DEX section within this blockchain
+        size_t dex_pos = content.find("\"dex\": [", blockchain_pos);
+        std::cout << "DEBUG: DEX position: " << dex_pos << std::endl;
+        if (dex_pos != std::string::npos) {
+            size_t dex_end = content.find("]", dex_pos);
+            std::cout << "DEBUG: DEX end position: " << dex_end << std::endl;
+            std::string new_dex = "\"dex\": [\n";
+            for (size_t i = 0; i < dex_list.size(); ++i) {
+                new_dex += "    {\"name\": \"" + dex_list[i].name + "\", \"address\": \"" + dex_list[i].factory_address +
+                           "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}";
+                if (i < dex_list.size() - 1) new_dex += ",\n";
+            }
+            new_dex += "\n  ]";
+            content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1);
+            std::cout << "DEBUG: Updated config with " << dex_list.size() << " DEXes" << std::endl;
+        } else {
+            std::cout << "DEBUG: DEX section not found for blockchain: " << blockchain << std::endl;
         }
-        new_dex += "\n  ]"; // Close DEX array
-        content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1); // Replace old DEX section
+    } else {
+        std::cout << "DEBUG: Blockchain section not found: " << blockchain << std::endl;
     }
 
     // Write updated config to file

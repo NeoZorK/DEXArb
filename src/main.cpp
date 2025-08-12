@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
             stats_list.emplace_back("find_factory_contracts", scan_stats);
             
             // Update config with results
-            update_config_with_dex(rpc_endpoints, dex_list, config_update_stats);
+            update_config_with_dex(rpc_endpoints, blockchain_str, dex_list, config_update_stats);
             
             // Add update stats
             stats_list.emplace_back("update_config_with_dex", config_update_stats);
@@ -302,7 +302,43 @@ int main(int argc, char* argv[]) {
 
     // Process command-line flags
     if (argc == 3) {
-        if (flag == "-showSCAN-CONFIG") {
+        if (flag == "-scan") {
+            // Handle scan with default block count (1000)
+            modern_utils::Logger::info("Starting scan with default block count (1000)");
+            int scan_range = 1000;
+            
+            // Announce scan
+            modern_utils::Logger::info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
+            std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
+            
+            // Mutex for thread synchronization
+            std::mutex mtx;
+            
+            // List to store found DEXes
+            std::vector<DexInfo> dex_list;
+            
+            // Scan for factories
+            find_factory_contracts(rpc_endpoints, blockchain, static_cast<uint64_t>(scan_range), thread_count, mtx, dex_list, scan_stats);
+            
+            // Add scan stats
+            stats_list.emplace_back("find_factory_contracts", scan_stats);
+            
+            // Update config with results - FIX: Save DEXes to config
+            update_config_with_dex(rpc_endpoints, normalized_blockchain, dex_list, config_update_stats);
+            
+            // Add update stats
+            stats_list.emplace_back("update_config_with_dex", config_update_stats);
+            
+            // Save scan statistics
+            save_scan_stats(stats_list);
+            
+            // Show scan results
+            show_scan_results(dex_list);
+            
+            // End timing
+            StopTimeMeasure(MICROSECONDS);
+            return 0;
+        } else if (flag == "-showSCAN-CONFIG") {
             modern_utils::Logger::info("Showing scan configuration");
             show_scan_config();
         } else if (flag == "-showSCAN-STAT") {
@@ -363,7 +399,7 @@ int main(int argc, char* argv[]) {
             stats_list.emplace_back("find_factory_contracts", scan_stats);
             
             // Update config with results - FIX: Save DEXes to config
-            update_config_with_dex(rpc_endpoints, dex_list, config_update_stats);
+            update_config_with_dex(rpc_endpoints, normalized_blockchain, dex_list, config_update_stats);
             
             // Add update stats
             stats_list.emplace_back("update_config_with_dex", config_update_stats);

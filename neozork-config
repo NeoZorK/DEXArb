@@ -15,7 +15,9 @@
       {"url": "https://rpc.fantom.network", "limit": 25},
       {"url": "https://fantom.publicnode.com", "limit": 30}
     ],
-    "dex": []
+    "dex": [
+
+  ]
   },
   "bsc": {
     "threads": 3,
