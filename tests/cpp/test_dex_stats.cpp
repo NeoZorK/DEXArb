@@ -145,12 +145,13 @@ TEST_F(DexStatsTest, LogParsingLogic) {
     size_t end = test_log_data.find('"', pos);
     std::string data = test_log_data.substr(pos, end - pos);
     
-    EXPECT_EQ(data.size(), 130);
+    EXPECT_EQ(data.size(), 386);
     EXPECT_EQ(data.substr(0, 2), "0x");
     
-    // Test amount extraction
-    std::string amount0In = data.substr(2, 64);
-    std::string amount1In = data.substr(66, 64);
+    // Test amount extraction - data contains 6 values of 64 chars each
+    // Format: 0x + 6 * 64 = 386 characters
+    std::string amount0In = data.substr(2, 64);      // First 64 chars after 0x
+    std::string amount1In = data.substr(66, 64);     // Second 64 chars
     
     EXPECT_EQ(amount0In, "0000000000000000000000000000000000000000000000000000000000000001");
     EXPECT_EQ(amount1In, "0000000000000000000000000000000000000000000000000000000000000002");

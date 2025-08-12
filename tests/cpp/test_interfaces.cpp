@@ -153,7 +153,8 @@ public:
     }
     
     bool is_endpoint_available(std::string_view endpoint) override {
-        return !endpoint.empty();
+        // Check for empty string and very long strings (more than 500 characters)
+        return !endpoint.empty() && endpoint.length() <= 500;
     }
     
     RequestStats get_stats() const override {

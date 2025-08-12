@@ -87,17 +87,19 @@ TEST_F(DexScannerTest, BasicFunctionCall) {
 TEST_F(DexScannerTest, EmptyRpcEndpoints) {
     std::vector<RpcEndpoint> empty_endpoints;
     
-    // Capture stdout
+    // Capture both stdout and stderr
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(buffer.rdbuf());
     
     // Call function with empty endpoints
     find_factory_contracts(empty_endpoints, mock_blockchain_type, 
                           test_scan_range, test_thread_count, 
                           test_mutex, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Should handle empty endpoints gracefully
     std::string output = buffer.str();

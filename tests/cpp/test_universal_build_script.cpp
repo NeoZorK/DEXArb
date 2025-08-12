@@ -44,13 +44,13 @@ protected:
 
 // Test script file existence
 TEST_F(UniversalBuildScriptTest, ScriptFileExists) {
-    std::string scriptPath = "../../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     EXPECT_TRUE(fileExists(scriptPath)) << "Universal build script should exist";
 }
 
 // Test script is executable
 TEST_F(UniversalBuildScriptTest, ScriptIsExecutable) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::filesystem::path path(scriptPath);
     std::filesystem::perms perms = std::filesystem::status(path).permissions();
     
@@ -63,7 +63,7 @@ TEST_F(UniversalBuildScriptTest, ScriptIsExecutable) {
 
 // Test script content validation
 TEST_F(UniversalBuildScriptTest, ScriptContentValidation) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check for required components
@@ -76,7 +76,7 @@ TEST_F(UniversalBuildScriptTest, ScriptContentValidation) {
 
 // Test script structure
 TEST_F(UniversalBuildScriptTest, ScriptStructure) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check for required functions
@@ -99,7 +99,7 @@ TEST_F(UniversalBuildScriptTest, ScriptStructure) {
 
 // Test platform detection logic
 TEST_F(UniversalBuildScriptTest, PlatformDetectionLogic) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check platform detection patterns
@@ -111,7 +111,7 @@ TEST_F(UniversalBuildScriptTest, PlatformDetectionLogic) {
 
 // Test build options
 TEST_F(UniversalBuildScriptTest, BuildOptions) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check build options
@@ -132,7 +132,7 @@ TEST_F(UniversalBuildScriptTest, BuildOptions) {
 
 // Test build types
 TEST_F(UniversalBuildScriptTest, BuildTypes) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check build types
@@ -150,7 +150,7 @@ TEST_F(UniversalBuildScriptTest, BuildTypes) {
 
 // Test dependency checking
 TEST_F(UniversalBuildScriptTest, DependencyChecking) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check required dependencies
@@ -169,7 +169,7 @@ TEST_F(UniversalBuildScriptTest, DependencyChecking) {
 
 // Test vcpkg integration
 TEST_F(UniversalBuildScriptTest, VcpkgIntegration) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check vcpkg setup
@@ -180,7 +180,7 @@ TEST_F(UniversalBuildScriptTest, VcpkgIntegration) {
 
 // Test CMake integration
 TEST_F(UniversalBuildScriptTest, CMakeIntegration) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check CMake usage
@@ -191,7 +191,7 @@ TEST_F(UniversalBuildScriptTest, CMakeIntegration) {
 
 // Test parallel build support
 TEST_F(UniversalBuildScriptTest, ParallelBuildSupport) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check parallel build support
@@ -202,7 +202,7 @@ TEST_F(UniversalBuildScriptTest, ParallelBuildSupport) {
 
 // Test error handling
 TEST_F(UniversalBuildScriptTest, ErrorHandling) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check error handling
@@ -213,7 +213,7 @@ TEST_F(UniversalBuildScriptTest, ErrorHandling) {
 
 // Test logging functionality
 TEST_F(UniversalBuildScriptTest, LoggingFunctionality) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check logging levels
@@ -233,7 +233,7 @@ TEST_F(UniversalBuildScriptTest, LoggingFunctionality) {
 
 // Test color output
 TEST_F(UniversalBuildScriptTest, ColorOutput) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check color definitions
@@ -254,7 +254,7 @@ TEST_F(UniversalBuildScriptTest, ColorOutput) {
 
 // Test help functionality
 TEST_F(UniversalBuildScriptTest, HelpFunctionality) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check help options
@@ -265,7 +265,7 @@ TEST_F(UniversalBuildScriptTest, HelpFunctionality) {
 
 // Test command line argument parsing
 TEST_F(UniversalBuildScriptTest, ArgumentParsing) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check argument parsing
@@ -286,7 +286,7 @@ TEST_F(UniversalBuildScriptTest, ArgumentParsing) {
 
 // Test interactive mode
 TEST_F(UniversalBuildScriptTest, InteractiveMode) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check interactive functionality
@@ -297,7 +297,7 @@ TEST_F(UniversalBuildScriptTest, InteractiveMode) {
 
 // Test package creation
 TEST_F(UniversalBuildScriptTest, PackageCreation) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check package creation
@@ -308,7 +308,7 @@ TEST_F(UniversalBuildScriptTest, PackageCreation) {
 
 // Test test execution
 TEST_F(UniversalBuildScriptTest, TestExecution) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check test execution
@@ -319,7 +319,7 @@ TEST_F(UniversalBuildScriptTest, TestExecution) {
 
 // Test build summary
 TEST_F(UniversalBuildScriptTest, BuildSummary) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check build summary
@@ -330,7 +330,7 @@ TEST_F(UniversalBuildScriptTest, BuildSummary) {
 
 // Test cross-platform support
 TEST_F(UniversalBuildScriptTest, CrossPlatformSupport) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check platform support
@@ -349,7 +349,7 @@ TEST_F(UniversalBuildScriptTest, CrossPlatformSupport) {
 
 // Test container build support
 TEST_F(UniversalBuildScriptTest, ContainerBuildSupport) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check container support
@@ -360,7 +360,7 @@ TEST_F(UniversalBuildScriptTest, ContainerBuildSupport) {
 
 // Test Windows build support
 TEST_F(UniversalBuildScriptTest, WindowsBuildSupport) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check Windows build support
@@ -371,7 +371,7 @@ TEST_F(UniversalBuildScriptTest, WindowsBuildSupport) {
 
 // Test script completion
 TEST_F(UniversalBuildScriptTest, ScriptCompletion) {
-    std::string scriptPath = "../../../scripts/build/build-universal.sh";
+    std::string scriptPath = "scripts/build/build-universal.sh";
     std::string content = getFileContent(scriptPath);
     
     // Check script completion
