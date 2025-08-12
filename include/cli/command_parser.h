@@ -17,6 +17,7 @@ namespace cli {
 enum class CommandType {
     HELP,
     VERSION_CMD,
+    EXAMPLES,
     SCAN,
     SHOW_DEXES,
     SHOW_POOLS,
@@ -76,6 +77,21 @@ public:
     // Check if command requires token parameter
     static bool requires_token(CommandType type);
     
+    // Convert network ID to blockchain name
+    static std::string network_id_to_blockchain(std::string_view network_id);
+    
+    // Convert blockchain name to network ID
+    static std::string blockchain_to_network_id(std::string_view blockchain);
+    
+    // Check if string is a network ID
+    static bool is_network_id(std::string_view input);
+    
+    // Get default blockchain for scan command
+    static std::string get_default_blockchain();
+    
+    // Get default block count for scan command
+    static std::string get_default_block_count();
+
 private:
     // Validate blockchain name
     static bool is_valid_blockchain(std::string_view blockchain);
@@ -83,8 +99,8 @@ private:
     // Validate block range
     static bool is_valid_block_range(std::string_view value);
     
-    // Validate address format
-    static bool is_valid_address(std::string_view address);
+    // Validate network ID
+    static bool is_valid_network_id(std::string_view network_id);
 };
 
 } // namespace cli

@@ -4,22 +4,58 @@
 //
 //  Created by Rostyslav S. on 26.02.2025.
 //
-#include "main.h"           // For shared structures and constants
-#include "utils/modern_utils.h"    // For modern logging and utilities
-#include "core/blockchain.h"     // For BlockchainType and functions
-#include "dex/dex_scanner.h"    // For find_factory_contracts
-#include "config/config_manager.h" // For load_dexes_from_config
-#include "network/queries.h"        // For query functions
-#include "utils/input.h"          // For input/output functions
+#include "../include/main.h"           // For shared structures and constants
+#include "../include/utils/modern_utils.h"    // For modern logging and utilities
+#include "../include/core/blockchain.h"     // For BlockchainType and functions
+#include "../include/dex/dex_scanner.h"    // For find_factory_contracts
+#include "../include/config/config_manager.h" // For load_dexes_from_config
+#include "../include/network/queries.h"        // For query functions
+#include "../include/utils/input.h"          // For input/output functions
+#include "../include/cli/help_display.h"     // For help display
+#include "../include/utils/measure.h"        // For timing functions
 #include <iostream>         // For console I/O
 #include <algorithm>        // For std::transform
+#include <vector>           // For std::vector
+#include <string>           // For std::string
 
 // Global Project Version
 const std::string PROJECT_VERSION = "1.0.7";
 
+// Global variables for stats
+std::vector<std::pair<std::string, FunctionStats>> stats_list;
+FunctionStats scan_stats, config_update_stats;
+
 // Forward declarations
 void show_help();
 void show_version();
+
+// Helper functions
+std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& blockchain) {
+    // TODO: Implement actual config loading
+    std::vector<RpcEndpoint> endpoints;
+    if (blockchain == "fantom") {
+        endpoints.push_back(RpcEndpoint("https://rpc.ftm.tools", 20));
+        endpoints.push_back(RpcEndpoint("https://fantom-mainnet.public.blastapi.io", 25));
+    } else if (blockchain == "ethereum") {
+        endpoints.push_back(RpcEndpoint("https://rpc.ankr.com/eth", 20));
+        endpoints.push_back(RpcEndpoint("https://eth.llamarpc.com", 25));
+    } else if (blockchain == "bsc") {
+        endpoints.push_back(RpcEndpoint("https://bsc-dataseed.binance.org", 20));
+        endpoints.push_back(RpcEndpoint("https://bsc-dataseed1.defibit.io", 25));
+    } else if (blockchain == "polygon") {
+        endpoints.push_back(RpcEndpoint("https://polygon-rpc.com", 20));
+        endpoints.push_back(RpcEndpoint("https://rpc-mainnet.matic.network", 25));
+    } else if (blockchain == "avalanche") {
+        endpoints.push_back(RpcEndpoint("https://api.avax.network/ext/bc/C/rpc", 20));
+        endpoints.push_back(RpcEndpoint("https://rpc.ankr.com/avalanche", 25));
+    }
+    return endpoints;
+}
+
+int get_thread_count_from_config() {
+    // TODO: Implement actual config loading
+    return 3; // Default thread count
+}
 
 // Function to display usage instructions
 void show_help() {
@@ -126,6 +162,78 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-version" || flag == "-v") {
             show_version();
             return 0;
+        } else if (flag == "-examples") {
+            cli::HelpDisplay::show_examples();
+            return 0;
+        } else if (flag == "-scan") {
+            // Handle scan with default blockchain and block count
+            modern_utils::Logger::info("Starting scan with default parameters (fantom, 1000 blocks)");
+            std::string blockchain_str = "fantom";
+            int scan_range = 1000;
+            
+            // Convert string to blockchain type
+            BlockchainType blockchain;
+            if (blockchain_str == "ethereum") {
+                blockchain = BlockchainType::Ethereum;
+            } else if (blockchain_str == "fantom") {
+                blockchain = BlockchainType::Fantom;
+            } else if (blockchain_str == "bsc") {
+                blockchain = BlockchainType::BSC;
+            } else if (blockchain_str == "polygon") {
+                blockchain = BlockchainType::Polygon;
+            } else if (blockchain_str == "avalanche") {
+                blockchain = BlockchainType::Avalanche;
+            } else if (blockchain_str == "solana") {
+                blockchain = BlockchainType::Solana;
+            } else {
+                modern_utils::Logger::error("Unsupported blockchain: " + blockchain_str);
+                std::cerr << RED << "Error: Unsupported blockchain" << RESET << '\n';
+                return 1;
+            }
+            
+            // Load configuration
+            std::vector<RpcEndpoint> rpc_endpoints = load_rpc_endpoints_from_config(blockchain_str);
+            if (rpc_endpoints.empty()) {
+                modern_utils::Logger::error("No RPC endpoints found for " + blockchain_str);
+                std::cerr << RED << "Error: No RPC endpoints configured" << RESET << '\n';
+                return 1;
+            }
+            
+            // Get thread count from config
+            int thread_count = get_thread_count_from_config();
+            modern_utils::Logger::info("Using " + std::to_string(thread_count) + " threads");
+            
+            // Announce scan
+            modern_utils::Logger::info("Starting scan of " + blockchain_str + " with range " + std::to_string(scan_range));
+            std::cout << GREEN << "Scanning " << blockchain_str << " with " << thread_count << " threads" << RESET << '\n';
+            
+            // Mutex for thread synchronization
+            std::mutex mtx;
+            
+            // List to store found DEXes
+            std::vector<DexInfo> dex_list;
+            
+            // Scan for factories
+            find_factory_contracts(rpc_endpoints, blockchain, static_cast<uint64_t>(scan_range), thread_count, mtx, dex_list, scan_stats);
+            
+            // Add scan stats
+            stats_list.emplace_back("find_factory_contracts", scan_stats);
+            
+            // Update config with results
+            update_config_with_dex(rpc_endpoints, dex_list, update_stats);
+            
+            // Add update stats
+            stats_list.emplace_back("update_config_with_dex", update_stats);
+            
+            // Save scan statistics
+            save_scan_stats(stats_list);
+            
+            // Show scan results
+            show_scan_results(dex_list);
+            
+            // End timing
+            StopTimeMeasure(MICROSECONDS);
+            return 0;
         } else {
             // Error for insufficient args (Exit)
             modern_utils::Logger::error("Insufficient arguments provided: " + flag);
@@ -150,44 +258,36 @@ int main(int argc, char* argv[]) {
     modern_utils::Logger::info("Processing command: " + flag + " for blockchain: " + blockchain_str);
     
     // Convert string to blockchain type
-    BlockchainType blockchain = string_to_blockchain(blockchain_str);
-    
-    // Check if Solana is fully supported
-    if (blockchain == BlockchainType::Solana && flag != "-showSCAN-CONFIG") {
-        
-        // Warn about limited Solana support (Exit)
-        modern_utils::Logger::warning("Solana support is limited to config display");
-        std::cerr << RED << "Solana support is limited to config display" << RESET << '\n';
+    BlockchainType blockchain;
+    if (blockchain_str == "ethereum") {
+        blockchain = BlockchainType::Ethereum;
+    } else if (blockchain_str == "fantom") {
+        blockchain = BlockchainType::Fantom;
+    } else if (blockchain_str == "bsc") {
+        blockchain = BlockchainType::BSC;
+    } else if (blockchain_str == "polygon") {
+        blockchain = BlockchainType::Polygon;
+    } else if (blockchain_str == "avalanche") {
+        blockchain = BlockchainType::Avalanche;
+    } else if (blockchain_str == "solana") {
+        blockchain = BlockchainType::Solana;
+    } else {
+        modern_utils::Logger::error("Unsupported blockchain: " + blockchain_str);
+        std::cerr << RED << "Error: Unsupported blockchain" << RESET << '\n';
         return 1;
     }
-
-    // Load configuration and initialize stats (List to store function stats)
-    std::vector<std::pair<std::string, FunctionStats>> stats_list;
     
-    // Stats for different operations
-    FunctionStats config_stats, scan_stats, update_stats;
-    
-    // Convert blockchain string to lowercase for config file lookup
-    std::string blockchain_lower = blockchain_str;
-    std::transform(blockchain_lower.begin(), blockchain_lower.end(), blockchain_lower.begin(), ::tolower);
-    
-    // Debug: Print what we're about to pass to read_config_file
-    std::cout << "DEBUG: About to call read_config_file with blockchain_lower: '" << blockchain_lower << "'" << std::endl;
-    
-    // Read config file
-    auto [rpc_endpoints, thread_count] = read_config_file(blockchain_lower, config_stats);
-    
-    // Add config stats to list
-    stats_list.emplace_back("read_config_file", config_stats);
-    
-    // Error if no endpoints loaded (Exit)
+    // Load configuration
+    std::vector<RpcEndpoint> rpc_endpoints = load_rpc_endpoints_from_config(blockchain_str);
     if (rpc_endpoints.empty()) {
-        modern_utils::Logger::error("Failed to load RPC endpoints for " + blockchain_str);
-        std::cerr << RED << "Failed to load RPC endpoints for " << blockchain_str << RESET << '\n';
+        modern_utils::Logger::error("No RPC endpoints found for " + blockchain_str);
+        std::cerr << RED << "Error: No RPC endpoints configured" << RESET << '\n';
         return 1;
     }
-
-    modern_utils::Logger::info("Loaded " + std::to_string(rpc_endpoints.size()) + " RPC endpoints with " + std::to_string(thread_count) + " threads");
+    
+    // Get thread count from config
+    int thread_count = get_thread_count_from_config();
+    modern_utils::Logger::info("Using " + std::to_string(thread_count) + " threads");
 
     // Process command-line flags
     if (argc == 3) {
@@ -251,39 +351,46 @@ int main(int argc, char* argv[]) {
             // Add scan stats
             stats_list.emplace_back("find_factory_contracts", scan_stats);
             
-            // Update config with results
-            update_config_with_dex(rpc_endpoints, dex_list, update_stats);
+            // Update config with results - FIX: Save DEXes to config
+            update_config_with_dex(rpc_endpoints, dex_list, config_update_stats);
             
             // Add update stats
-            stats_list.emplace_back("update_config_with_dex", update_stats);
+            stats_list.emplace_back("update_config_with_dex", config_update_stats);
+            
+            // Save scan statistics
             save_scan_stats(stats_list);
+            
+            // Show scan results
             show_scan_results(dex_list);
+            
+            // End timing
+            EndTimeMeasure();
+            return 0;
         } else {
-            // Error for invalid flag (EXIT)
             modern_utils::Logger::error("Invalid flag: " + flag);
             std::cerr << RED << "Invalid flag" << RESET << '\n';
             show_help();
             return 1;
         }
-    } else if (argc == 5 && flag == "-findTOKEN") {
-        // Find token in a specific DEX
-        modern_utils::Logger::info("Finding token " + std::string(argv[4]) + " in DEX " + std::string(argv[3]));
-        find_token_in_dex(rpc_endpoints, argv[3], argv[4]);
+    } else if (argc == 5) {
+        if (flag == "-findTOKEN") {
+            modern_utils::Logger::info("Finding token: " + std::string(argv[4]) + " in DEX: " + std::string(argv[3]));
+            find_token_in_dex(rpc_endpoints, argv[3], argv[4]);
+        } else {
+            modern_utils::Logger::error("Invalid flag: " + flag);
+            std::cerr << RED << "Invalid flag" << RESET << '\n';
+            show_help();
+            return 1;
+        }
     } else {
-        // Error for invalid usage (EXIT)
-        modern_utils::Logger::error("Invalid usage with " + std::to_string(argc) + " arguments");
-        std::cerr << RED << "Invalid usage" << RESET << '\n';
+        modern_utils::Logger::error("Too many arguments: " + std::to_string(argc));
+        std::cerr << RED << "Error: Too many arguments" << RESET << '\n';
         show_help();
         return 1;
     }
     
-    
-    // Stop the Main timer
+    // End timing
     StopTimeMeasure(MICROSECONDS);
-    
-    modern_utils::Logger::info("DEX Arbitrage Scanner completed successfully");
-    
-    // Exit successfully
     return 0;
 }
 

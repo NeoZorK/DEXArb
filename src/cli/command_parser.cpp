@@ -28,71 +28,97 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
     switch (cmd.type) {
         case CommandType::HELP:
         case CommandType::VERSION_CMD:
+        case CommandType::EXAMPLES:
             cmd.is_valid = true;
             break;
             
         case CommandType::SCAN:
             if (argc >= 4) {
-                cmd.blockchain = argv[2];
+                // Handle network ID or blockchain name
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
                 cmd.value = argv[3];
                 cmd.is_valid = true;
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
-            } else {
-                if (argc >= 3) {
-                    cmd.blockchain = argv[2];
+            } else if (argc == 3) {
+                // Handle scan with default block count
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
                 }
-                cmd.error_message = "Scan command requires blockchain and block count";
-            }
-            break;
-            
-        case CommandType::SHOW_DEXES:
-            if (argc >= 3) {
-                cmd.blockchain = argv[2];
+                cmd.value = get_default_block_count();
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
+            } else if (argc == 2) {
+                // Handle scan with default blockchain and block count
+                cmd.blockchain = get_default_blockchain();
+                cmd.value = get_default_block_count();
                 cmd.is_valid = true;
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
             } else {
-                cmd.error_message = "Show DEXes command requires blockchain";
+                cmd.error_message = "Scan command requires blockchain and block count";
+            }
+            break;
+            
+        case CommandType::SHOW_DEXES:
+        case CommandType::SHOW_SCAN_CONFIG:
+        case CommandType::SHOW_SCAN:
+        case CommandType::SHOW_SCAN_STAT:
+            if (argc >= 3) {
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
+            } else {
+                cmd.error_message = "Command requires blockchain parameter";
             }
             break;
             
         case CommandType::SHOW_POOLS:
         case CommandType::SHOW_TOKENS:
             if (argc >= 4) {
-                cmd.blockchain = argv[2];
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
                 cmd.dex_name = argv[3];
                 cmd.is_valid = true;
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
             } else {
-                if (argc >= 3) {
-                    cmd.blockchain = argv[2];
-                }
-                cmd.error_message = "Show pools/tokens command requires blockchain and DEX name";
-            }
-            break;
-            
-        case CommandType::SHOW_SCAN_CONFIG:
-        case CommandType::SHOW_SCAN:
-        case CommandType::SHOW_SCAN_STAT:
-            if (argc >= 3) {
-                cmd.blockchain = argv[2];
-                cmd.is_valid = true;
-                if (!validate_command(cmd)) {
-                    cmd.is_valid = false;
-                }
-            } else {
-                cmd.error_message = "Show scan command requires blockchain";
+                cmd.error_message = "Command requires blockchain and DEX parameters";
             }
             break;
             
         case CommandType::FIND_TOKEN:
             if (argc >= 5) {
-                cmd.blockchain = argv[2];
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
                 cmd.dex_name = argv[3];
                 cmd.token_address = argv[4];
                 cmd.is_valid = true;
@@ -100,32 +126,30 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                     cmd.is_valid = false;
                 }
             } else {
-                if (argc >= 3) {
-                    cmd.blockchain = argv[2];
-                }
-                if (argc >= 4) {
-                    cmd.dex_name = argv[3];
-                }
-                cmd.error_message = "Find token command requires blockchain, DEX name, and token address";
+                cmd.error_message = "Find token command requires blockchain, DEX, and token parameters";
             }
             break;
             
         case CommandType::FIND_TOKENS:
             if (argc >= 4) {
-                cmd.blockchain = argv[2];
+                std::string blockchain_or_id = argv[2];
+                if (is_network_id(blockchain_or_id)) {
+                    cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
+                } else {
+                    cmd.blockchain = blockchain_or_id;
+                }
                 cmd.token_address = argv[3];
                 cmd.is_valid = true;
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
             } else {
-                cmd.error_message = "Find tokens command requires blockchain and token address";
+                cmd.error_message = "Find tokens command requires blockchain and token parameters";
             }
             break;
             
-        case CommandType::UNKNOWN:
+        default:
             cmd.error_message = "Unknown command: " + flag;
-            cmd.is_valid = false;
             break;
     }
     
@@ -133,25 +157,18 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
 }
 
 bool CommandParser::validate_command(const ParsedCommand& cmd) {
-    if (!cmd.is_valid) {
-        return false;
-    }
-    
     // Validate blockchain if required
-    if (requires_blockchain(cmd.type) && !is_valid_blockchain(cmd.blockchain)) {
-        return false;
-    }
-    
-    // Validate block range if required
-    if (requires_value(cmd.type) && cmd.type == CommandType::SCAN) {
-        if (!is_valid_block_range(cmd.value)) {
+    if (requires_blockchain(cmd.type) && !cmd.blockchain.empty()) {
+        if (!is_valid_blockchain(cmd.blockchain)) {
             return false;
         }
     }
     
-    // Validate token address if required
-    if (requires_token(cmd.type) && !is_valid_address(cmd.token_address)) {
-        return false;
+    // Validate value if required
+    if (requires_value(cmd.type) && !cmd.value.empty()) {
+        if (!is_valid_block_range(cmd.value)) {
+            return false;
+        }
     }
     
     return true;
@@ -162,23 +179,25 @@ CommandType CommandParser::string_to_command_type(std::string_view flag) {
         return CommandType::HELP;
     } else if (flag == "-v" || flag == "-version" || flag == "--version") {
         return CommandType::VERSION_CMD;
-    } else if (flag == "--scan") {
+    } else if (flag == "-examples" || flag == "--examples") {
+        return CommandType::EXAMPLES;
+    } else if (flag == "-scan" || flag == "--scan") {
         return CommandType::SCAN;
-    } else if (flag == "--show-dexes") {
+    } else if (flag == "-showDEXES" || flag == "--show-dexes") {
         return CommandType::SHOW_DEXES;
-    } else if (flag == "--show-pools") {
+    } else if (flag == "-showPOOLS" || flag == "--show-pools") {
         return CommandType::SHOW_POOLS;
-    } else if (flag == "--show-tokens") {
+    } else if (flag == "-showTOKENS" || flag == "--show-tokens") {
         return CommandType::SHOW_TOKENS;
-    } else if (flag == "--show-scan-config") {
+    } else if (flag == "-showSCAN-CONFIG" || flag == "--show-scan-config") {
         return CommandType::SHOW_SCAN_CONFIG;
-    } else if (flag == "--show-scan") {
+    } else if (flag == "-showSCAN" || flag == "--show-scan") {
         return CommandType::SHOW_SCAN;
-    } else if (flag == "--show-scan-stat") {
+    } else if (flag == "-showSCAN-STAT" || flag == "--show-scan-stat") {
         return CommandType::SHOW_SCAN_STAT;
-    } else if (flag == "--find-token") {
+    } else if (flag == "-findTOKEN" || flag == "--find-token") {
         return CommandType::FIND_TOKEN;
-    } else if (flag == "--find-tokens") {
+    } else if (flag == "-findTOKENS" || flag == "--find-tokens") {
         return CommandType::FIND_TOKENS;
     }
     
@@ -189,6 +208,7 @@ std::string CommandParser::get_command_description(CommandType type) {
     switch (type) {
         case CommandType::HELP: return "Display help information";
         case CommandType::VERSION_CMD: return "Display version information";
+        case CommandType::EXAMPLES: return "Display detailed examples";
         case CommandType::SCAN: return "Scan blockchain for arbitrage opportunities";
         case CommandType::SHOW_DEXES: return "Show available DEXes for blockchain";
         case CommandType::SHOW_POOLS: return "Show pools for specific DEX";
@@ -204,7 +224,8 @@ std::string CommandParser::get_command_description(CommandType type) {
 }
 
 bool CommandParser::requires_blockchain(CommandType type) {
-    return type != CommandType::HELP && type != CommandType::VERSION_CMD && type != CommandType::UNKNOWN;
+    return type != CommandType::HELP && type != CommandType::VERSION_CMD && 
+           type != CommandType::EXAMPLES && type != CommandType::UNKNOWN;
 }
 
 bool CommandParser::requires_value(CommandType type) {
@@ -217,7 +238,42 @@ bool CommandParser::requires_dex(CommandType type) {
 }
 
 bool CommandParser::requires_token(CommandType type) {
-    return type == CommandType::FIND_TOKEN;
+    return type == CommandType::FIND_TOKEN || type == CommandType::FIND_TOKENS;
+}
+
+std::string CommandParser::network_id_to_blockchain(std::string_view network_id) {
+    if (network_id == "1") return "ethereum";
+    if (network_id == "56") return "bsc";
+    if (network_id == "137") return "polygon";
+    if (network_id == "250") return "fantom";
+    if (network_id == "43114") return "avalanche";
+    if (network_id == "101") return "solana";
+    return std::string(network_id); // Return as-is if not recognized
+}
+
+std::string CommandParser::blockchain_to_network_id(std::string_view blockchain) {
+    std::string chain = std::string(blockchain);
+    std::transform(chain.begin(), chain.end(), chain.begin(), ::tolower);
+    
+    if (chain == "ethereum") return "1";
+    if (chain == "bsc") return "56";
+    if (chain == "polygon") return "137";
+    if (chain == "fantom") return "250";
+    if (chain == "avalanche") return "43114";
+    if (chain == "solana") return "101";
+    return std::string(blockchain); // Return as-is if not recognized
+}
+
+bool CommandParser::is_network_id(std::string_view input) {
+    return is_valid_network_id(input);
+}
+
+std::string CommandParser::get_default_blockchain() {
+    return "fantom"; // Default blockchain is Fantom
+}
+
+std::string CommandParser::get_default_block_count() {
+    return "1000"; // Default block count is 1000
 }
 
 bool CommandParser::is_valid_blockchain(std::string_view blockchain) {
@@ -230,26 +286,20 @@ bool CommandParser::is_valid_blockchain(std::string_view blockchain) {
 
 bool CommandParser::is_valid_block_range(std::string_view value) {
     try {
-        int blocks = std::stoi(std::string(value));
-        return blocks >= 1000 && blocks <= 1000000;
-    } catch (...) {
+        int block_count = std::stoi(std::string(value));
+        return block_count >= 1000 && block_count <= 1000000;
+    } catch (const std::exception&) {
         return false;
     }
 }
 
-bool CommandParser::is_valid_address(std::string_view address) {
-    // Basic Ethereum address validation (0x + 40 hex chars)
-    if (address.length() != 42 || address.substr(0, 2) != "0x") {
+bool CommandParser::is_valid_network_id(std::string_view network_id) {
+    try {
+        int id = std::stoi(std::string(network_id));
+        return id == 1 || id == 56 || id == 137 || id == 250 || id == 43114 || id == 101;
+    } catch (const std::exception&) {
         return false;
     }
-    
-    for (size_t i = 2; i < address.length(); ++i) {
-        if (!std::isxdigit(address[i])) {
-            return false;
-        }
-    }
-    
-    return true;
 }
 
 } // namespace cli
