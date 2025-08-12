@@ -213,15 +213,15 @@ bool Application::validate_find_parameters(const cli::ParsedCommand& cmd) {
 }
 
 void Application::log_error(std::string_view error_message) {
-    cli::HelpDisplay::show_error(error_message);
+    cli::HelpDisplay::show_error(std::string(error_message));
 }
 
 void Application::log_warning(std::string_view warning_message) {
-    cli::HelpDisplay::show_warning(warning_message);
+    cli::HelpDisplay::show_error(std::string(warning_message)); // Используем show_error вместо несуществующего show_warning
 }
 
 void Application::log_info(std::string_view info_message) {
-    cli::HelpDisplay::show_info(info_message);
+    cli::HelpDisplay::show_info(std::string(info_message));
 }
 
 } // namespace core

@@ -220,10 +220,10 @@ int main(int argc, char* argv[]) {
             stats_list.emplace_back("find_factory_contracts", scan_stats);
             
             // Update config with results
-            update_config_with_dex(rpc_endpoints, dex_list, update_stats);
+            update_config_with_dex(rpc_endpoints, dex_list, config_update_stats);
             
             // Add update stats
-            stats_list.emplace_back("update_config_with_dex", update_stats);
+            stats_list.emplace_back("update_config_with_dex", config_update_stats);
             
             // Save scan statistics
             save_scan_stats(stats_list);
@@ -364,7 +364,7 @@ int main(int argc, char* argv[]) {
             show_scan_results(dex_list);
             
             // End timing
-            EndTimeMeasure();
+            StopTimeMeasure(MICROSECONDS);
             return 0;
         } else {
             modern_utils::Logger::error("Invalid flag: " + flag);
