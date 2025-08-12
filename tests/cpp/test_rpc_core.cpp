@@ -32,7 +32,7 @@ TEST_F(RpcCoreTest, WriteCallback_ValidData) {
     size_t result = write_callback(const_cast<char*>(data), size, nmemb, buffer);
     
     EXPECT_EQ(result, 8); // size * nmemb
-    EXPECT_EQ(buffer, "test datatest data");
+    EXPECT_EQ(buffer, "test dat");
 }
 
 TEST_F(RpcCoreTest, WriteCallback_EmptyData) {

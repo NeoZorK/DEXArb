@@ -38,6 +38,7 @@ add_executable(test_help_display test_help_display.cpp ${SOURCES})
 add_executable(test_cli_commands test_cli_commands.cpp ${SOURCES})
 add_executable(test_command_line_flags test_command_line_flags.cpp ${SOURCES})
 add_executable(test_all_flags_and_results test_all_flags_and_results.cpp ${SOURCES})
+add_executable(test_universal_build_script test_universal_build_script.cpp ${SOURCES})
 
 # Additional test executables for complete coverage
 add_executable(test_application test_application.cpp ${SOURCES})
@@ -65,7 +66,7 @@ add_executable(test_wallet test_wallet.cpp ${SOURCES})
 set(ALL_TEST_TARGETS
     test_modern_result test_modern_result_extended test_modern_format
     test_help_display test_cli_commands test_command_line_flags test_all_flags_and_results
-    test_application test_arbitrage test_blockchain test_command_parser test_config_manager
+    test_universal_build_script test_application test_arbitrage test_blockchain test_command_parser test_config_manager
     test_dex_pools test_dex_scanner test_dex_stats test_dex_tokens test_input
     test_interfaces test_main_structures test_measure test_platform test_platform_compatibility
     test_profit_analyzer test_queries test_rpc_core test_service_container test_wallet
@@ -91,6 +92,7 @@ add_test(NAME HelpDisplay COMMAND test_help_display)
 add_test(NAME CliCommands COMMAND test_cli_commands)
 add_test(NAME CommandLineFlags COMMAND test_command_line_flags)
 add_test(NAME AllFlagsAndResults COMMAND test_all_flags_and_results)
+add_test(NAME UniversalBuildScript COMMAND test_universal_build_script)
 
 # Additional tests for complete coverage
 add_test(NAME Application COMMAND test_application)
@@ -116,7 +118,7 @@ add_test(NAME Wallet COMMAND test_wallet)
 
 # Set test properties with reduced timeouts for faster execution
 foreach(test_name ModernResult ModernResultExtended ModernFormat HelpDisplay CliCommands 
-                    CommandLineFlags AllFlagsAndResults Application Arbitrage Blockchain 
+                    CommandLineFlags AllFlagsAndResults UniversalBuildScript Application Arbitrage Blockchain 
                     CommandParser ConfigManager DexPools DexScanner DexStats DexTokens 
                     Input Interfaces MainStructures Measure Platform PlatformCompatibility 
                     ProfitAnalyzer Queries RpcCore ServiceContainer Wallet)

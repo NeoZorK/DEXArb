@@ -29,18 +29,20 @@ public:
         DexInfo dex;
         dex.name = "TestDEX";
         dex.factory_address = "0x1234567890abcdef";
-        dex.pool_count = 5;
         dex.liquidity = 1000000;
         dex.tvl = 5000000;
         dex.volume_24h = 100000;
         dex.tx_count_24h = 1000;
         
-        PoolInfo pool;
-        pool.address = "0xabcdef1234567890";
-        pool.token0 = "0xtoken0";
-        pool.token1 = "0xtoken1";
-        pool.liquidity = 100000;
-        dex.add_pool(pool);
+        // Add 5 pools to match the expected pool_count
+        for (int i = 0; i < 5; ++i) {
+            PoolInfo pool;
+            pool.address = "0xabcdef123456789" + std::to_string(i);
+            pool.token0 = "0xtoken" + std::to_string(i * 2);
+            pool.token1 = "0xtoken" + std::to_string(i * 2 + 1);
+            pool.liquidity = 100000 + i * 10000;
+            dex.add_pool(pool);
+        }
         
         return {dex};
     }
@@ -113,7 +115,7 @@ public:
         return std::find(valid_keys.begin(), valid_keys.end(), std::string(key)) != valid_keys.end();
     }
     
-    std::vector<std::string> get_all_keys() const {
+    std::vector<std::string> get_all_keys() const override {
         return {"rpc_url", "api_key", "timeout"};
     }
     
@@ -125,7 +127,7 @@ public:
         // Mock implementation
     }
     
-    bool is_loaded() const {
+    bool is_loaded() const override {
         return true;
     }
 };
@@ -197,7 +199,7 @@ TEST_F(InterfacesTest, BlockchainScannerInterface) {
     EXPECT_EQ(dexes[0].name, "TestDEX");
     EXPECT_EQ(dexes[0].factory_address, "0x1234567890abcdef");
     EXPECT_EQ(dexes[0].pool_count, 5);
-    EXPECT_EQ(dexes[0].pools.size(), 1);
+    EXPECT_EQ(dexes[0].pools.size(), 5);
     
     EXPECT_GT(stats.execution_time_ms, 0);
     EXPECT_GT(stats.virtual_memory_kb, 0);

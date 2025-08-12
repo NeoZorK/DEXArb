@@ -4,8 +4,8 @@
 //
 //  Created by Rostyslav S. on 10.08.2025.
 //
-#include "cli/command_parser.h"
-#include "core/blockchain.h"
+#include "../../include/cli/command_parser.h"
+#include "../../include/core/blockchain.h"
 #include <algorithm>
 #include <cctype>
 
@@ -40,6 +40,9 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                     cmd.is_valid = false;
                 }
             } else {
+                if (argc >= 3) {
+                    cmd.blockchain = argv[2];
+                }
                 cmd.error_message = "Scan command requires blockchain and block count";
             }
             break;
@@ -66,6 +69,9 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                     cmd.is_valid = false;
                 }
             } else {
+                if (argc >= 3) {
+                    cmd.blockchain = argv[2];
+                }
                 cmd.error_message = "Show pools/tokens command requires blockchain and DEX name";
             }
             break;
@@ -94,6 +100,12 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                     cmd.is_valid = false;
                 }
             } else {
+                if (argc >= 3) {
+                    cmd.blockchain = argv[2];
+                }
+                if (argc >= 4) {
+                    cmd.dex_name = argv[3];
+                }
                 cmd.error_message = "Find token command requires blockchain, DEX name, and token address";
             }
             break;
@@ -113,6 +125,7 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
             
         case CommandType::UNKNOWN:
             cmd.error_message = "Unknown command: " + flag;
+            cmd.is_valid = false;
             break;
     }
     
@@ -149,23 +162,23 @@ CommandType CommandParser::string_to_command_type(std::string_view flag) {
         return CommandType::HELP;
     } else if (flag == "-v" || flag == "-version" || flag == "--version") {
         return CommandType::VERSION_CMD;
-    } else if (flag == "-scan") {
+    } else if (flag == "--scan") {
         return CommandType::SCAN;
-    } else if (flag == "-showDEXES") {
+    } else if (flag == "--show-dexes") {
         return CommandType::SHOW_DEXES;
-    } else if (flag == "-showPOOLS") {
+    } else if (flag == "--show-pools") {
         return CommandType::SHOW_POOLS;
-    } else if (flag == "-showTOKENS") {
+    } else if (flag == "--show-tokens") {
         return CommandType::SHOW_TOKENS;
-    } else if (flag == "-showSCAN-CONFIG") {
+    } else if (flag == "--show-scan-config") {
         return CommandType::SHOW_SCAN_CONFIG;
-    } else if (flag == "-showSCAN") {
+    } else if (flag == "--show-scan") {
         return CommandType::SHOW_SCAN;
-    } else if (flag == "-showSCAN-STAT") {
+    } else if (flag == "--show-scan-stat") {
         return CommandType::SHOW_SCAN_STAT;
-    } else if (flag == "-findTOKEN") {
+    } else if (flag == "--find-token") {
         return CommandType::FIND_TOKEN;
-    } else if (flag == "-findTOKENS") {
+    } else if (flag == "--find-tokens") {
         return CommandType::FIND_TOKENS;
     }
     
@@ -174,27 +187,28 @@ CommandType CommandParser::string_to_command_type(std::string_view flag) {
 
 std::string CommandParser::get_command_description(CommandType type) {
     switch (type) {
-        case CommandType::HELP: return "Show help information";
-        case CommandType::VERSION_CMD: return "Show version information";
-        case CommandType::SCAN: return "Scan blockchain for DEXes";
-        case CommandType::SHOW_DEXES: return "Show all DEXes on blockchain";
+        case CommandType::HELP: return "Display help information";
+        case CommandType::VERSION_CMD: return "Display version information";
+        case CommandType::SCAN: return "Scan blockchain for arbitrage opportunities";
+        case CommandType::SHOW_DEXES: return "Show available DEXes for blockchain";
         case CommandType::SHOW_POOLS: return "Show pools for specific DEX";
         case CommandType::SHOW_TOKENS: return "Show tokens for specific DEX";
         case CommandType::SHOW_SCAN_CONFIG: return "Show scan configuration";
         case CommandType::SHOW_SCAN: return "Show scan results";
         case CommandType::SHOW_SCAN_STAT: return "Show scan statistics";
-        case CommandType::FIND_TOKEN: return "Find token in specific DEX";
+        case CommandType::FIND_TOKEN: return "Find specific token information";
         case CommandType::FIND_TOKENS: return "Find token across all DEXes";
         case CommandType::UNKNOWN: return "Unknown command";
+        default: return "Unknown command";
     }
 }
 
 bool CommandParser::requires_blockchain(CommandType type) {
-    return type != CommandType::HELP && type != CommandType::VERSION_CMD;
+    return type != CommandType::HELP && type != CommandType::VERSION_CMD && type != CommandType::UNKNOWN;
 }
 
 bool CommandParser::requires_value(CommandType type) {
-    return type == CommandType::SCAN || type == CommandType::FIND_TOKEN || type == CommandType::FIND_TOKENS;
+    return type == CommandType::SCAN;
 }
 
 bool CommandParser::requires_dex(CommandType type) {

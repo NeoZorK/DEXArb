@@ -41,8 +41,9 @@ protected:
         test_blockchain = "ethereum";
         stats = FunctionStats{};
         
-        // Capture cout output
+        // Capture cout and cerr output
         old_cout = std::cout.rdbuf(buffer.rdbuf());
+        old_cerr = std::cerr.rdbuf(buffer.rdbuf());
         
         // Clean up any existing test files
         if (std::filesystem::exists("neozork-config")) {
@@ -51,8 +52,9 @@ protected:
     }
 
     void TearDown() override {
-        // Restore cout
+        // Restore cout and cerr
         std::cout.rdbuf(old_cout);
+        std::cerr.rdbuf(old_cerr);
         
         // Clean up test files
         if (std::filesystem::exists("neozork-config")) {
@@ -65,6 +67,7 @@ protected:
     FunctionStats stats;
     std::stringstream buffer;
     std::streambuf* old_cout;
+    std::streambuf* old_cerr;
 };
 
 // Test create_config_file function
@@ -215,14 +218,17 @@ TEST_F(InputTest, ReadConfigFileMissingFile) {
 
 // Test show_scan_config function
 TEST_F(InputTest, ShowScanConfig) {
+    // Create config file first
+    create_config_file(test_thread_count, stats);
+    
     // Test basic functionality
     show_scan_config();
     
     std::string output = buffer.str();
     
     // Verify output contains expected text
-    EXPECT_TRUE(output.find("Scan Configuration") != std::string::npos);
-    EXPECT_TRUE(output.find("Blockchains:") != std::string::npos);
+    EXPECT_TRUE(output.find("neozork-config settings:") != std::string::npos);
+    EXPECT_TRUE(output.find("ethereum:") != std::string::npos);
     EXPECT_TRUE(output.find("Threads:") != std::string::npos);
 }
 
@@ -237,8 +243,7 @@ TEST_F(InputTest, ShowScanResults) {
     std::string output = buffer.str();
     
     // Verify output contains expected text
-    EXPECT_TRUE(output.find("Scan Results") != std::string::npos);
-    EXPECT_TRUE(output.find("No DEX found") != std::string::npos);
+    EXPECT_TRUE(output.find("DEX found after scanning:") != std::string::npos);
 }
 
 // Test show_scan_results with data
@@ -251,8 +256,8 @@ TEST_F(InputTest, ShowScanResultsWithData) {
     std::string output = buffer.str();
     
     // Verify output contains expected text
-    EXPECT_TRUE(output.find("Scan Results") != std::string::npos);
-    EXPECT_TRUE(output.find("3 DEX found") != std::string::npos);
+    EXPECT_TRUE(output.find("DEX found after scanning:") != std::string::npos);
+    EXPECT_TRUE(output.find("DEX1") != std::string::npos);
 }
 
 // Test save_scan_stats function
@@ -268,10 +273,10 @@ TEST_F(InputTest, SaveScanStats) {
     save_scan_stats(stats_list);
     
     // Verify file was created
-    EXPECT_TRUE(std::filesystem::exists("scan_stats.json"));
+    EXPECT_TRUE(std::filesystem::exists("neozork-scan-stat"));
     
     // Verify file content
-    std::ifstream stats_file("scan_stats.json");
+    std::ifstream stats_file("neozork-scan-stat");
     std::stringstream content;
     content << stats_file.rdbuf();
     stats_file.close();
@@ -286,8 +291,8 @@ TEST_F(InputTest, SaveScanStats) {
     EXPECT_TRUE(file_content.find("\"bsc\"") != std::string::npos);
     
     // Clean up
-    if (std::filesystem::exists("scan_stats.json")) {
-        std::filesystem::remove("scan_stats.json");
+    if (std::filesystem::exists("neozork-scan-stat")) {
+        std::filesystem::remove("neozork-scan-stat");
     }
 }
 
@@ -298,10 +303,10 @@ TEST_F(InputTest, SaveScanStatsEmpty) {
     save_scan_stats(empty_list);
     
     // Verify file was created
-    EXPECT_TRUE(std::filesystem::exists("scan_stats.json"));
+    EXPECT_TRUE(std::filesystem::exists("neozork-scan-stat"));
     
     // Verify file content
-    std::ifstream stats_file("scan_stats.json");
+    std::ifstream stats_file("neozork-scan-stat");
     std::stringstream content;
     content << stats_file.rdbuf();
     stats_file.close();
@@ -313,8 +318,8 @@ TEST_F(InputTest, SaveScanStatsEmpty) {
     EXPECT_TRUE(file_content.find("}") != std::string::npos);
     
     // Clean up
-    if (std::filesystem::exists("scan_stats.json")) {
-        std::filesystem::remove("scan_stats.json");
+    if (std::filesystem::exists("neozork-scan-stat")) {
+        std::filesystem::remove("neozork-scan-stat");
     }
 }
 
@@ -335,19 +340,19 @@ TEST_F(InputTest, ShowScanStats) {
     std::string output = buffer.str();
     
     // Verify output contains expected text
-    EXPECT_TRUE(output.find("Scan Statistics") != std::string::npos);
+    EXPECT_TRUE(output.find("Scan statistics:") != std::string::npos);
     
     // Clean up
-    if (std::filesystem::exists("scan_stats.json")) {
-        std::filesystem::remove("scan_stats.json");
+    if (std::filesystem::exists("neozork-scan-stat")) {
+        std::filesystem::remove("neozork-scan-stat");
     }
 }
 
 // Test show_scan_stats with missing file
 TEST_F(InputTest, ShowScanStatsMissingFile) {
     // Ensure no stats file exists
-    if (std::filesystem::exists("scan_stats.json")) {
-        std::filesystem::remove("scan_stats.json");
+    if (std::filesystem::exists("neozork-scan-stat")) {
+        std::filesystem::remove("neozork-scan-stat");
     }
     
     buffer.str("");
@@ -359,7 +364,7 @@ TEST_F(InputTest, ShowScanStatsMissingFile) {
     std::string output = buffer.str();
     
     // Verify output contains expected text
-    EXPECT_TRUE(output.find("No scan statistics found") != std::string::npos);
+    EXPECT_TRUE(output.find("neozork-scan-stat not found") != std::string::npos);
 }
 
 // Test error handling

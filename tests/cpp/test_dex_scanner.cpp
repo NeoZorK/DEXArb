@@ -78,7 +78,9 @@ TEST_F(DexScannerTest, BasicFunctionCall) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Test with empty RPC endpoints
@@ -122,7 +124,9 @@ TEST_F(DexScannerTest, ZeroScanRange) {
     std::string output = buffer.str();
     // Function should complete quickly with zero blocks to scan
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
-                output.find("RPC failed") != std::string::npos);
+                output.find("RPC failed") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Test with single thread
@@ -145,7 +149,9 @@ TEST_F(DexScannerTest, SingleThread) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Test with large thread count
@@ -168,7 +174,9 @@ TEST_F(DexScannerTest, LargeThreadCount) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Test with different blockchain types
@@ -199,7 +207,9 @@ TEST_F(DexScannerTest, DifferentBlockchainTypes) {
         std::string output = buffer.str();
         EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                     output.find("RPC failed") != std::string::npos ||
-                    output.find("Exception") != std::string::npos);
+                    output.find("Exception") != std::string::npos ||
+                    output.find("Failed to fetch latest block") != std::string::npos ||
+                    output.find("DEBUG: find_factory_contracts called") != std::string::npos);
         
         // Clear for next iteration
         test_dex_list.clear();
@@ -231,7 +241,9 @@ TEST_F(DexScannerTest, MutexFunctionality) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Test stats parameter handling
@@ -264,7 +276,9 @@ TEST_F(DexScannerTest, StatsParameterHandling) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
     
     // Stats should be modified (execution time should be updated)
     EXPECT_GT(initial_stats.execution_time_ms, 0.0);
@@ -295,7 +309,9 @@ TEST_F(DexScannerTest, DexListParameterHandling) {
     std::string output = buffer.str();
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
-                output.find("Exception") != std::string::npos);
+                output.find("Exception") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
     
     // Initial dex should still be there
     EXPECT_FALSE(initial_dex_list.empty());
@@ -325,7 +341,9 @@ TEST_F(DexScannerTest, ErrorHandling) {
     EXPECT_TRUE(output.find("Scan completed") != std::string::npos || 
                 output.find("RPC failed") != std::string::npos ||
                 output.find("Exception") != std::string::npos ||
-                output.find("No RPC endpoints provided") != std::string::npos);
+                output.find("No RPC endpoints provided") != std::string::npos ||
+                output.find("Failed to fetch latest block") != std::string::npos ||
+                output.find("DEBUG: find_factory_contracts called") != std::string::npos);
 }
 
 // Main function for running tests

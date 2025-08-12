@@ -6,7 +6,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "cli/command_parser.h"
+#include "../../include/cli/command_parser.h"
 #include <vector>
 #include <string>
 
@@ -24,10 +24,12 @@ protected:
     }
     
     // Helper method to create argv-like array
+    std::vector<std::string> args_storage;
     std::vector<const char*> create_argv(const std::vector<std::string>& args) {
+        args_storage = args; // Store strings to keep them alive
         std::vector<const char*> argv;
         argv.reserve(args.size());
-        for (const auto& arg : args) {
+        for (const auto& arg : args_storage) {
             argv.push_back(arg.c_str());
         }
         return argv;
@@ -183,14 +185,14 @@ TEST_F(CommandParserTest, ParseShowScanStatCommandValid) {
 }
 
 TEST_F(CommandParserTest, ParseFindTokenCommandValid) {
-    auto argv = create_argv({"program", "--find-token", "ethereum", "uniswap", "0x1234567890abcdef"});
+    auto argv = create_argv({"program", "--find-token", "ethereum", "uniswap", "0x1234567890abcdef1234567890abcdef12345678"});
     auto cmd = CommandParser::parse(argv.size(), argv.data());
     
     EXPECT_EQ(cmd.type, CommandType::FIND_TOKEN);
     EXPECT_EQ(cmd.flag, "--find-token");
     EXPECT_EQ(cmd.blockchain, "ethereum");
     EXPECT_EQ(cmd.dex_name, "uniswap");
-    EXPECT_EQ(cmd.token_address, "0x1234567890abcdef");
+    EXPECT_EQ(cmd.token_address, "0x1234567890abcdef1234567890abcdef12345678");
     EXPECT_TRUE(cmd.is_valid);
     EXPECT_TRUE(cmd.error_message.empty());
 }

@@ -16,6 +16,20 @@ cd DEXArb
 ```
 
 ### 2. Build the Project
+
+#### Option A: Universal Build Script (Recommended)
+```bash
+# Make script executable
+chmod +x scripts/build/build-universal.sh
+
+# Interactive build
+./scripts/build/build-universal.sh
+
+# Quick build for your platform
+./scripts/build/build-universal.sh --platform macos --build-type Release
+```
+
+#### Option B: Traditional CMake
 ```bash
 mkdir build && cd build
 cmake ..
@@ -31,6 +45,7 @@ make -j$(nproc)
 ## 📋 What You'll Learn
 
 This section covers:
+- [**Universal Build Script**](UNIVERSAL_BUILD_SCRIPT.md) - One script for all platforms
 - [**Build Instructions**](build/README.md) - Complete build guide for all platforms
 - [**Platform Setup**](platforms/README.md) - Alpine, Ubuntu, and Windows/Wine configurations
 - [**First Steps**](first-steps.md) - Your first arbitrage scan

@@ -4,12 +4,13 @@
 //
 //  Created by Rostyslav S. on 18.03.2025.
 //
-#include "network/rpc_core.h"       // Include own header for declarations
-#include "utils/modern_utils.h"    // For modern JSON parser and logger
-#include "utils/measure.h"        // For update_stats function
+#include "../../include/network/rpc_core.h"       // Include own header for declarations
+#include "../../include/utils/modern_utils.h"    // For modern JSON parser and logger
+#include "../../include/utils/measure.h"        // For update_stats function
 #include <curl/curl.h>      // For CURL HTTP requests
 #include <iostream>         // For console output
 #include <thread>           // For std::this_thread::sleep_for
+#include <string>           // For std::string
 
 // Callback function to handle data received from CURL
 // Parameters:
@@ -32,17 +33,12 @@ size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer
 // - json: The JSON string to parse
 // Returns: The value of the "result" field or an empty string if not found
 std::string parse_json_result(const std::string& json) {
-    std::cout << "DEBUG: parse_json_result called with: '" << json << "'" << std::endl;
-    
     // Simple string-based JSON parser for RPC responses
     // Look for "result": "value" pattern
     size_t result_pos = json.find("\"result\":");
     if (result_pos == std::string::npos) {
-        std::cout << "DEBUG: No 'result' field found in JSON" << std::endl;
         return ""; // No result field found
     }
-    
-    std::cout << "DEBUG: Found 'result' at position: " << result_pos << std::endl;
     
     // Move past "result":
     result_pos += 9;
@@ -53,31 +49,23 @@ std::string parse_json_result(const std::string& json) {
     }
     
     if (result_pos >= json.length()) {
-        std::cout << "DEBUG: Reached end of string after 'result:'" << std::endl;
         return "";
     }
-    
-    std::cout << "DEBUG: After whitespace, position: " << result_pos << ", char: '" << json[result_pos] << "'" << std::endl;
     
     // Check if result is a string (starts with quote)
     if (json[result_pos] == '"') {
         result_pos++; // Skip opening quote
         if (result_pos >= json.length()) {
-            std::cout << "DEBUG: Reached end of string after opening quote" << std::endl;
             return "";
         }
         size_t end_pos = json.find('"', result_pos);
         if (end_pos == std::string::npos) {
-            std::cout << "DEBUG: No closing quote found" << std::endl;
             return "";
         }
         if (end_pos <= result_pos) {
-            std::cout << "DEBUG: Invalid quote positions" << std::endl;
             return "";
         }
-        std::string result = json.substr(result_pos, end_pos - result_pos);
-        std::cout << "DEBUG: Extracted string result: '" << result << "'" << std::endl;
-        return result;
+        return json.substr(result_pos, end_pos - result_pos);
     }
     
     // Check if result is a number (no quotes)
@@ -91,13 +79,10 @@ std::string parse_json_result(const std::string& json) {
     }
     
     if (end_pos <= result_pos) {
-        std::cout << "DEBUG: Invalid number positions" << std::endl;
         return "";
     }
     
-    std::string result = json.substr(result_pos, end_pos - result_pos);
-    std::cout << "DEBUG: Extracted number result: '" << result << "'" << std::endl;
-    return result;
+    return json.substr(result_pos, end_pos - result_pos);
 }
 
 // Function to display a progress bar in the console

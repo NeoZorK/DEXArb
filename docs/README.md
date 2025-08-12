@@ -6,6 +6,7 @@ Welcome to the DEXArb project documentation. This project is a decentralized exc
 
 ### 🚀 Getting Started
 - **[Quick Start Guide](getting-started/README.md)** - Get up and running in minutes
+- **[Universal Build Script](getting-started/UNIVERSAL_BUILD_SCRIPT.md)** - One script for all platforms
 - **[Build Instructions](getting-started/build/README.md)** - Complete build guide for all platforms
 - **[Platform Setup](getting-started/platforms/README.md)** - Setup for Alpine, Ubuntu, and Windows/Wine
 - **[Windows/Wine Setup](getting-started/platforms/windows-wine.md)** - Windows development with Wine
@@ -67,16 +68,22 @@ DEXArb is a C++ application that:
    cd DEXArb
    ```
 
-2. **Choose your platform setup**
+2. **Use Universal Build Script (Recommended)**
+   ```bash
+   # Make script executable
+   chmod +x scripts/build/build-universal.sh
+   
+   # Interactive build
+   ./scripts/build/build-universal.sh
+   
+   # Or quick build for your platform
+   ./scripts/build/build-universal.sh --platform macos --build-type Release
+   ```
+
+3. **Alternative: Platform-specific setup**
    - [Alpine Linux](getting-started/platforms/README.md#alpine-linux-314)
    - [Ubuntu](getting-started/platforms/README.md#ubuntu-1804--debian-10)
    - [Windows/Wine](getting-started/platforms/windows-wine.md)
-
-3. **Build and run**
-   ```bash
-   # Follow platform-specific build instructions
-   # See getting-started/build/README.md
-   ```
 
 ## 🌐 Supported Platforms
 
@@ -96,7 +103,7 @@ We welcome contributions! Please see our [Development Guide](development/README.
 ## 🆘 Support
 
 - **Documentation Issues**: Submit a PR to fix documentation
-- **Build Problems**: Check [Build Troubleshooting](getting-started/build/README.md#troubleshooting)
+- **Build Problems**: Check [Universal Build Script Guide](getting-started/UNIVERSAL_BUILD_SCRIPT.md#troubleshooting)
 - **Runtime Errors**: See [Common Issues](getting-started/first-steps.md#troubleshooting)
 - **Feature Requests**: Open a GitHub issue
 

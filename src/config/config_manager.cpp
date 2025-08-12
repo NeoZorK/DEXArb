@@ -45,7 +45,11 @@ std::vector<DexInfo> load_dexes_from_config() {
 
         std::cout << "DEBUG: Found chain " << chain << " at position " << chain_pos << std::endl;
 
-        size_t dex_pos = content.find("\"dex\": [", chain_pos); // Find DEX array
+        size_t dex_pos = content.find("\"dex\":", chain_pos); // Find DEX field
+        if (dex_pos != std::string::npos) {
+            // Skip to the opening bracket
+            dex_pos = content.find("[", dex_pos);
+        }
         if (dex_pos != std::string::npos) { // Check if DEX section exists
             size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
             if (dex_end == std::string::npos) {

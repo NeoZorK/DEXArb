@@ -7,7 +7,7 @@
 #ifndef RPC_CORE_H
 #define RPC_CORE_H
 
-#include "main.h"       // For FunctionStats structure
+#include "../main.h"       // For FunctionStats structure
 #include <string>       // For string handling in functions
 
 // Callback function to handle data received from CURL

@@ -6,6 +6,7 @@ This directory contains comprehensive C++ tests for the DEXArb application, ensu
 
 ### Test Files
 - **`test_main.cpp`** - Tests for main application functions
+- **`test-universal-script.sh`** - Tests for universal build script functionality
 - **`cpp/test_modern_format.cpp`** - Tests for modern formatting utilities
 - **`cpp/test_modern_result.cpp`** - Tests for modern Result<T,E> class
 - **`cpp/test_arbitrage.cpp`** - Tests for arbitrage functionality
@@ -53,6 +54,15 @@ ctest --output-on-failure
 
 # Run specific test
 ctest -R ModernFormatTests
+```
+
+### Run Shell Script Tests
+```bash
+# Test universal build script
+./test-universal-script.sh
+
+# Test with specific options
+./test-universal-script.sh --help
 ```
 
 ## 📊 Test Coverage

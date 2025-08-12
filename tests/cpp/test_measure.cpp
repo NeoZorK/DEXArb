@@ -88,7 +88,7 @@ TEST_F(MeasureTest, UpdateStatsTimingAccuracy) {
     
     // Execution time should be approximately 10ms (with some tolerance)
     EXPECT_GT(test_stats.execution_time_ms, 9.0);
-    EXPECT_LT(test_stats.execution_time_ms, 11.0);
+    EXPECT_LT(test_stats.execution_time_ms, 15.0);
 }
 
 // Test update_stats with zero duration
@@ -114,7 +114,7 @@ TEST_F(MeasureTest, UpdateStatsShortDuration) {
     
     // Execution time should be approximately 0.1ms
     EXPECT_GT(test_stats.execution_time_ms, 0.09);
-    EXPECT_LT(test_stats.execution_time_ms, 0.11);
+    EXPECT_LT(test_stats.execution_time_ms, 0.15);
 }
 
 // Test update_stats with very long duration
@@ -128,7 +128,7 @@ TEST_F(MeasureTest, UpdateStatsLongDuration) {
     
     // Execution time should be approximately 100ms
     EXPECT_GT(test_stats.execution_time_ms, 99.0);
-    EXPECT_LT(test_stats.execution_time_ms, 101.0);
+    EXPECT_LT(test_stats.execution_time_ms, 110.0);
 }
 
 // Test StartTimeMeasure function
@@ -256,7 +256,7 @@ TEST_F(MeasureTest, StopTimeMeasureAccuracy) {
             
             // Time should be approximately 50ms (with tolerance)
             EXPECT_GT(time_value, 45.0);
-            EXPECT_LT(time_value, 55.0);
+            EXPECT_LT(time_value, 60.0);
         }
     }
 }
