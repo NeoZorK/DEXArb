@@ -144,15 +144,12 @@ void HelpDisplay::show_table_row(const std::vector<std::string>& values, std::os
 }
 
 void HelpDisplay::show_separator(std::ostream& output) {
-    output << format_text("╔══════════════════════════════════════════════════════════════════════════════╗", CYAN) << '\n';
-    output << format_text("╚══════════════════════════════════════════════════════════════════════════════╝", CYAN) << '\n';
+    output << '\n';
 }
 
 void HelpDisplay::show_banner(std::ostream& output) {
     output << "\n";
-    output << format_text("╔══════════════════════════════════════════════════════════════════════════════╗", CYAN) << '\n';
-    output << format_text("║", CYAN) << "                    " << format_text("🚀 DEX Arbitrage Scanner v" + get_project_version(), GREEN) << "                    " << format_text("║", CYAN) << '\n';
-    output << format_text("╚══════════════════════════════════════════════════════════════════════════════╝", CYAN) << '\n';
+    output << format_text("🚀 DEX Arbitrage Scanner v" + get_project_version(), GREEN) << '\n';
 }
 
 std::string HelpDisplay::get_project_version() {

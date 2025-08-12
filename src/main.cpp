@@ -27,9 +27,7 @@ void show_help() {
     modern_utils::Logger::info("Displaying help information");
     
     std::cout << "\n";
-    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                         " << CYAN << "║" << RESET << '\n';
-    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << '\n';
     std::cout << "\n";
     
     std::cout << YELLOW << "📖 USAGE" << RESET << '\n';
@@ -70,9 +68,7 @@ void show_help() {
     std::cout << "   " << BLUE << "•" << RESET << " Use 10,000-50,000 blocks for discovery\n";
     std::cout << "   " << BLUE << "•" << RESET << " 100,000+ blocks for deep analysis\n\n";
     
-    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "                    " << CYAN << "║" << RESET << '\n';
-    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << '\n';
     std::cout << "\n";
 }
 
@@ -81,9 +77,7 @@ void show_version() {
     modern_utils::Logger::info("Displaying version information");
     
     std::cout << "\n";
-    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << "                    " << CYAN << "║" << RESET << '\n';
-    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << GREEN << "🚀 DEX Arbitrage Scanner v" << PROJECT_VERSION << RESET << '\n';
     std::cout << "\n";
     std::cout << YELLOW << "📋 BUILD INFORMATION" << RESET << '\n';
     std::cout << "   " << BLUE << "•" << RESET << " Version: " << GREEN << PROJECT_VERSION << RESET << '\n';
@@ -91,9 +85,7 @@ void show_version() {
     std::cout << "   " << BLUE << "•" << RESET << " Language: C++20 (Modern C++)\n";
     std::cout << "   " << BLUE << "•" << RESET << " Platform: Cross-platform\n";
     std::cout << "   " << BLUE << "•" << RESET << " Features: Modern logging, JSON parsing, Error handling\n\n";
-    std::cout << CYAN << "╔══════════════════════════════════════════════════════════════════════════════╗" << RESET << '\n';
-    std::cout << CYAN << "║" << RESET << "                    " << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << "                    " << CYAN << "║" << RESET << '\n';
-    std::cout << CYAN << "╚══════════════════════════════════════════════════════════════════════════════╝" << RESET << '\n';
+    std::cout << GREEN << "🔗 Built for blockchain arbitrage opportunities" << RESET << '\n';
     std::cout << "\n";
 }
 
