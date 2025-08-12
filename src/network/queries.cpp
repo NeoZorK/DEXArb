@@ -168,6 +168,14 @@ void show_all_tokens(const std::vector<RpcEndpoint>& /* rpc_endpoints */) {
     // Collect tokens from all DEXes
     for (auto& dex : dex_list) { // Loop through all DEXes
         dex.pools.clear(); // Clear existing pools
+        
+        // Update pool count in real-time if it's 0
+        if (dex.pool_count == 0) {
+            FunctionStats stats;
+            dex.pool_count = get_pool_count("", dex.factory_address, 0, stats);
+            std::cout << "DEBUG: Updated pool count for " << dex.name << " to " << dex.pool_count << std::endl;
+        }
+        
         for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
             FunctionStats stats; // Stats for this operation
             std::string addr = get_pool_address("", dex.factory_address, i, 0, stats); // Get pool address
@@ -251,6 +259,14 @@ void show_all_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::st
     // Collect pools from all DEXes
     for (auto& dex : dex_list) { // Loop through all DEXes
         dex.pools.clear(); // Clear existing pools
+        
+        // Update pool count in real-time if it's 0
+        if (dex.pool_count == 0) {
+            FunctionStats stats;
+            dex.pool_count = get_pool_count(rpc_url, dex.factory_address, 0, stats);
+            std::cout << "DEBUG: Updated pool count for " << dex.name << " to " << dex.pool_count << std::endl;
+        }
+        
         for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
             FunctionStats stats; // Stats for this operation
             std::string addr = get_pool_address(rpc_url, dex.factory_address, i, 0, stats); // Get pool address

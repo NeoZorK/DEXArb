@@ -18,6 +18,8 @@
 #include <algorithm>        // For std::transform
 #include <vector>           // For std::vector
 #include <string>           // For std::string
+#include <fstream>          // For file operations
+#include <sstream>          // For stringstream
 
 // Global Project Version
 const std::string PROJECT_VERSION = "1.0.7";
@@ -32,25 +34,60 @@ void show_version();
 
 // Helper functions
 std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& blockchain) {
-    // TODO: Implement actual config loading
     std::vector<RpcEndpoint> endpoints;
-    if (blockchain == "fantom") {
-        endpoints.push_back(RpcEndpoint("https://fantom.publicnode.com", 15));
-        endpoints.push_back(RpcEndpoint("https://rpc.fantom.network", 20));
-        endpoints.push_back(RpcEndpoint("https://fantom.blockpi.network/v1/rpc/public", 25));
-    } else if (blockchain == "ethereum") {
-        endpoints.push_back(RpcEndpoint("https://rpc.ankr.com/eth", 20));
-        endpoints.push_back(RpcEndpoint("https://eth.llamarpc.com", 25));
-    } else if (blockchain == "bsc") {
-        endpoints.push_back(RpcEndpoint("https://bsc-dataseed.binance.org", 20));
-        endpoints.push_back(RpcEndpoint("https://bsc-dataseed1.defibit.io", 25));
-    } else if (blockchain == "polygon") {
-        endpoints.push_back(RpcEndpoint("https://polygon-rpc.com", 20));
-        endpoints.push_back(RpcEndpoint("https://rpc-mainnet.matic.network", 25));
-    } else if (blockchain == "avalanche") {
-        endpoints.push_back(RpcEndpoint("https://api.avax.network/ext/bc/C/rpc", 20));
-        endpoints.push_back(RpcEndpoint("https://rpc.ankr.com/avalanche", 25));
+    
+    // Read config file
+    std::ifstream config_file("neozork-config");
+    if (!config_file.is_open()) {
+        std::cerr << "Error: Could not open neozork-config file" << std::endl;
+        return endpoints;
     }
+    
+    std::stringstream buffer;
+    buffer << config_file.rdbuf();
+    std::string content = buffer.str();
+    config_file.close();
+    
+    // Find blockchain section
+    std::string blockchain_section = "\"" + blockchain + "\":";
+    size_t blockchain_pos = content.find(blockchain_section);
+    if (blockchain_pos == std::string::npos) {
+        std::cerr << "Error: Blockchain " << blockchain << " not found in config" << std::endl;
+        return endpoints;
+    }
+    
+    // Find RPC section within blockchain
+    size_t rpc_pos = content.find("\"rpc\": [", blockchain_pos);
+    if (rpc_pos == std::string::npos) {
+        std::cerr << "Error: RPC section not found for " << blockchain << std::endl;
+        return endpoints;
+    }
+    
+    // Parse RPC endpoints
+    size_t rpc_end = content.find("]", rpc_pos);
+    size_t pos = rpc_pos + 8; // Move past "rpc": [
+    
+    while (pos < rpc_end) {
+        size_t url_start = content.find("\"url\": \"", pos) + 8;
+        size_t url_end = content.find('"', url_start);
+        std::string url = content.substr(url_start, url_end - url_start);
+        
+        size_t limit_start = content.find("\"limit\": ", url_end) + 9;
+        size_t limit_end = content.find_first_of(",}", limit_start);
+        std::string limit_str = content.substr(limit_start, limit_end - limit_start);
+        
+        try {
+            int limit = std::stoi(limit_str);
+            endpoints.push_back(RpcEndpoint(url, limit));
+            std::cout << "DEBUG: Loaded RPC endpoint: " << url << " with limit: " << limit << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing limit for " << url << ": " << e.what() << std::endl;
+        }
+        
+        pos = content.find("{", pos + 1);
+        if (pos == std::string::npos) break;
+    }
+    
     return endpoints;
 }
 

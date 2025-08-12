@@ -2,18 +2,38 @@
   "ethereum": {
     "threads": 3,
     "rpc": [
-      {"url": "https://rpc.ankr.com/eth", "limit": 20},
-      {"url": "https://eth.llamarpc.com", "limit": 25}
+      {"url": "https://eth.llamarpc.com", "limit": 25},
+      {"url": "https://ethereum.publicnode.com", "limit": 30}
     ],
     "dex": [
-
+    {"name": "Uniswap V2", "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f", "pools": 0},
+    {"name": "Uniswap V3", "address": "0x1F98431c8aD98523631AE4a59f267346ea31F984", "pools": 0},
+    {"name": "SushiSwap", "address": "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac", "pools": 0},
+    {"name": "Unknown_7a250d", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0},
+    {"name": "Unknown_d9e1cE", "address": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", "pools": 0},
+    {"name": "Balancer V2", "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8", "pools": 0},
+    {"name": "Unknown_E6E90a", "address": "0xE6E90a64C218592012B611C1B424eb956B0DbF55", "pools": 0},
+    {"name": "1inch V4", "address": "0x1111111254EEB25477B68fb85Ed929f73A960582", "pools": 0},
+    {"name": "Unknown_7a250d", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0},
+    {"name": "Unknown_7D5A56", "address": "0x7D5A56714658E5B9BfBfB8B8B8B8B8B8B8B8B8B8", "pools": 0},
+    {"name": "Unknown_99a584", "address": "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0},
+    {"name": "Unknown_7a250d", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0},
+    {"name": "Unknown_7a250d", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0},
+    {"name": "Unknown_7a250d", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "pools": 0},
+    {"name": "Unknown_E59242", "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564", "pools": 0}
   ]
   },
   "fantom": {
     "threads": 3,
     "rpc": [
+      {"url": "https://fantom.publicnode.com", "limit": 30},
       {"url": "https://rpc.fantom.network", "limit": 25},
-      {"url": "https://fantom.publicnode.com", "limit": 30}
+      {"url": "https://rpc.ftm.tools", "limit": 20}
     ],
     "dex": [
     {"name": "SpookySwap", "address": "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15", "pools": 0},
@@ -23,7 +43,11 @@
     {"name": "PaintSwap", "address": "0x7C38c8b64cFA865a8e23906A5b5F8F560a42c2A5", "pools": 0},
     {"name": "SushiSwap", "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", "pools": 0},
     {"name": "Curve", "address": "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", "pools": 0},
-    {"name": "Solidly", "address": "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7", "pools": 0}
+    {"name": "Solidly", "address": "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7", "pools": 0},
+    {"name": "Beethoven X V2", "address": "0x2F4bdafb22bd92AA7b755a090E0f6E8cbc4858D5", "pools": 0},
+    {"name": "Beethoven X V3", "address": "0x20dd72Ed959b6147912C2e529F0a0C651c33c9ce", "pools": 0},
+    {"name": "Curve", "address": "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", "pools": 0},
+    {"name": "Unknown_99a584", "address": "0x99a58482BD75cbab83b27EC03CA68fF489b5788f", "pools": 0}
   ]
   },
   "bsc": {
@@ -87,8 +111,8 @@
   "avalanche": {
     "threads": 3,
     "rpc": [
-      {"url": "https://rpc.ankr.com/avalanche", "limit": 20},
-      {"url": "https://api.avax.network/ext/bc/C/rpc", "limit": 25}
+      {"url": "https://api.avax.network/ext/bc/C/rpc", "limit": 25},
+      {"url": "https://avalanche.publicnode.com", "limit": 30}
     ],
     "dex": [
     {"name": "TraderJoe", "address": "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10", "pools": 0},
