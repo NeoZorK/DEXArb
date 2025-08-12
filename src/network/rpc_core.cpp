@@ -33,6 +33,12 @@ size_t write_callback(char* data, size_t size, size_t nmemb, std::string& buffer
 // - json: The JSON string to parse
 // Returns: The value of the "result" field or an empty string if not found
 std::string parse_json_result(const std::string& json) {
+    // Check for error response first
+    if (json.find("\"error\":") != std::string::npos) {
+        std::cerr << RED << "RPC Error: " << json << RESET << '\n';
+        return ""; // Return empty string for error responses
+    }
+    
     // Simple string-based JSON parser for RPC responses
     // Look for "result": "value" pattern
     size_t result_pos = json.find("\"result\":");

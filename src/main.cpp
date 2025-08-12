@@ -12,6 +12,7 @@
 #include "../include/network/queries.h"        // For query functions
 #include "../include/utils/input.h"          // For input/output functions
 #include "../include/cli/help_display.h"     // For help display
+#include "../include/cli/command_parser.h"   // For command parsing and network ID support
 #include "../include/utils/measure.h"        // For timing functions
 #include <iostream>         // For console I/O
 #include <algorithm>        // For std::transform
@@ -34,8 +35,9 @@ std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& block
     // TODO: Implement actual config loading
     std::vector<RpcEndpoint> endpoints;
     if (blockchain == "fantom") {
-        endpoints.push_back(RpcEndpoint("https://rpc.ftm.tools", 20));
-        endpoints.push_back(RpcEndpoint("https://fantom-mainnet.public.blastapi.io", 25));
+        endpoints.push_back(RpcEndpoint("https://fantom.publicnode.com", 15));
+        endpoints.push_back(RpcEndpoint("https://rpc.fantom.network", 20));
+        endpoints.push_back(RpcEndpoint("https://fantom.blockpi.network/v1/rpc/public", 25));
     } else if (blockchain == "ethereum") {
         endpoints.push_back(RpcEndpoint("https://rpc.ankr.com/eth", 20));
         endpoints.push_back(RpcEndpoint("https://eth.llamarpc.com", 25));
@@ -257,19 +259,28 @@ int main(int argc, char* argv[]) {
     
     modern_utils::Logger::info("Processing command: " + flag + " for blockchain: " + blockchain_str);
     
+    // Use command parser to handle blockchain names and network IDs
+    std::string normalized_blockchain;
+    if (cli::CommandParser::is_network_id(blockchain_str)) {
+        normalized_blockchain = cli::CommandParser::network_id_to_blockchain(blockchain_str);
+        modern_utils::Logger::info("Network ID " + blockchain_str + " converted to: " + normalized_blockchain);
+    } else {
+        normalized_blockchain = blockchain_str;
+    }
+    
     // Convert string to blockchain type
     BlockchainType blockchain;
-    if (blockchain_str == "ethereum") {
+    if (normalized_blockchain == "ethereum") {
         blockchain = BlockchainType::Ethereum;
-    } else if (blockchain_str == "fantom") {
+    } else if (normalized_blockchain == "fantom") {
         blockchain = BlockchainType::Fantom;
-    } else if (blockchain_str == "bsc") {
+    } else if (normalized_blockchain == "bsc") {
         blockchain = BlockchainType::BSC;
-    } else if (blockchain_str == "polygon") {
+    } else if (normalized_blockchain == "polygon") {
         blockchain = BlockchainType::Polygon;
-    } else if (blockchain_str == "avalanche") {
+    } else if (normalized_blockchain == "avalanche") {
         blockchain = BlockchainType::Avalanche;
-    } else if (blockchain_str == "solana") {
+    } else if (normalized_blockchain == "solana") {
         blockchain = BlockchainType::Solana;
     } else {
         modern_utils::Logger::error("Unsupported blockchain: " + blockchain_str);
@@ -278,7 +289,7 @@ int main(int argc, char* argv[]) {
     }
     
     // Load configuration
-    std::vector<RpcEndpoint> rpc_endpoints = load_rpc_endpoints_from_config(blockchain_str);
+    std::vector<RpcEndpoint> rpc_endpoints = load_rpc_endpoints_from_config(normalized_blockchain);
     if (rpc_endpoints.empty()) {
         modern_utils::Logger::error("No RPC endpoints found for " + blockchain_str);
         std::cerr << RED << "Error: No RPC endpoints configured" << RESET << '\n';

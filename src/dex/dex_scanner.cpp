@@ -44,12 +44,24 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
 
         // Temporary stats object for fetching the latest block number
         FunctionStats block_stats;
-        // Fetch the latest block number in hex format from the first RPC endpoint
-        std::string latest_block_hex = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats);
-        // Check if the block number fetch failed
-        if (latest_block_hex.empty()) {
+        // Try to fetch the latest block number from available RPC endpoints
+        std::string latest_block_hex;
+        bool block_fetched = false;
+        
+        for (const auto& endpoint : rpc_endpoints) {
+            std::cout << "DEBUG: Trying RPC endpoint: " << endpoint.url << std::endl;
+            latest_block_hex = get_latest_block_number(endpoint.url, endpoint.request_limit, block_stats);
+            if (!latest_block_hex.empty()) {
+                std::cout << "DEBUG: Successfully fetched block from: " << endpoint.url << std::endl;
+                block_fetched = true;
+                break;
+            }
+        }
+        
+        // Check if the block number fetch failed from all endpoints
+        if (!block_fetched) {
             // Print error message to console
-            std::cerr << RED << "Failed to fetch latest block" << RESET << '\n';
+            std::cerr << RED << "Failed to fetch latest block from all RPC endpoints" << RESET << '\n';
             // Exit the function early
             return;
         }

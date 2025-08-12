@@ -5,7 +5,9 @@
       {"url": "https://rpc.ankr.com/eth", "limit": 20},
       {"url": "https://eth.llamarpc.com", "limit": 25}
     ],
-    "dex": []
+    "dex": [
+
+  ]
   },
   "fantom": {
     "threads": 3,
