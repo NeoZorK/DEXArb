@@ -26,6 +26,7 @@ namespace cli {
             case CommandType::VERSION_CMD: return os << "VERSION_CMD";
             case CommandType::SCAN: return os << "SCAN";
             case CommandType::SHOW_DEXES: return os << "SHOW_DEXES";
+            case CommandType::SHOW_ALL_DEXES: return os << "SHOW_ALL_DEXES";
             case CommandType::SHOW_POOLS: return os << "SHOW_POOLS";
             case CommandType::SHOW_TOKENS: return os << "SHOW_TOKENS";
             case CommandType::SHOW_SCAN_CONFIG: return os << "SHOW_SCAN_CONFIG";

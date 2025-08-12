@@ -167,6 +167,10 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-examples") {
             cli::HelpDisplay::show_examples();
             return 0;
+        } else if (flag == "-dexes") {
+            modern_utils::Logger::info("Showing all known DEXes by blockchain");
+            show_all_dexes_by_blockchain();
+            return 0;
         } else if (flag == "-scan") {
             // Handle scan with default blockchain and block count
             modern_utils::Logger::info("Starting scan with default parameters (fantom, 1000 blocks)");
@@ -244,13 +248,6 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    if (argc < 3) {
-        // Error for insufficient args (Exit)
-        modern_utils::Logger::error("Insufficient arguments: " + std::to_string(argc));
-        std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
-        return 1;
-    }
-
     // Parse command using the new CommandParser
     auto cmd = cli::CommandParser::parse(argc, const_cast<const char**>(argv));
     
@@ -261,6 +258,35 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
+    // Handle commands that don't require blockchain
+    if (cmd.type == cli::CommandType::HELP) {
+        cli::HelpDisplay::show_help();
+        return 0;
+    }
+    
+    if (cmd.type == cli::CommandType::VERSION_CMD) {
+        cli::HelpDisplay::show_version();
+        return 0;
+    }
+    
+    if (cmd.type == cli::CommandType::EXAMPLES) {
+        cli::HelpDisplay::show_examples();
+        return 0;
+    }
+    
+    if (cmd.type == cli::CommandType::SHOW_ALL_DEXES) {
+        modern_utils::Logger::info("Showing all known DEXes by blockchain");
+        show_all_dexes_by_blockchain();
+        return 0;
+    }
+    
+    // For other commands, check if blockchain is required
+    if (cmd.blockchain.empty()) {
+        modern_utils::Logger::error("Blockchain required for command: " + cmd.flag);
+        std::cerr << RED << "Error: Specify blockchain. Run without args for help." << RESET << '\n';
+        return 1;
+    }
+
     modern_utils::Logger::info("Processing command: " + cmd.flag + " for blockchain: " + cmd.blockchain);
     
     // Use normalized blockchain from command parser
@@ -364,9 +390,22 @@ int main(int argc, char* argv[]) {
             break;
         }
         
+        case cli::CommandType::SHOW_ALL_DEXES: {
+            modern_utils::Logger::info("Showing all known DEXes by blockchain");
+            show_all_dexes_by_blockchain();
+            break;
+        }
+        
         case cli::CommandType::SHOW_POOLS: {
-            modern_utils::Logger::info("Showing pools for DEX: " + cmd.dex_name);
-            show_pools(rpc_endpoints, cmd.dex_name);
+            if (cmd.dex_name.empty()) {
+                // showPOOLS without DEX parameter shows all pools across all DEXes
+                modern_utils::Logger::info("Showing all pools for " + normalized_blockchain);
+                show_all_pools(rpc_endpoints, normalized_blockchain);
+            } else {
+                // showPOOLS with DEX parameter shows pools for specific DEX
+                modern_utils::Logger::info("Showing pools for DEX: " + cmd.dex_name);
+                show_pools(rpc_endpoints, cmd.dex_name);
+            }
             break;
         }
         

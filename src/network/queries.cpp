@@ -11,6 +11,7 @@
 #include <iostream>         // For console output
 #include <thread>           // For multi-threading
 #include <algorithm>        // For std::find_if
+#include <map>             // For std::map
 
 void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_identifier) {
     // Load DEXes from config
@@ -188,5 +189,91 @@ void show_all_tokens(const std::vector<RpcEndpoint>& /* rpc_endpoints */) {
     
     for (const auto& token : all_unique_tokens) { // Loop through unique tokens
         std::cout << "Token: " << token << '\n'; // Print token address
+    }
+}
+
+void show_all_dexes_by_blockchain() {
+    // Define known DEXes for each blockchain
+    std::map<std::string, std::vector<std::string>> blockchain_dexes = {
+        {"Ethereum", {
+            "Uniswap V2", "Uniswap V3", "SushiSwap", "Curve", "Balancer", 
+            "1inch", "dYdX", "0x Protocol", "Kyber Network", "Bancor"
+        }},
+        {"Fantom", {
+            "SpookySwap", "SpiritSwap", "Beethoven X", "TombSwap", "PaintSwap", 
+            "SushiSwap", "Curve", "Solidly", "Tarot", "HyperJump"
+        }},
+        {"BSC", {
+            "PancakeSwap", "Biswap", "ApeSwap", "DODO", "1inch", 
+            "SushiSwap", "Curve", "Venus", "Alpaca Finance", "Ellipsis"
+        }},
+        {"Polygon", {
+            "QuickSwap", "SushiSwap", "Curve", "Balancer", "1inch", 
+            "dYdX", "0x Protocol", "Kyber Network", "Bancor", "Aave"
+        }},
+        {"Avalanche", {
+            "TraderJoe", "Pangolin", "SushiSwap", "Curve", "1inch", 
+            "dYdX", "0x Protocol", "Kyber Network", "Bancor", "Yield Yak"
+        }},
+        {"Solana", {
+            "Raydium", "Orca", "Serum", "Saber", "Aldrin", 
+            "Lifinity", "Crema", "Step", "Meteora", "Jupiter"
+        }}
+    };
+    
+    std::cout << GREEN << "Known DEXes by Blockchain:" << RESET << '\n';
+    std::cout << std::string(60, '=') << '\n';
+    
+    for (const auto& [blockchain, dexes] : blockchain_dexes) {
+        std::cout << YELLOW << blockchain << ":" << RESET << '\n';
+        for (const auto& dex : dexes) {
+            std::cout << "  • " << dex << '\n';
+        }
+        std::cout << '\n';
+    }
+}
+
+void show_all_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& blockchain) {
+    // Load DEXes from config for the specified blockchain
+    std::vector<DexInfo> dex_list = load_dexes_from_config(); // Get DEX list
+    
+    // Get RPC endpoint URL
+    std::string rpc_url = "";
+    if (!rpc_endpoints.empty()) {
+        rpc_url = rpc_endpoints[0].url; // Use first RPC endpoint
+    }
+    
+    std::cout << GREEN << "All pools found in " << blockchain << ":" << RESET << '\n';
+    std::cout << std::string(60, '=') << '\n';
+    
+    bool found_any_pools = false;
+    
+    // Collect pools from all DEXes
+    for (auto& dex : dex_list) { // Loop through all DEXes
+        dex.pools.clear(); // Clear existing pools
+        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
+            FunctionStats stats; // Stats for this operation
+            std::string addr = get_pool_address(rpc_url, dex.factory_address, i, 0, stats); // Get pool address
+            if (!addr.empty()) { // Check if address is valid
+                auto [token0, token1] = get_pool_tokens(rpc_url, addr, 0, stats); // Get tokens
+                uint64_t liquidity = get_pool_liquidity(rpc_url, addr, 0, stats); // Get liquidity
+                dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
+            }
+        }
+        
+        // Display pools for this DEX if any found
+        if (!dex.pools.empty()) {
+            found_any_pools = true;
+            std::cout << YELLOW << "DEX: " << dex.name << " (" << dex.factory_address << ")" << RESET << '\n';
+            for (const auto& pool : dex.pools) { // Loop through pools
+                std::cout << "  Pool: " << pool.address << ", Token0: " << pool.token0 
+                          << ", Token1: " << pool.token1 << ", Liquidity: " << pool.liquidity << '\n';
+            }
+            std::cout << '\n';
+        }
+    }
+    
+    if (!found_any_pools) {
+        std::cout << YELLOW << "No pools found for " << blockchain << RESET << '\n';
     }
 }

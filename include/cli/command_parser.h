@@ -20,6 +20,7 @@ enum class CommandType {
     EXAMPLES,
     SCAN,
     SHOW_DEXES,
+    SHOW_ALL_DEXES,
     SHOW_POOLS,
     SHOW_TOKENS,
     SHOW_SCAN_CONFIG,

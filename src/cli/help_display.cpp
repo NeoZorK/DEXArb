@@ -143,9 +143,10 @@ void HelpDisplay::show_command_flags(std::ostream& output) {
     output << "      " << format_text("-showSCAN-STAT", BLUE) << format_column("", 2) << "<blockchain>              " << format_text("Show scan stats", CYAN) << '\n\n';
     
     output << "   " << format_text("DEX Analysis", GREEN) << '\n';
-    output << "      " << format_text("-showDEXES", BLUE) << format_column("", 4) << "<blockchain>              " << format_text("Show all DEXes", CYAN) << '\n';
-    output << "      " << format_text("-showPOOLS", BLUE) << format_column("", 4) << "<blockchain> <DEX>         " << format_text("Show DEX pools", CYAN) << '\n';
-    output << "      " << format_text("-showTOKENS", BLUE) << format_column("", 3) << "<blockchain> <DEX>         " << format_text("Show DEX tokens", CYAN) << '\n\n';
+    output << "      " << format_text("-dexes", BLUE) << format_column("", 8) << "                              " << format_text("Show all known DEXes by blockchain", CYAN) << '\n';
+    output << "      " << format_text("-showDEXES", BLUE) << format_column("", 4) << "<blockchain>              " << format_text("Show discovered DEXes", CYAN) << '\n';
+    output << "      " << format_text("-showPOOLS", BLUE) << format_column("", 4) << "<blockchain> [DEX]        " << format_text("Show pools (all or specific DEX)", CYAN) << '\n';
+    output << "      " << format_text("-showTOKENS", BLUE) << format_column("", 3) << "<blockchain> [DEX]        " << format_text("Show tokens (all or specific DEX)", CYAN) << '\n\n';
     
     output << "   " << format_text("Token Search", GREEN) << '\n';
     output << "      " << format_text("-findTOKEN", BLUE) << format_column("", 4) << "<blockchain> <DEX> <token> " << format_text("Find token in DEX", CYAN) << '\n';

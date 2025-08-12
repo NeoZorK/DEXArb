@@ -73,6 +73,7 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
             break;
             
         case CommandType::SHOW_DEXES:
+        case CommandType::SHOW_ALL_DEXES:
         case CommandType::SHOW_SCAN_CONFIG:
         case CommandType::SHOW_SCAN:
         case CommandType::SHOW_SCAN_STAT:
@@ -108,18 +109,20 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
                 if (!validate_command(cmd)) {
                     cmd.is_valid = false;
                 }
-            } else if (argc >= 3) {
-                // Set blockchain but mark as invalid due to missing DEX
+            } else if (argc == 3) {
+                // Allow blockchain-only for showPOOLS and showTOKENS (shows all pools/tokens)
                 std::string blockchain_or_id = argv[2];
                 if (is_network_id(blockchain_or_id)) {
                     cmd.blockchain = network_id_to_blockchain(blockchain_or_id);
                 } else {
                     cmd.blockchain = blockchain_or_id;
                 }
-                cmd.is_valid = false;
-                cmd.error_message = "Command requires blockchain and DEX parameters";
+                cmd.is_valid = true;
+                if (!validate_command(cmd)) {
+                    cmd.is_valid = false;
+                }
             } else {
-                cmd.error_message = "Command requires blockchain and DEX parameters";
+                cmd.error_message = "Command requires blockchain parameter";
             }
             break;
             
@@ -225,6 +228,8 @@ CommandType CommandParser::string_to_command_type(std::string_view flag) {
         return CommandType::SCAN;
     } else if (flag == "-showDEXES" || flag == "--show-dexes") {
         return CommandType::SHOW_DEXES;
+    } else if (flag == "-dexes" || flag == "--dexes") {
+        return CommandType::SHOW_ALL_DEXES;
     } else if (flag == "-showPOOLS" || flag == "--show-pools") {
         return CommandType::SHOW_POOLS;
     } else if (flag == "-showTOKENS" || flag == "--show-tokens") {
@@ -251,6 +256,7 @@ std::string CommandParser::get_command_description(CommandType type) {
         case CommandType::EXAMPLES: return "Display detailed examples";
         case CommandType::SCAN: return "Scan blockchain for arbitrage opportunities";
         case CommandType::SHOW_DEXES: return "Show available DEXes for blockchain";
+        case CommandType::SHOW_ALL_DEXES: return "Show all known DEXes by blockchain";
         case CommandType::SHOW_POOLS: return "Show pools for specific DEX";
         case CommandType::SHOW_TOKENS: return "Show tokens for specific DEX";
         case CommandType::SHOW_SCAN_CONFIG: return "Show scan configuration";
@@ -273,8 +279,7 @@ bool CommandParser::requires_value(CommandType type) {
 }
 
 bool CommandParser::requires_dex(CommandType type) {
-    return type == CommandType::SHOW_POOLS || type == CommandType::SHOW_TOKENS || 
-           type == CommandType::FIND_TOKEN;
+    return type == CommandType::FIND_TOKEN;
 }
 
 bool CommandParser::requires_token(CommandType type) {
