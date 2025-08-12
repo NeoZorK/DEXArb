@@ -61,17 +61,19 @@ TEST_F(DexScannerTest, BasicFunctionCall) {
     // This test verifies that the function can be called without crashing
     // Since we can't mock CURL easily in unit tests, we test the function structure
     
-    // Capture stdout to verify output
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Call the function - it will fail at RPC level but should not crash
     find_factory_contracts(test_rpc_endpoints, mock_blockchain_type, 
                           test_scan_range, test_thread_count, 
                           test_mutex, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Function should complete without crashing
     // Output should contain either success message or error message
@@ -110,17 +112,19 @@ TEST_F(DexScannerTest, EmptyRpcEndpoints) {
 TEST_F(DexScannerTest, ZeroScanRange) {
     uint64_t zero_scan_range = 0;
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Call function with zero scan range
     find_factory_contracts(test_rpc_endpoints, mock_blockchain_type, 
                           zero_scan_range, test_thread_count, 
                           test_mutex, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Should handle zero scan range gracefully
     std::string output = buffer.str();
@@ -135,17 +139,19 @@ TEST_F(DexScannerTest, ZeroScanRange) {
 TEST_F(DexScannerTest, SingleThread) {
     int single_thread = 1;
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Call function with single thread
     find_factory_contracts(test_rpc_endpoints, mock_blockchain_type, 
                           test_scan_range, single_thread, 
                           test_mutex, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Should work with single thread
     std::string output = buffer.str();
@@ -160,17 +166,19 @@ TEST_F(DexScannerTest, SingleThread) {
 TEST_F(DexScannerTest, LargeThreadCount) {
     int large_thread_count = 100;
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Call function with large thread count
     find_factory_contracts(test_rpc_endpoints, mock_blockchain_type, 
                           test_scan_range, large_thread_count, 
                           test_mutex, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Should handle large thread count gracefully
     std::string output = buffer.str();
@@ -193,17 +201,19 @@ TEST_F(DexScannerTest, DifferentBlockchainTypes) {
     };
     
     for (const auto& chain_type : blockchain_types) {
-        // Capture stdout
+        // Capture stdout and redirect stderr to suppress RPC error messages
         std::stringstream buffer;
-        std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+        std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+        std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
         
         // Call function with different blockchain type
         find_factory_contracts(test_rpc_endpoints, chain_type, 
                               test_scan_range, test_thread_count, 
                               test_mutex, test_dex_list, test_stats);
         
-        // Restore stdout
-        std::cout.rdbuf(old);
+        // Restore stdout and stderr
+        std::cout.rdbuf(old_cout);
+        std::cerr.rdbuf(old_cerr);
         
         // Should work with all blockchain types
         std::string output = buffer.str();
@@ -224,9 +234,10 @@ TEST_F(DexScannerTest, MutexFunctionality) {
     // Test that mutex is properly used
     // This is a basic test to ensure the mutex parameter is accepted
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Create a new mutex for this test
     std::mutex test_mutex_local;
@@ -236,8 +247,9 @@ TEST_F(DexScannerTest, MutexFunctionality) {
                           test_scan_range, test_thread_count, 
                           test_mutex_local, test_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Function should complete without mutex-related crashes
     std::string output = buffer.str();
@@ -252,9 +264,10 @@ TEST_F(DexScannerTest, MutexFunctionality) {
 TEST_F(DexScannerTest, StatsParameterHandling) {
     // Test that stats are properly handled
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Create stats with initial values
     FunctionStats initial_stats;
@@ -271,8 +284,9 @@ TEST_F(DexScannerTest, StatsParameterHandling) {
                           test_scan_range, test_thread_count, 
                           test_mutex, test_dex_list, initial_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Function should complete
     std::string output = buffer.str();
@@ -290,9 +304,10 @@ TEST_F(DexScannerTest, StatsParameterHandling) {
 TEST_F(DexScannerTest, DexListParameterHandling) {
     // Test that dex_list is properly handled
     
-    // Capture stdout
+    // Capture stdout and redirect stderr to suppress RPC error messages
     std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cout = std::cout.rdbuf(buffer.rdbuf());
+    std::streambuf* old_cerr = std::cerr.rdbuf(nullptr); // Suppress stderr
     
     // Create dex_list with initial data
     std::vector<DexInfo> initial_dex_list;
@@ -304,8 +319,9 @@ TEST_F(DexScannerTest, DexListParameterHandling) {
                           test_scan_range, test_thread_count, 
                           test_mutex, initial_dex_list, test_stats);
     
-    // Restore stdout
-    std::cout.rdbuf(old);
+    // Restore stdout and stderr
+    std::cout.rdbuf(old_cout);
+    std::cerr.rdbuf(old_cerr);
     
     // Function should complete
     std::string output = buffer.str();
