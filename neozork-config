@@ -16,7 +16,14 @@
       {"url": "https://fantom.publicnode.com", "limit": 30}
     ],
     "dex": [
-
+    {"name": "SpookySwap", "address": "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15", "pools": 0},
+    {"name": "SpiritSwap", "address": "0xEF45d134b73241eDa7703fa787148D9C9F4950b0", "pools": 0},
+    {"name": "Beethoven X", "address": "0x9DEB29c9a4c7A88a3C0257393b7f3335338D9A9D", "pools": 0},
+    {"name": "TombSwap", "address": "0x2b4C76d0dc16BE1C31D4C1DC53bF9B45987Fc75c", "pools": 0},
+    {"name": "PaintSwap", "address": "0x7C38c8b64cFA865a8e23906A5b5F8F560a42c2A5", "pools": 0},
+    {"name": "SushiSwap", "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", "pools": 0},
+    {"name": "Curve", "address": "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", "pools": 0},
+    {"name": "Solidly", "address": "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7", "pools": 0}
   ]
   },
   "bsc": {
@@ -25,7 +32,9 @@
       {"url": "https://bsc-dataseed.binance.org", "limit": 50},
       {"url": "https://rpc.ankr.com/bsc", "limit": 30}
     ],
-    "dex": []
+    "dex": [
+
+  ]
   },
   "polygon": {
     "threads": 3,

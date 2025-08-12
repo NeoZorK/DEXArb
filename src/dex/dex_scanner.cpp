@@ -29,6 +29,18 @@
 void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[maybe_unused]] BlockchainType chain, uint64_t scan_range,
                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     try {
+        // Known DEX factory addresses for Fantom
+        static const std::vector<std::string> known_fantom_factories = {
+            "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15", // SpookySwap
+            "0xEF45d134b73241eDa7703fa787148D9C9F4950b0", // SpiritSwap
+            "0x9DEB29c9a4c7A88a3C0257393b7f3335338D9A9D", // Beethoven X
+            "0x2b4C76d0dc16BE1C31D4C1DC53bF9B45987Fc75c", // TombSwap
+            "0x7C38c8b64cFA865a8e23906A5b5F8F560a42c2A5", // PaintSwap
+            "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506", // SushiSwap
+            "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a", // Curve
+            "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7"  // Solidly
+        };
+
         std::cout << "DEBUG: find_factory_contracts called with " << rpc_endpoints.size() << " endpoints" << std::endl;
         
         // Check if we have RPC endpoints
@@ -77,6 +89,38 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
         // Calculate the starting block number based on the scan range
         uint64_t from_block = latest_block - scan_range;
 
+        // Add known DEXes for Fantom
+        if (chain == BlockchainType::Fantom) {
+            std::cout << "DEBUG: Adding known Fantom DEXes" << std::endl;
+            for (const auto& factory : known_fantom_factories) {
+                DexInfo dex;
+                if (factory == "0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15") {
+                    dex.name = "SpookySwap";
+                } else if (factory == "0xEF45d134b73241eDa7703fa787148D9C9F4950b0") {
+                    dex.name = "SpiritSwap";
+                } else if (factory == "0x9DEB29c9a4c7A88a3C0257393b7f3335338D9A9D") {
+                    dex.name = "Beethoven X";
+                } else if (factory == "0x2b4C76d0dc16BE1C31D4C1DC53bF9B45987Fc75c") {
+                    dex.name = "TombSwap";
+                } else if (factory == "0x7C38c8b64cFA865a8e23906A5b5F8F560a42c2A5") {
+                    dex.name = "PaintSwap";
+                } else if (factory == "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506") {
+                    dex.name = "SushiSwap";
+                } else if (factory == "0xE236f6890F1824fa0a7ffc39b4EBb77b5dBeed9a") {
+                    dex.name = "Curve";
+                } else if (factory == "0x6e553d5f028bD74735731d4E7333d39D2Bd0a9b7") {
+                    dex.name = "Solidly";
+                } else {
+                    dex.name = "Unknown_" + factory.substr(2, 6);
+                }
+                dex.factory_address = factory;
+                
+                std::lock_guard<std::mutex> lock(mtx);
+                dex_list.push_back(dex);
+            }
+            std::cout << "DEBUG: Added " << known_fantom_factories.size() << " known Fantom DEXes" << std::endl;
+        }
+
         // Atomic counter for tracking progress across threads
         std::atomic<uint64_t> progress(0);
         // Total number of blocks to scan (matches scan_range)
@@ -88,10 +132,10 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
 
         // List of known factory contract event signatures (e.g., PairCreated)
         std::vector<std::string> factory_signatures = {
-            "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9",
-            "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d",
-            "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e",
-            "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"
+            "0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9", // PairCreated
+            "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357afebc285893228c0d3d", // PoolCreated
+            "0xb4d9b203a63fc5e69007c33e27f88f7104df62db39e5f846d3da0d2cf255a00e", // PairCreated V3
+            "0x112c256902bf554d6b36ed07033bc67cf5e7f7a8e02d0c08d0a66c90a7d3c6f6"  // PoolCreated V3
         };
 
         // Launch threads for parallel block scanning

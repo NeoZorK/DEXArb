@@ -62,8 +62,11 @@ std::vector<DexInfo> load_dexes_from_config() {
             size_t pos = dex_pos + 1; // Move past "["
             while (pos < dex_end && pos < content.length()) { // Loop through DEX entries
                 std::cout << "DEBUG: Looking for factory_address starting from position " << pos << std::endl;
-                // Look for factory_address with possible whitespace
-                size_t addr_start = content.find("\"factory_address\"", pos); // Find factory address field
+                // Look for address field (could be "factory_address" or "address")
+                size_t addr_start = content.find("\"address\"", pos); // Find address field
+                if (addr_start == std::string::npos || addr_start > dex_end) {
+                    addr_start = content.find("\"factory_address\"", pos); // Try factory_address as fallback
+                }
                 if (addr_start == std::string::npos || addr_start > dex_end) {
                     std::cout << "DEBUG: factory_address not found or beyond dex_end" << std::endl;
                     break;
@@ -83,13 +86,20 @@ std::vector<DexInfo> load_dexes_from_config() {
                     std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
                     std::cout << "DEBUG: Found factory address: " << factory_address << std::endl;
 
-                    // Fix: create DexInfo object and set only required fields
-                    DexInfo dex;
-                    if (factory_address.length() >= 8) {
-                        dex.name = "Unknown_" + factory_address.substr(2, 6);
-                    } else {
-                        dex.name = "Unknown_" + factory_address;
+                    // Try to find name field
+                    std::string dex_name = "Unknown_" + factory_address.substr(2, 6);
+                    size_t name_start = content.find("\"name\": \"", pos);
+                    if (name_start != std::string::npos && name_start < addr_start) {
+                        name_start += 8; // Move past "name": "
+                        size_t name_end = content.find('"', name_start);
+                        if (name_end != std::string::npos && name_end < addr_start) {
+                            dex_name = content.substr(name_start, name_end - name_start);
+                        }
                     }
+
+                    // Create DexInfo object and set required fields
+                    DexInfo dex;
+                    dex.name = dex_name;
                     dex.factory_address = factory_address;
                     dex_list.push_back(dex); // Add to list
                 }
@@ -138,27 +148,44 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const
 
     // Update each DEX with fresh data
     for (auto& dex : dex_list) { // Loop through DEXes
-        dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, stats); // Update pool count
-        dex.pools.clear(); // Clear existing pools
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
-            std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats); // Get pool address
-            if (!addr.empty()) { // Check if address is valid
-                auto [token0, token1] = get_pool_tokens(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get tokens
-                uint64_t liquidity = get_pool_liquidity(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get liquidity
-                dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
-                dex.liquidity += liquidity; // Update total liquidity
-                dex.tvl += liquidity; // Update TVL (simplified)
+        try {
+            dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, stats); // Update pool count
+            std::cout << "DEBUG: DEX " << dex.name << " has " << dex.pool_count << " pools" << std::endl;
+            
+            dex.pools.clear(); // Clear existing pools
+            for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
+                std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats); // Get pool address
+                if (!addr.empty()) { // Check if address is valid
+                    auto [token0, token1] = get_pool_tokens(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get tokens
+                    uint64_t liquidity = get_pool_liquidity(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get liquidity
+                    dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
+                    dex.liquidity += liquidity; // Update total liquidity
+                    dex.tvl += liquidity; // Update TVL (simplified)
+                }
             }
+            
+            // Only process swap stats if we have pools
+            if (dex.pool_count > 0) {
+                std::mutex mtx; // Mutex for thread synchronization
+                std::atomic<int> progress(0); // Progress counter
+                std::vector<std::thread> threads; // Vector for threads
+                for (uint64_t i = 0; i < dex.pool_count; ++i) { // Launch thread for each pool
+                    threads.emplace_back(get_pool_swap_stats_thread, rpc_endpoints[0].url, dex.pools[i].address, from_block,
+                                         latest_block_num, rpc_endpoints[0].request_limit, std::ref(dex.volume_24h),
+                                         std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count); // Add thread
+                }
+                for (auto& t : threads) t.join(); // Wait for all threads to finish
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing DEX " << dex.name << ": " << e.what() << std::endl;
+            // Set default values for failed DEX
+            dex.pool_count = 0;
+            dex.pools.clear();
+            dex.liquidity = 0;
+            dex.tvl = 0;
+            dex.volume_24h = 0;
+            dex.tx_count_24h = 0;
         }
-        std::mutex mtx; // Mutex for thread synchronization
-        std::atomic<int> progress(0); // Progress counter
-        std::vector<std::thread> threads; // Vector for threads
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Launch thread for each pool
-            threads.emplace_back(get_pool_swap_stats_thread, rpc_endpoints[0].url, dex.pools[i].address, from_block,
-                                 latest_block_num, rpc_endpoints[0].request_limit, std::ref(dex.volume_24h),
-                                 std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count); // Add thread
-        }
-        for (auto& t : threads) t.join(); // Wait for all threads to finish
     }
 
     // Update the DEX section in the config for the specific blockchain
