@@ -4,11 +4,122 @@
 
 This document describes the implementation of three new command-line flags for the DEX Arbitrage Scanner:
 
-1. `-dexes` - Show all known DEXes organized by blockchain
+1. `-dexes` - Show all known DEXes organized by blockchain with comprehensive information
 2. `-showPOOLS <blockchain>` - Show all pools found in a blockchain (without requiring DEX parameter)
 3. `-showTOKENS <blockchain>` - Show all tokens found in a blockchain (without requiring DEX parameter)
 
 ## Implementation Details
+
+### 1. Enhanced Flag: `-dexes` (Comprehensive DEX Information)
+
+**Purpose**: Display all known DEXes organized by blockchain with detailed information
+
+**Enhanced Features**:
+- **Complete DEX Information**: Factory addresses, descriptions, protocol types, launch dates, websites, and features
+- **Visual Formatting**: Color-coded output with emojis for better readability
+- **Statistics**: Summary of total DEXes, supported blockchains, and protocol type distribution
+- **Usage Examples**: Quick reference for common commands
+
+**Supported Information for Each DEX**:
+- **Name**: DEX name (e.g., "Uniswap V2")
+- **Factory Address**: Smart contract address for the DEX factory
+- **Description**: Brief description of the DEX's purpose and functionality
+- **Protocol Type**: AMM, Aggregator, Derivatives, Infrastructure, Lending, Liquidity, Order Book, PMM, Yield
+- **Launch Date**: When the DEX was launched
+- **Website**: Official website URL
+- **Features**: Key features and capabilities
+
+**Example Output**:
+```bash
+🌐 Complete DEX Information by Blockchain
+================================================================================
+
+🔗 Ethereum (10 DEXes)
+------------------------------------------------------------
+  1. Uniswap V2
+     📍 Factory: 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f
+     📝 Description: Automated Market Maker (AMM) with constant product formula
+     🏷️  Type: AMM
+     📅 Launch: 2018-11-02
+     🌐 Website: uniswap.org
+     ⚡ Features: Permissionless, ERC-20 pairs, 0.3% fee
+
+📊 Summary Statistics
+----------------------------------------
+Total DEXes: 60
+Supported Blockchains: 6
+
+Protocol Types:
+  • AMM: 38 DEXes
+  • Aggregator: 5 DEXes
+  • Derivatives: 3 DEXes
+  • Infrastructure: 3 DEXes
+  • Lending: 3 DEXes
+  • Liquidity: 3 DEXes
+  • Order Book: 1 DEXes
+  • PMM: 1 DEXes
+  • Yield: 2 DEXes
+```
+
+**Implementation**:
+- Added `DexDetails` struct with comprehensive information fields
+- Enhanced `show_all_dexes_by_blockchain()` function with detailed data
+- Added visual formatting with colors and emojis
+- Implemented statistics calculation and display
+- Added usage examples section
+
+**Supported Blockchains**:
+- **Ethereum**: Uniswap V2/V3, SushiSwap, Curve, Balancer, 1inch, dYdX, 0x Protocol, Kyber Network, Bancor
+- **Fantom**: SpookySwap, SpiritSwap, Beethoven X, TombSwap, PaintSwap, SushiSwap, Curve, Solidly, Tarot, HyperJump
+- **BSC**: PancakeSwap, Biswap, ApeSwap, DODO, 1inch, SushiSwap, Curve, Venus, Alpaca Finance, Ellipsis
+- **Polygon**: QuickSwap, SushiSwap, Curve, Balancer, 1inch, dYdX, 0x Protocol, Kyber Network, Bancor, Aave
+- **Avalanche**: TraderJoe, Pangolin, SushiSwap, Curve, 1inch, dYdX, 0x Protocol, Kyber Network, Bancor, Yield Yak
+- **Solana**: Raydium, Orca, Serum, Saber, Aldrin, Lifinity, Crema, Step, Meteora, Jupiter
+
+**Usage**:
+```bash
+./dexarb -dexes
+```
+
+### 2. Modified Flag: `-showPOOLS`
+
+**Purpose**: Show pools with or without DEX parameter
+
+**Implementation**:
+- Modified command parsing to accept blockchain-only parameter
+- Updated `requires_dex()` function to not require DEX for `SHOW_POOLS`
+- Created `show_all_pools()` function for blockchain-wide pool display
+- Maintained backward compatibility
+
+**Usage**:
+```bash
+# Show all pools in a blockchain
+./dexarb -showPOOLS ethereum
+
+# Show pools for specific DEX (backward compatibility)
+./dexarb -showPOOLS ethereum Uniswap
+```
+
+### 3. Modified Flag: `-showTOKENS`
+
+**Purpose**: Show tokens with or without DEX parameter
+
+**Implementation**:
+- Modified command parsing to accept blockchain-only parameter
+- Updated `requires_dex()` function to not require DEX for `SHOW_TOKENS`
+- Created `show_all_tokens()` function for blockchain-wide token display
+- Maintained backward compatibility
+
+**Usage**:
+```bash
+# Show all tokens in a blockchain
+./dexarb -showTOKENS fantom
+
+# Show tokens for specific DEX (backward compatibility)
+./dexarb -showTOKENS fantom SpookySwap
+```
+
+## Technical Implementation
 
 ### 1. New Command Type: SHOW_ALL_DEXES
 
@@ -31,7 +142,24 @@ Added support for `-dexes` and `--dexes` flags:
     return CommandType::SHOW_ALL_DEXES;
 ```
 
-### 2. Modified Command Parsing
+### 2. Enhanced DEX Information Structure
+
+**Location**: `src/network/queries.cpp`
+
+Added comprehensive DEX information structure:
+```cpp
+struct DexDetails {
+    std::string name;
+    std::string factory_address;
+    std::string description;
+    std::string protocol_type;
+    std::string launch_date;
+    std::string website;
+    std::string features;
+};
+```
+
+### 3. Modified Command Parsing
 
 **Location**: `src/cli/command_parser.cpp`
 
@@ -59,7 +187,7 @@ case CommandType::SHOW_TOKENS:
     break;
 ```
 
-### 3. Updated Function Requirements
+### 4. Updated Function Requirements
 
 **Location**: `src/cli/command_parser.cpp`
 
@@ -67,181 +195,86 @@ Modified `requires_dex()` function to no longer require DEX for `SHOW_POOLS` and
 
 ```cpp
 bool CommandParser::requires_dex(CommandType type) {
-    return type == CommandType::FIND_TOKEN; // Only FIND_TOKEN requires DEX now
-}
-```
-
-### 4. New Functions Implementation
-
-**Location**: `src/network/queries.cpp`
-
-#### show_all_dexes_by_blockchain()
-
-Displays all known DEXes organized by blockchain:
-
-```cpp
-void show_all_dexes_by_blockchain() {
-    std::map<std::string, std::vector<std::string>> blockchain_dexes = {
-        {"Ethereum", {"Uniswap V2", "Uniswap V3", "SushiSwap", "Curve", "Balancer", ...}},
-        {"Fantom", {"SpookySwap", "SpiritSwap", "Beethoven X", "TombSwap", ...}},
-        {"BSC", {"PancakeSwap", "Biswap", "ApeSwap", "DODO", ...}},
-        // ... other blockchains
-    };
-    
-    // Display formatted output
-}
-```
-
-#### show_all_pools()
-
-Shows all pools across all DEXes in a specified blockchain:
-
-```cpp
-void show_all_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& blockchain) {
-    // Load DEXes from config
-    // Fetch pools from all DEXes
-    // Display pools grouped by DEX
-}
-```
-
-### 5. Main Application Integration
-
-**Location**: `src/main.cpp`
-
-Added handling for new command types:
-
-```cpp
-case cli::CommandType::SHOW_ALL_DEXES: {
-    modern_utils::Logger::info("Showing all known DEXes by blockchain");
-    show_all_dexes_by_blockchain();
-    break;
-}
-
-case cli::CommandType::SHOW_POOLS: {
-    if (cmd.dex_name.empty()) {
-        // Show all pools across all DEXes
-        show_all_pools(rpc_endpoints, normalized_blockchain);
-    } else {
-        // Show pools for specific DEX
-        show_pools(rpc_endpoints, cmd.dex_name);
+    switch (type) {
+        case CommandType::FIND_TOKEN:
+            return true;
+        case CommandType::SHOW_POOLS:
+        case CommandType::SHOW_TOKENS:
+            return false; // No longer required
+        default:
+            return false;
     }
-    break;
 }
-```
-
-### 6. Help Display Updates
-
-**Location**: `src/cli/help_display.cpp`
-
-Updated help text to reflect new functionality:
-
-```cpp
-output << "   " << format_text("DEX Analysis", GREEN) << '\n';
-output << "      " << format_text("-dexes", BLUE) << format_column("", 8) << "                              " << format_text("Show all known DEXes by blockchain", CYAN) << '\n';
-output << "      " << format_text("-showDEXES", BLUE) << format_column("", 4) << "<blockchain>              " << format_text("Show discovered DEXes", CYAN) << '\n';
-output << "      " << format_text("-showPOOLS", BLUE) << format_column("", 4) << "<blockchain> [DEX]        " << format_text("Show pools (all or specific DEX)", CYAN) << '\n';
-output << "      " << format_text("-showTOKENS", BLUE) << format_column("", 3) << "<blockchain> [DEX]        " << format_text("Show tokens (all or specific DEX)", CYAN) << '\n\n';
-```
-
-## Usage Examples
-
-### 1. Show All Known DEXes
-```bash
-# Show all known DEXes organized by blockchain
-./dexarb -dexes
-
-# Output:
-# Known DEXes by Blockchain:
-# ============================================================
-# Ethereum:
-#   • Uniswap V2
-#   • Uniswap V3
-#   • SushiSwap
-#   • Curve
-#   • Balancer
-#   ...
-# 
-# Fantom:
-#   • SpookySwap
-#   • SpiritSwap
-#   • Beethoven X
-#   ...
-```
-
-### 2. Show All Pools in Blockchain
-```bash
-# Show all pools in Fantom (using network ID)
-./dexarb -showPOOLS 250
-
-# Show all pools in Ethereum
-./dexarb -showPOOLS ethereum
-
-# Output:
-# All pools found in fantom:
-# ============================================================
-# DEX: SpookySwap (0x152eE697f2E276fA89E96742e9bB9aB51FcFcA15)
-#   Pool: 0x1234..., Token0: 0xabcd..., Token1: 0xefgh..., Liquidity: 1000000
-#   Pool: 0x5678..., Token0: 0xijkl..., Token1: 0xmnop..., Liquidity: 2000000
-# 
-# DEX: SpiritSwap (0xEF45d134b73241eDa7703fa787148D9C9F4950b0)
-#   Pool: 0x9abc..., Token0: 0xqrst..., Token1: 0xuvwx..., Liquidity: 1500000
-```
-
-### 3. Show All Tokens in Blockchain
-```bash
-# Show all tokens in BSC
-./dexarb -showTOKENS bsc
-
-# Show all tokens in Polygon (using network ID)
-./dexarb -showTOKENS 137
-
-# Output:
-# All unique tokens found across all DEXes:
-# Total unique tokens: 1250
-# Token: 0x1234567890abcdef...
-# Token: 0xabcdef1234567890...
-# Token: 0x9876543210fedcba...
-# ...
 ```
 
 ## Testing
 
 ### Unit Tests
+
 **Location**: `tests/cpp/test_new_features.cpp`
 
-Comprehensive test coverage for:
-- `-dexes` flag parsing
-- `-showPOOLS` without DEX parameter
-- `-showTOKENS` without DEX parameter
-- Backward compatibility with existing DEX parameters
-- Command descriptions
-- Function requirements
+Added comprehensive tests for the new functionality:
 
-### Test Cases
-1. **Flag Parsing**: Verify correct command type assignment
-2. **Parameter Handling**: Test with and without DEX parameters
-3. **Network ID Support**: Test with blockchain names and network IDs
-4. **Error Handling**: Verify proper error messages
-5. **Backward Compatibility**: Ensure existing functionality still works
+```cpp
+// Test expanded -dexes functionality
+TEST_F(NewFeaturesTest, TestExpandedDexesFunctionality) {
+    std::cout << "Testing expanded -dexes functionality..." << std::endl;
+    
+    // Test that the command parser correctly identifies the flag
+    auto argv = create_argv({"neozork", "-dexes"});
+    auto cmd = CommandParser::parse(argv.size(), argv.data());
+    
+    EXPECT_EQ(cmd.type, CommandType::SHOW_ALL_DEXES);
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
+    
+    // Test that the flag doesn't require additional parameters
+    EXPECT_TRUE(cmd.blockchain.empty());
+    EXPECT_TRUE(cmd.dex_name.empty());
+    
+    // Test that the command description is correct
+    auto desc = CommandParser::get_command_description(CommandType::SHOW_ALL_DEXES);
+    EXPECT_FALSE(desc.empty());
+    EXPECT_EQ(desc, "Show all known DEXes by blockchain");
+}
+```
 
-## Backward Compatibility
+### Integration Tests
 
-All existing functionality remains unchanged:
+All existing functionality remains backward compatible:
 - `-showPOOLS <blockchain> <DEX>` still works
 - `-showTOKENS <blockchain> <DEX>` still works
-- All other flags continue to function as before
+- All other commands continue to function as expected
 
-## Performance Considerations
+## Benefits
 
-1. **DEX Listing**: Static data, no performance impact
-2. **All Pools**: May be slower as it queries all DEXes
-3. **All Tokens**: May be slower as it processes all pools
-4. **Caching**: Consider implementing caching for frequently accessed data
+### 1. Enhanced User Experience
+- **Comprehensive Information**: Users get complete details about each DEX
+- **Visual Appeal**: Color-coded output with emojis makes information easy to scan
+- **Quick Reference**: Statistics and usage examples help users understand the ecosystem
+
+### 2. Developer Benefits
+- **Complete Data**: All necessary information for DEX integration
+- **Factory Addresses**: Direct access to smart contract addresses
+- **Protocol Types**: Understanding of different DEX mechanisms
+- **Launch Dates**: Historical context for DEX development
+
+### 3. Backward Compatibility
+- **No Breaking Changes**: All existing commands continue to work
+- **Enhanced Functionality**: New features add value without removing existing capabilities
+- **Flexible Usage**: Commands work with or without optional parameters
 
 ## Future Enhancements
 
-1. **Pagination**: For large datasets
-2. **Filtering**: By liquidity, volume, etc.
-3. **Sorting**: By various metrics
-4. **Export**: CSV/JSON output options
-5. **Real-time Data**: Live pool/token information
+### Potential Improvements
+1. **Real-time Data**: Fetch current TVL, volume, and other metrics
+2. **Filtering Options**: Filter DEXes by protocol type, launch date, or features
+3. **Export Functionality**: Export DEX information to JSON or CSV
+4. **Interactive Mode**: Interactive selection of DEXes for detailed analysis
+5. **Cross-chain Comparison**: Compare DEXes across different blockchains
+
+### Integration Opportunities
+1. **API Integration**: Connect to DEX APIs for real-time data
+2. **Analytics Dashboard**: Web-based dashboard for DEX analysis
+3. **Alert System**: Notifications for new DEX launches or significant changes
+4. **Portfolio Tracking**: Track DEX performance over time

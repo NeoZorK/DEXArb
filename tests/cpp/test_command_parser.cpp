@@ -134,9 +134,8 @@ TEST_F(CommandParserTest, ParseShowPoolsCommandInvalidArgs) {
     EXPECT_EQ(cmd.type, CommandType::SHOW_POOLS);
     EXPECT_EQ(cmd.flag, "--show-pools");
     EXPECT_EQ(cmd.blockchain, "ethereum");
-    EXPECT_FALSE(cmd.is_valid);
-    EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Command requires blockchain and DEX parameters");
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
 }
 
 TEST_F(CommandParserTest, ParseShowTokensCommandValid) {
@@ -158,9 +157,8 @@ TEST_F(CommandParserTest, ParseShowTokensCommandInvalidArgs) {
     EXPECT_EQ(cmd.type, CommandType::SHOW_TOKENS);
     EXPECT_EQ(cmd.flag, "--show-tokens");
     EXPECT_EQ(cmd.blockchain, "ethereum");
-    EXPECT_FALSE(cmd.is_valid);
-    EXPECT_FALSE(cmd.error_message.empty());
-    EXPECT_EQ(cmd.error_message, "Command requires blockchain and DEX parameters");
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
 }
 
 TEST_F(CommandParserTest, ParseShowScanConfigCommandValid) {
@@ -305,8 +303,8 @@ TEST_F(CommandParserTest, RequiresDex) {
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::VERSION_CMD));
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::SCAN));
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_DEXES));
-    EXPECT_TRUE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
-    EXPECT_TRUE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
+    EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
+    EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_SCAN_CONFIG));
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_SCAN));
     EXPECT_FALSE(CommandParser::requires_dex(CommandType::SHOW_SCAN_STAT));

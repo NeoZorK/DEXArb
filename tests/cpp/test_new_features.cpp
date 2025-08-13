@@ -45,6 +45,28 @@ TEST_F(NewFeaturesTest, TestDexesFlag) {
     EXPECT_TRUE(cmd2.error_message.empty());
 }
 
+// Test expanded -dexes functionality
+TEST_F(NewFeaturesTest, TestExpandedDexesFunctionality) {
+    std::cout << "Testing expanded -dexes functionality..." << std::endl;
+    
+    // Test that the command parser correctly identifies the flag
+    auto argv = create_argv({"neozork", "-dexes"});
+    auto cmd = CommandParser::parse(argv.size(), argv.data());
+    
+    EXPECT_EQ(cmd.type, CommandType::SHOW_ALL_DEXES);
+    EXPECT_TRUE(cmd.is_valid);
+    EXPECT_TRUE(cmd.error_message.empty());
+    
+    // Test that the flag doesn't require additional parameters
+    EXPECT_TRUE(cmd.blockchain.empty());
+    EXPECT_TRUE(cmd.dex_name.empty());
+    
+    // Test that the command description is correct
+    auto desc = CommandParser::get_command_description(CommandType::SHOW_ALL_DEXES);
+    EXPECT_FALSE(desc.empty());
+    EXPECT_EQ(desc, "Show all known DEXes by blockchain");
+}
+
 // Test -showPOOLS without DEX parameter
 TEST_F(NewFeaturesTest, TestShowPoolsWithoutDex) {
     std::cout << "Testing -showPOOLS without DEX parameter..." << std::endl;

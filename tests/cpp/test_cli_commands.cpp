@@ -140,8 +140,8 @@ static bool test_command_requirements() {
     ASSERT_FALSE(CommandParser::requires_value(CommandType::SHOW_SCAN_STAT));
     
     // Test DEX requirements
-    ASSERT_TRUE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
-    ASSERT_TRUE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
+    ASSERT_FALSE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
+    ASSERT_FALSE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
     ASSERT_TRUE(CommandParser::requires_dex(CommandType::FIND_TOKEN));
     
     ASSERT_FALSE(CommandParser::requires_dex(CommandType::HELP));
