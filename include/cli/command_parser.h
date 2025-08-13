@@ -18,6 +18,7 @@ enum class CommandType {
     HELP,
     VERSION_CMD,
     EXAMPLES,
+    VERBOSE,
     SCAN,
     SHOW_DEXES,
     SHOW_ALL_DEXES,

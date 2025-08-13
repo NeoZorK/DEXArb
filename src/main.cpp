@@ -24,6 +24,9 @@
 // Global Project Version
 const std::string PROJECT_VERSION = "1.0.7";
 
+// Global debug flag - disabled by default
+bool g_debug_enabled = false;
+
 // Global variables for stats
 std::vector<std::pair<std::string, FunctionStats>> stats_list;
 FunctionStats scan_stats, config_update_stats;
@@ -31,6 +34,13 @@ FunctionStats scan_stats, config_update_stats;
 // Forward declarations
 void show_help();
 void show_version();
+
+// Debug output function
+void debug_output(const std::string& message) {
+    if (g_debug_enabled) {
+        std::cout << "DEBUG: " << message << std::endl;
+    }
+}
 
 // Helper functions
 std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& blockchain) {
@@ -79,7 +89,7 @@ std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& block
         try {
             int limit = std::stoi(limit_str);
             endpoints.push_back(RpcEndpoint(url, limit));
-            std::cout << "DEBUG: Loaded RPC endpoint: " << url << " with limit: " << limit << std::endl;
+            debug_output("Loaded RPC endpoint: " + url + " with limit: " + std::to_string(limit));
         } catch (const std::exception& e) {
             std::cerr << "Error parsing limit for " << url << ": " << e.what() << std::endl;
         }
@@ -98,7 +108,7 @@ int get_thread_count_from_config() {
 
 // Function to display usage instructions
 void show_help() {
-    std::cout << "DEBUG: show_help() called" << std::endl;
+    debug_output("show_help() called");
     modern_utils::Logger::info("Displaying help information");
     
     std::cout << "\n";
@@ -168,9 +178,17 @@ void show_version() {
 //          MAIN FUNCTION
 //
 int main(int argc, char* argv[]) {
-    std::cout << "DEBUG: main() called with argc=" << argc << std::endl;
+    // Check for verbose flag first
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--verbose") {
+            g_debug_enabled = true;
+            break;
+        }
+    }
+    
+    debug_output("main() called with argc=" + std::to_string(argc));
     for (int i = 0; i < argc; i++) {
-        std::cout << "DEBUG: argv[" << i << "] = '" << argv[i] << "'" << std::endl;
+        debug_output("argv[" + std::to_string(i) + "] = '" + std::string(argv[i]) + "'");
     }
     
     // Start the Main timer
@@ -207,6 +225,11 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-dexes") {
             modern_utils::Logger::info("Showing all known DEXes by blockchain");
             show_all_dexes_by_blockchain();
+            return 0;
+        } else if (flag == "--verbose") {
+            g_debug_enabled = true;
+            debug_output("Verbose mode enabled");
+            cli::HelpDisplay::show_help();
             return 0;
         } else if (flag == "-scan") {
             // Handle scan with default blockchain and block count
@@ -308,6 +331,13 @@ int main(int argc, char* argv[]) {
     
     if (cmd.type == cli::CommandType::EXAMPLES) {
         cli::HelpDisplay::show_examples();
+        return 0;
+    }
+    
+    if (cmd.type == cli::CommandType::VERBOSE) {
+        g_debug_enabled = true;
+        debug_output("Verbose mode enabled");
+        cli::HelpDisplay::show_help();
         return 0;
     }
     

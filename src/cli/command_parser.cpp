@@ -29,6 +29,7 @@ ParsedCommand CommandParser::parse(int argc, const char* argv[]) {
         case CommandType::HELP:
         case CommandType::VERSION_CMD:
         case CommandType::EXAMPLES:
+        case CommandType::VERBOSE:
             cmd.is_valid = true;
             break;
             
@@ -224,6 +225,8 @@ CommandType CommandParser::string_to_command_type(std::string_view flag) {
         return CommandType::VERSION_CMD;
     } else if (flag == "-examples" || flag == "--examples") {
         return CommandType::EXAMPLES;
+    } else if (flag == "--verbose") {
+        return CommandType::VERBOSE;
     } else if (flag == "-scan" || flag == "--scan") {
         return CommandType::SCAN;
     } else if (flag == "-showDEXES" || flag == "--show-dexes") {
@@ -254,6 +257,7 @@ std::string CommandParser::get_command_description(CommandType type) {
         case CommandType::HELP: return "Display help information";
         case CommandType::VERSION_CMD: return "Display version information";
         case CommandType::EXAMPLES: return "Display detailed examples";
+        case CommandType::VERBOSE: return "Enable debug output";
         case CommandType::SCAN: return "Scan blockchain for arbitrage opportunities";
         case CommandType::SHOW_DEXES: return "Show available DEXes for blockchain";
         case CommandType::SHOW_ALL_DEXES: return "Show all known DEXes by blockchain";
@@ -271,7 +275,7 @@ std::string CommandParser::get_command_description(CommandType type) {
 
 bool CommandParser::requires_blockchain(CommandType type) {
     return type != CommandType::HELP && type != CommandType::VERSION_CMD && 
-           type != CommandType::EXAMPLES && type != CommandType::UNKNOWN;
+           type != CommandType::EXAMPLES && type != CommandType::VERBOSE && type != CommandType::UNKNOWN;
 }
 
 bool CommandParser::requires_value(CommandType type) {
