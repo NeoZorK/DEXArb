@@ -15,12 +15,22 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
 
 # Find required packages
+include(FetchContent)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(CURL REQUIRED)
 
 # Find GoogleTest
-find_package(GTest REQUIRED)
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
