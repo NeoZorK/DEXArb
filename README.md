@@ -1,7 +1,7 @@
 # NeoZorKDEXArb - DEX Arbitrage Scanner
 
-[![C++](https://img.shields.io/badge/C++-23-blue.svg)](https://isocpp.org/)
-[![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
+[![C++](https://img.shields.io/badge/C++-20-blue.svg)](https://isocpp.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.16+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-100%25%20passed-brightgreen.svg)]()
@@ -22,8 +22,8 @@ A high-performance C++ console application for scanning, analyzing, and identify
 
 ## 📋 Prerequisites
 
-- **C++23** compatible compiler (GCC 13+, Clang 17+, MSVC 2022+)
-- **CMake** 3.28 or higher
+- **C++20** compatible compiler (GCC 10+, Clang 12+, MSVC 2022+)
+- **CMake** 3.16 or higher
 - **libcurl** development libraries
 - **Google Test** framework for C++ testing
 
