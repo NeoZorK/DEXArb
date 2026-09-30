@@ -90,3 +90,14 @@ site/
 cache/
 tmp/
 temp/
+
+# Distribution output, compiled test binaries, runtime data files
+dist-*/
+cmake-build-*/
+tests/cpp/test_modern_format
+neozork-config
+neozork-scan-stat
+
+# Editor and tool metadata
+.cursor/
+.benchmarks/
