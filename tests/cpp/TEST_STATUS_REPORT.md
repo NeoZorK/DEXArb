@@ -1,3 +1,5 @@
+> **Stale, kept for history.** Written during development; the figures below were not re-verified and may contradict the top-level README. The repository was archived on 2026-09-30.
+
 # Test Status Report - DEXArb Project
 
 ## Current Status: ✅ EXCELLENT PROGRESS - 85% COVERAGE ACHIEVED
