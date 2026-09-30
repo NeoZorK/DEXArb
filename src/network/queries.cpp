@@ -212,6 +212,11 @@ void show_all_dexes_by_blockchain() {
         std::string features;
     };
     
+    // WARNING (archived, unverified): this catalog is not reliable. Several addresses are
+    // wrong, duplicated across different protocols or placeholders, some are routers rather
+    // than factories, and entries typed "Aggregator", "Derivatives", "Infrastructure",
+    // "Liquidity" or "Lending" (1inch, dYdX, 0x, Kyber, Bancor, ...) are not AMM factories.
+    // Verify every address against official deployment lists before use.
     std::map<std::string, std::vector<DexDetails>> blockchain_dexes = {
         {"Ethereum", {
             {"Uniswap V2", "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f", 

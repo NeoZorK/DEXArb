@@ -30,6 +30,8 @@ void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, [[may
                            int thread_count, std::mutex& mtx, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     try {
         // Known DEX factory addresses for all blockchains
+        // WARNING (archived, unverified): these lists contain routers, aggregators and duplicated or
+        // placeholder addresses labelled as different protocols. Do not rely on the labels.
         static const std::vector<std::string> known_ethereum_factories = {
             "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f", // Uniswap V2
             "0x1F98431c8aD98523631AE4a59f267346ea31F984", // Uniswap V3

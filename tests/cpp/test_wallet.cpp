@@ -51,7 +51,7 @@ TEST_F(WalletTest, ConnectWalletBasic) {
     // Verify output contains expected text
     EXPECT_TRUE(output.find("Connecting wallet with private key") != std::string::npos);
     EXPECT_TRUE(output.find("(not implemented yet)") != std::string::npos);
-    EXPECT_TRUE(output.find(test_private_key.substr(0, 6)) != std::string::npos);
+    EXPECT_TRUE(output.find(test_private_key) == std::string::npos);
     EXPECT_TRUE(output.find(YELLOW) != std::string::npos);
     EXPECT_TRUE(output.find(RESET) != std::string::npos);
 }
@@ -76,7 +76,7 @@ TEST_F(WalletTest, ConnectWalletDifferentKeys) {
         // Verify output contains expected text
         EXPECT_TRUE(output.find("Connecting wallet with private key") != std::string::npos);
         EXPECT_TRUE(output.find("(not implemented yet)") != std::string::npos);
-        EXPECT_TRUE(output.find(key.substr(0, 6)) != std::string::npos);
+        EXPECT_TRUE(output.find(key) == std::string::npos);
     }
 }
 
@@ -91,7 +91,7 @@ TEST_F(WalletTest, ConnectWalletShortKey) {
     // Verify output contains expected text
     EXPECT_TRUE(output.find("Connecting wallet with private key") != std::string::npos);
     EXPECT_TRUE(output.find("(not implemented yet)") != std::string::npos);
-    EXPECT_TRUE(output.find(short_key.substr(0, 6)) != std::string::npos);
+    EXPECT_TRUE(output.find(short_key) == std::string::npos);
 }
 
 // Test connect_wallet with empty private key
@@ -105,7 +105,7 @@ TEST_F(WalletTest, ConnectWalletEmptyKey) {
     // Verify output contains expected text
     EXPECT_TRUE(output.find("Connecting wallet with private key") != std::string::npos);
     EXPECT_TRUE(output.find("(not implemented yet)") != std::string::npos);
-    EXPECT_TRUE(output.find(empty_key.substr(0, 6)) != std::string::npos);
+    EXPECT_TRUE(output.find("[hidden]") != std::string::npos);
 }
 
 // Test disconnect_wallet function
@@ -238,7 +238,7 @@ TEST_F(WalletTest, ParameterHandling) {
     buffer.clear();
     connect_wallet(test_key, test_stats);
     std::string output = buffer.str();
-    EXPECT_TRUE(output.find(test_key.substr(0, 6)) != std::string::npos);
+    EXPECT_TRUE(output.find(test_key) == std::string::npos);
     
     // Test disconnect_wallet
     buffer.str("");
