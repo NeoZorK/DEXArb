@@ -19,6 +19,8 @@ app/*.rar
 
 # Build artifacts and build directories
 build/
+!scripts/build/
+scripts/build/build/
 build-*/
 build-*/
 *.o
