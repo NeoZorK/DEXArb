@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake libcurl4-openssl-dev libgtest-dev pkg-config
+          sudo apt-get install -y build-essential cmake libcurl4-openssl-dev libgtest-dev libgmock-dev pkg-config
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
