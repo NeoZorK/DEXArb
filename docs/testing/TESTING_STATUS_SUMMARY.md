@@ -1,3 +1,5 @@
+> **Stale, kept for history.** Written during development; the figures below were not re-verified and may contradict the top-level README. The repository was archived on 2026-09-30.
+
 # Testing Status Summary - DEXArb Project
 
 ## 🎯 Mission Accomplished: Basic Tests Fixed and Running

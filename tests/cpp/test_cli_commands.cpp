@@ -26,6 +26,7 @@ namespace cli {
             case CommandType::VERSION_CMD: return os << "VERSION_CMD";
             case CommandType::SCAN: return os << "SCAN";
             case CommandType::SHOW_DEXES: return os << "SHOW_DEXES";
+            case CommandType::SHOW_ALL_DEXES: return os << "SHOW_ALL_DEXES";
             case CommandType::SHOW_POOLS: return os << "SHOW_POOLS";
             case CommandType::SHOW_TOKENS: return os << "SHOW_TOKENS";
             case CommandType::SHOW_SCAN_CONFIG: return os << "SHOW_SCAN_CONFIG";
@@ -33,8 +34,10 @@ namespace cli {
             case CommandType::SHOW_SCAN_STAT: return os << "SHOW_SCAN_STAT";
             case CommandType::FIND_TOKEN: return os << "FIND_TOKEN";
             case CommandType::FIND_TOKENS: return os << "FIND_TOKENS";
+            case CommandType::EXAMPLES: return os << "EXAMPLES";
             case CommandType::UNKNOWN: return os << "UNKNOWN";
         }
+        return os << "UNKNOWN";
     }
 }
 
@@ -63,29 +66,32 @@ static bool test_string_to_command_type() {
     std::cout << "Testing string to command type conversion..." << std::endl;
     
     // Test all flag mappings
+    ASSERT_EQ(CommandParser::string_to_command_type("--help"), CommandType::HELP);
     ASSERT_EQ(CommandParser::string_to_command_type("-h"), CommandType::HELP);
-    ASSERT_EQ(CommandParser::string_to_command_type("-help"), CommandType::HELP);
     
+    ASSERT_EQ(CommandParser::string_to_command_type("--version"), CommandType::VERSION_CMD);
     ASSERT_EQ(CommandParser::string_to_command_type("-v"), CommandType::VERSION_CMD);
-    ASSERT_EQ(CommandParser::string_to_command_type("-version"), CommandType::VERSION_CMD);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-scan"), CommandType::SCAN);
+    ASSERT_EQ(CommandParser::string_to_command_type("--examples"), CommandType::EXAMPLES);
+    ASSERT_EQ(CommandParser::string_to_command_type("-examples"), CommandType::EXAMPLES);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showDEXES"), CommandType::SHOW_DEXES);
+    ASSERT_EQ(CommandParser::string_to_command_type("--scan"), CommandType::SCAN);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showPOOLS"), CommandType::SHOW_POOLS);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-dexes"), CommandType::SHOW_DEXES);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showTOKENS"), CommandType::SHOW_TOKENS);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-pools"), CommandType::SHOW_POOLS);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showSCAN-CONFIG"), CommandType::SHOW_SCAN_CONFIG);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-tokens"), CommandType::SHOW_TOKENS);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showSCAN"), CommandType::SHOW_SCAN);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-scan-config"), CommandType::SHOW_SCAN_CONFIG);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-showSCAN-STAT"), CommandType::SHOW_SCAN_STAT);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-scan"), CommandType::SHOW_SCAN);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-findTOKEN"), CommandType::FIND_TOKEN);
+    ASSERT_EQ(CommandParser::string_to_command_type("--show-scan-stat"), CommandType::SHOW_SCAN_STAT);
     
-    ASSERT_EQ(CommandParser::string_to_command_type("-findTOKENS"), CommandType::FIND_TOKENS);
+    ASSERT_EQ(CommandParser::string_to_command_type("--find-token"), CommandType::FIND_TOKEN);
+    
+    ASSERT_EQ(CommandParser::string_to_command_type("--find-tokens"), CommandType::FIND_TOKENS);
     
     // Test unknown commands
     ASSERT_EQ(CommandParser::string_to_command_type("--unknown"), CommandType::UNKNOWN);
@@ -108,6 +114,7 @@ static bool test_command_requirements() {
     
     ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::HELP));
     ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::VERSION_CMD));
+    ASSERT_FALSE(CommandParser::requires_blockchain(CommandType::EXAMPLES));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SCAN));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SHOW_DEXES));
     ASSERT_TRUE(CommandParser::requires_blockchain(CommandType::SHOW_POOLS));
@@ -120,8 +127,8 @@ static bool test_command_requirements() {
     
     // Test value requirements
     ASSERT_TRUE(CommandParser::requires_value(CommandType::SCAN));
-    ASSERT_TRUE(CommandParser::requires_value(CommandType::FIND_TOKEN));
-    ASSERT_TRUE(CommandParser::requires_value(CommandType::FIND_TOKENS));
+    ASSERT_FALSE(CommandParser::requires_value(CommandType::FIND_TOKEN));
+    ASSERT_FALSE(CommandParser::requires_value(CommandType::FIND_TOKENS));
     
     ASSERT_FALSE(CommandParser::requires_value(CommandType::HELP));
     ASSERT_FALSE(CommandParser::requires_value(CommandType::VERSION_CMD));
@@ -133,8 +140,8 @@ static bool test_command_requirements() {
     ASSERT_FALSE(CommandParser::requires_value(CommandType::SHOW_SCAN_STAT));
     
     // Test DEX requirements
-    ASSERT_TRUE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
-    ASSERT_TRUE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
+    ASSERT_FALSE(CommandParser::requires_dex(CommandType::SHOW_POOLS));
+    ASSERT_FALSE(CommandParser::requires_dex(CommandType::SHOW_TOKENS));
     ASSERT_TRUE(CommandParser::requires_dex(CommandType::FIND_TOKEN));
     
     ASSERT_FALSE(CommandParser::requires_dex(CommandType::HELP));
@@ -229,7 +236,7 @@ static bool test_command_parsing() {
     
     std::cout << "Testing scan command..." << std::endl;
     // Test scan command
-    const char* scan_argv[] = {"program", "-scan", "ethereum", "1000"};
+    const char* scan_argv[] = {"program", "--scan", "ethereum", "1000"};
     auto scan_cmd = CommandParser::parse(4, scan_argv);
     std::cout << "Scan command type: " << scan_cmd.type << ", valid: " << scan_cmd.is_valid << std::endl;
     std::cout << "Expected type: " << CommandType::SCAN << std::endl;
@@ -241,7 +248,7 @@ static bool test_command_parsing() {
     
     std::cout << "Testing show dexes command..." << std::endl;
     // Test show dexes command
-    const char* dexes_argv[] = {"program", "-showDEXES", "polygon"};
+    const char* dexes_argv[] = {"program", "--show-dexes", "polygon"};
     auto dexes_cmd = CommandParser::parse(3, dexes_argv);
     std::cout << "DEXES command type: " << dexes_cmd.type << ", valid: " << dexes_cmd.is_valid << std::endl;
     std::cout << "Expected type: " << CommandType::SHOW_DEXES << std::endl;
@@ -251,7 +258,7 @@ static bool test_command_parsing() {
     
     std::cout << "Testing show pools command..." << std::endl;
     // Test show pools command
-    const char* pools_argv[] = {"program", "-showPOOLS", "bsc", "pancakeswap"};
+    const char* pools_argv[] = {"program", "--show-pools", "bsc", "pancakeswap"};
     auto pools_cmd = CommandParser::parse(4, pools_argv);
     ASSERT_TRUE(pools_cmd.is_valid);
     ASSERT_EQ(pools_cmd.type, CommandType::SHOW_POOLS);
@@ -271,33 +278,33 @@ static bool test_command_validation() {
     ParsedCommand valid_cmd2(CommandType::VERSION_CMD, "-v");
     ASSERT_TRUE(CommandParser::validate_command(valid_cmd2));
     
-    ParsedCommand valid_cmd3(CommandType::SCAN, "-scan", "ethereum", "1000");
+    ParsedCommand valid_cmd3(CommandType::SCAN, "--scan", "ethereum", "1000");
     ASSERT_TRUE(CommandParser::validate_command(valid_cmd3));
     
-    ParsedCommand valid_cmd4(CommandType::SHOW_DEXES, "-showDEXES", "polygon");
+    ParsedCommand valid_cmd4(CommandType::SHOW_DEXES, "--show-dexes", "polygon");
     ASSERT_TRUE(CommandParser::validate_command(valid_cmd4));
     
-    ParsedCommand valid_cmd5(CommandType::SHOW_POOLS, "-showPOOLS", "bsc", "");
+    ParsedCommand valid_cmd5(CommandType::SHOW_POOLS, "--show-pools", "bsc", "");
     valid_cmd5.dex_name = "pancakeswap";
     ASSERT_TRUE(CommandParser::validate_command(valid_cmd5));
     
-    ParsedCommand valid_cmd6(CommandType::FIND_TOKEN, "-findTOKEN", "ethereum", "");
+    ParsedCommand valid_cmd6(CommandType::FIND_TOKEN, "--find-token", "ethereum", "");
     valid_cmd6.dex_name = "uniswap";
     valid_cmd6.token_address = "0x1234567890abcdef1234567890abcdef12345678";
     ASSERT_TRUE(CommandParser::validate_command(valid_cmd6));
     
     // Test invalid commands
-    ParsedCommand invalid_cmd1(CommandType::SCAN, "-scan", "", "");
+    ParsedCommand invalid_cmd1(CommandType::SCAN, "--scan", "", "");
     invalid_cmd1.blockchain = ""; // missing blockchain
     ASSERT_FALSE(CommandParser::validate_command(invalid_cmd1));
     
-    ParsedCommand invalid_cmd2(CommandType::SCAN, "-scan", "invalid", "1000"); // invalid blockchain
+    ParsedCommand invalid_cmd2(CommandType::SCAN, "--scan", "invalid", "1000"); // invalid blockchain
     ASSERT_FALSE(CommandParser::validate_command(invalid_cmd2));
     
-    ParsedCommand invalid_cmd3(CommandType::SCAN, "-scan", "ethereum", "invalid"); // invalid block range
+    ParsedCommand invalid_cmd3(CommandType::SCAN, "--scan", "ethereum", "invalid"); // invalid block range
     ASSERT_FALSE(CommandParser::validate_command(invalid_cmd3));
     
-    ParsedCommand invalid_cmd4(CommandType::FIND_TOKEN, "-findTOKEN", "ethereum", "");
+    ParsedCommand invalid_cmd4(CommandType::FIND_TOKEN, "--find-token", "ethereum", "");
     invalid_cmd4.token_address = "invalid"; // invalid address
     ASSERT_FALSE(CommandParser::validate_command(invalid_cmd4));
     

@@ -8,10 +8,10 @@
 #include "main.h"           // For FunctionStats and color constants
 #include <iostream>         // For console output
 
-void connect_wallet(const std::string& private_key, [[maybe_unused]] FunctionStats& stats) {
-    // Placeholder for wallet connection logic
-    std::cout << YELLOW << "Connecting wallet with private key " << private_key.substr(0, 6)
-              << "... (not implemented yet)" << RESET << '\n'; // Notify user of stub, show partial key
+void connect_wallet([[maybe_unused]] const std::string& private_key, [[maybe_unused]] FunctionStats& stats) {
+    // Placeholder for wallet connection logic; never print any part of the key
+    std::cout << YELLOW << "Connecting wallet with private key [hidden]"
+              << " (not implemented yet)" << RESET << '\n'; // Notify user of stub
 }
 
 void disconnect_wallet([[maybe_unused]] FunctionStats& stats) {

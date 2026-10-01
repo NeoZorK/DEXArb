@@ -45,7 +45,11 @@ std::vector<DexInfo> load_dexes_from_config() {
 
         std::cout << "DEBUG: Found chain " << chain << " at position " << chain_pos << std::endl;
 
-        size_t dex_pos = content.find("\"dex\": [", chain_pos); // Find DEX array
+        size_t dex_pos = content.find("\"dex\":", chain_pos); // Find DEX field
+        if (dex_pos != std::string::npos) {
+            // Skip to the opening bracket
+            dex_pos = content.find("[", dex_pos);
+        }
         if (dex_pos != std::string::npos) { // Check if DEX section exists
             size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
             if (dex_end == std::string::npos) {
@@ -55,12 +59,25 @@ std::vector<DexInfo> load_dexes_from_config() {
             
             std::cout << "DEBUG: DEX section for " << chain << " from " << dex_pos << " to " << dex_end << std::endl;
             
-            size_t pos = dex_pos + 8; // Move past "dex": [
+            size_t pos = dex_pos + 1; // Move past "["
             while (pos < dex_end && pos < content.length()) { // Loop through DEX entries
-                size_t addr_start = content.find("\"factory_address\": \"", pos); // Find factory address field
-                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                std::cout << "DEBUG: Looking for factory_address starting from position " << pos << std::endl;
+                // Look for address field (could be "factory_address" or "address")
+                size_t addr_start = content.find("\"address\"", pos); // Find address field
+                if (addr_start == std::string::npos || addr_start > dex_end) {
+                    addr_start = content.find("\"factory_address\"", pos); // Try factory_address as fallback
+                }
+                if (addr_start == std::string::npos || addr_start > dex_end) {
+                    std::cout << "DEBUG: factory_address not found or beyond dex_end" << std::endl;
+                    break;
+                }
                 
-                addr_start += 19; // Move past "factory_address": "
+                // Skip to the colon and quote
+                addr_start = content.find(":", addr_start);
+                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                addr_start = content.find("\"", addr_start);
+                if (addr_start == std::string::npos || addr_start > dex_end) break;
+                addr_start++; // Move past the quote
                 size_t addr_end = content.find('"', addr_start); // Find end of address
                 if (addr_end == std::string::npos || addr_end > dex_end) break;
                 
@@ -69,19 +86,52 @@ std::vector<DexInfo> load_dexes_from_config() {
                     std::string factory_address = content.substr(addr_start, addr_end - addr_start); // Extract address
                     std::cout << "DEBUG: Found factory address: " << factory_address << std::endl;
 
-                    // Fix: create DexInfo object and set only required fields
-                    DexInfo dex;
-                    if (factory_address.length() >= 8) {
-                        dex.name = "Unknown_" + factory_address.substr(2, 6);
-                    } else {
-                        dex.name = "Unknown_" + factory_address;
+                    // Try to find name field - search in the current DEX object
+                    std::string dex_name = "Unknown_" + factory_address.substr(2, 6);
+                    
+                    // Find the start of this DEX object (look for opening brace before address)
+                    size_t dex_obj_start = content.rfind("{", addr_start);
+                    if (dex_obj_start != std::string::npos && dex_obj_start < addr_start) {
+                        // Search for name field within this DEX object
+                        size_t name_start = content.find("\"name\": \"", dex_obj_start);
+                        if (name_start != std::string::npos && name_start < addr_start) {
+                            name_start += 8; // Move past "name": "
+                            size_t name_end = content.find('"', name_start);
+                            if (name_end != std::string::npos && name_end < addr_start) {
+                                dex_name = content.substr(name_start, name_end - name_start);
+                                std::cout << "DEBUG: Found DEX name: " << dex_name << std::endl;
+                            }
+                        }
                     }
+                    
+                    // If name is still unknown, try searching before the address
+                    if (dex_name == "Unknown_" + factory_address.substr(2, 6)) {
+                        size_t name_start = content.rfind("\"name\": \"", addr_start);
+                        std::cout << "DEBUG: Searching for name before position " << addr_start << ", found at: " << name_start << std::endl;
+                        if (name_start != std::string::npos) {
+                            name_start += 8; // Move past "name": "
+                            size_t name_end = content.find('"', name_start);
+                            std::cout << "DEBUG: Name end found at: " << name_end << std::endl;
+                            if (name_end != std::string::npos && name_end < addr_start) {
+                                dex_name = content.substr(name_start, name_end - name_start);
+                                std::cout << "DEBUG: Found DEX name (backward search): " << dex_name << std::endl;
+                            } else {
+                                std::cout << "DEBUG: Name end not found or after address" << std::endl;
+                            }
+                        } else {
+                            std::cout << "DEBUG: Name field not found before address" << std::endl;
+                        }
+                    }
+
+                    // Create DexInfo object and set required fields
+                    DexInfo dex;
+                    dex.name = dex_name;
                     dex.factory_address = factory_address;
                     dex_list.push_back(dex); // Add to list
                 }
 
-                pos = content.find("{", pos + 1); // Move to next entry
-                if (pos == std::string::npos) break; // Exit if no more entries
+                pos = addr_end + 1; // Move past the current address
+                if (pos >= dex_end) break; // Exit if we've reached the end
             }
         } else {
             std::cout << "DEBUG: No DEX section found for " << chain << std::endl;
@@ -92,7 +142,7 @@ std::vector<DexInfo> load_dexes_from_config() {
     return dex_list; // Return list of DEXes
 }
 
-void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
+void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& blockchain, std::vector<DexInfo>& dex_list, FunctionStats& stats) {
     // Start timing the function
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -103,15 +153,32 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::
     std::string content = buffer.str(); // Convert to string
     in_file.close(); // Close the file
 
+    // Find working RPC endpoint
+    std::string working_rpc_url = "";
+    int working_rpc_limit = 0;
+    
+    for (const auto& endpoint : rpc_endpoints) {
+        FunctionStats block_stats; // Stats for block fetch
+        std::string latest_block = get_latest_block_number(endpoint.url, endpoint.request_limit, block_stats); // Get latest block
+        
+        if (!latest_block.empty() && latest_block.length() >= 3 && latest_block.substr(0, 2) == "0x") {
+            working_rpc_url = endpoint.url;
+            working_rpc_limit = endpoint.request_limit;
+            std::cout << "DEBUG: Using RPC endpoint: " << working_rpc_url << std::endl;
+            break;
+        } else {
+            std::cout << "DEBUG: RPC endpoint " << endpoint.url << " failed, trying next..." << std::endl;
+        }
+    }
+    
+    if (working_rpc_url.empty()) {
+        std::cerr << "Failed to find working RPC endpoint for config update" << std::endl;
+        return; // Exit early if no working endpoint found
+    }
+    
     // Fetch latest block number for 24-hour range
     FunctionStats block_stats; // Stats for block fetch
-    std::string latest_block = get_latest_block_number(rpc_endpoints[0].url, rpc_endpoints[0].request_limit, block_stats); // Get latest block
-    
-    // Check if block fetch failed
-    if (latest_block.empty()) {
-        std::cerr << "Failed to fetch latest block for config update" << std::endl;
-        return; // Exit early if block fetch failed
-    }
+    std::string latest_block = get_latest_block_number(working_rpc_url, working_rpc_limit, block_stats); // Get latest block
     
     // Validate hex string format
     if (latest_block.length() < 3 || latest_block.substr(0, 2) != "0x") {
@@ -124,41 +191,72 @@ void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, std::
 
     // Update each DEX with fresh data
     for (auto& dex : dex_list) { // Loop through DEXes
-        dex.pool_count = get_pool_count(rpc_endpoints[0].url, dex.factory_address, rpc_endpoints[0].request_limit, stats); // Update pool count
-        dex.pools.clear(); // Clear existing pools
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
-            std::string addr = get_pool_address(rpc_endpoints[0].url, dex.factory_address, i, rpc_endpoints[0].request_limit, stats); // Get pool address
-            if (!addr.empty()) { // Check if address is valid
-                auto [token0, token1] = get_pool_tokens(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get tokens
-                uint64_t liquidity = get_pool_liquidity(rpc_endpoints[0].url, addr, rpc_endpoints[0].request_limit, stats); // Get liquidity
-                dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
-                dex.liquidity += liquidity; // Update total liquidity
-                dex.tvl += liquidity; // Update TVL (simplified)
+        try {
+            dex.pool_count = get_pool_count(working_rpc_url, dex.factory_address, working_rpc_limit, stats); // Update pool count
+            std::cout << "DEBUG: DEX " << dex.name << " has " << dex.pool_count << " pools" << std::endl;
+            
+            dex.pools.clear(); // Clear existing pools
+            for (uint64_t i = 0; i < dex.pool_count; ++i) { // Loop through pool indices
+                std::string addr = get_pool_address(working_rpc_url, dex.factory_address, i, working_rpc_limit, stats); // Get pool address
+                if (!addr.empty()) { // Check if address is valid
+                    auto [token0, token1] = get_pool_tokens(working_rpc_url, addr, working_rpc_limit, stats); // Get tokens
+                    uint64_t liquidity = get_pool_liquidity(working_rpc_url, addr, working_rpc_limit, stats); // Get liquidity
+                    dex.pools.push_back({addr, token0, token1, liquidity}); // Add pool to DEX
+                    dex.liquidity += liquidity; // Update total liquidity
+                    dex.tvl += liquidity; // Update TVL (simplified)
+                }
             }
+            
+            // Only process swap stats if we have pools
+            if (dex.pool_count > 0) {
+                std::mutex mtx; // Mutex for thread synchronization
+                std::atomic<int> progress(0); // Progress counter
+                std::vector<std::thread> threads; // Vector for threads
+                for (uint64_t i = 0; i < dex.pool_count; ++i) { // Launch thread for each pool
+                    threads.emplace_back(get_pool_swap_stats_thread, working_rpc_url, dex.pools[i].address, from_block,
+                                         latest_block_num, working_rpc_limit, std::ref(dex.volume_24h),
+                                         std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count); // Add thread
+                }
+                for (auto& t : threads) t.join(); // Wait for all threads to finish
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing DEX " << dex.name << ": " << e.what() << std::endl;
+            // Set default values for failed DEX
+            dex.pool_count = 0;
+            dex.pools.clear();
+            dex.liquidity = 0;
+            dex.tvl = 0;
+            dex.volume_24h = 0;
+            dex.tx_count_24h = 0;
         }
-        std::mutex mtx; // Mutex for thread synchronization
-        std::atomic<int> progress(0); // Progress counter
-        std::vector<std::thread> threads; // Vector for threads
-        for (uint64_t i = 0; i < dex.pool_count; ++i) { // Launch thread for each pool
-            threads.emplace_back(get_pool_swap_stats_thread, rpc_endpoints[0].url, dex.pools[i].address, from_block,
-                                 latest_block_num, rpc_endpoints[0].request_limit, std::ref(dex.volume_24h),
-                                 std::ref(dex.tx_count_24h), std::ref(mtx), std::ref(progress), dex.pool_count); // Add thread
-        }
-        for (auto& t : threads) t.join(); // Wait for all threads to finish
     }
 
-    // Update the DEX section in the config
-    size_t dex_pos = content.find("\"dex\": ["); // Find DEX array
-    if (dex_pos != std::string::npos) { // Check if DEX section exists
-        size_t dex_end = content.find("]", dex_pos); // Find end of DEX array
-        std::string new_dex = "\"dex\": [\n"; // Start new DEX section
-        for (size_t i = 0; i < dex_list.size(); ++i) { // Loop through DEXes
-            new_dex += "    {\"name\": \"" + dex_list[i].name + "\", \"address\": \"" + dex_list[i].factory_address +
-                       "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}"; // Build DEX entry
-            if (i < dex_list.size() - 1) new_dex += ",\n"; // Add comma if not last
+    // Update the DEX section in the config for the specific blockchain
+    std::string blockchain_section = "\"" + blockchain + "\":";
+    size_t blockchain_pos = content.find(blockchain_section);
+    std::cout << "DEBUG: Looking for blockchain section: " << blockchain_section << std::endl;
+    std::cout << "DEBUG: Blockchain position: " << blockchain_pos << std::endl;
+    if (blockchain_pos != std::string::npos) {
+        // Find the DEX section within this blockchain
+        size_t dex_pos = content.find("\"dex\": [", blockchain_pos);
+        std::cout << "DEBUG: DEX position: " << dex_pos << std::endl;
+        if (dex_pos != std::string::npos) {
+            size_t dex_end = content.find("]", dex_pos);
+            std::cout << "DEBUG: DEX end position: " << dex_end << std::endl;
+            std::string new_dex = "\"dex\": [\n";
+            for (size_t i = 0; i < dex_list.size(); ++i) {
+                new_dex += "    {\"name\": \"" + dex_list[i].name + "\", \"address\": \"" + dex_list[i].factory_address +
+                           "\", \"pools\": " + std::to_string(dex_list[i].pool_count) + "}";
+                if (i < dex_list.size() - 1) new_dex += ",\n";
+            }
+            new_dex += "\n  ]";
+            content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1);
+            std::cout << "DEBUG: Updated config with " << dex_list.size() << " DEXes" << std::endl;
+        } else {
+            std::cout << "DEBUG: DEX section not found for blockchain: " << blockchain << std::endl;
         }
-        new_dex += "\n  ]"; // Close DEX array
-        content = content.substr(0, dex_pos) + new_dex + content.substr(dex_end + 1); // Replace old DEX section
+    } else {
+        std::cout << "DEBUG: Blockchain section not found: " << blockchain << std::endl;
     }
 
     // Write updated config to file
