@@ -79,6 +79,8 @@ site/
 *.sqlite
 *.db
 *.sql
+neozork-config
+neozork-scan-stat
 
 # Environment files
 .env

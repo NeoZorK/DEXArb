@@ -1,0 +1,12 @@
+{
+  "threads": 3,
+  "ethereum": {
+    "rpc_endpoints": [
+      {
+        "url": "https://eth.llamarpc.com",
+        "request_limit": 25
+      }
+    ],
+    "dex": []
+  }
+}

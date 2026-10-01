@@ -1,7 +1,7 @@
 # NeoZorKDEXArb - DEX Pool Scanner (archived prototype)
 
-[![C++](https://img.shields.io/badge/C++-23-blue.svg)](https://isocpp.org/)
-[![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
+[![C++](https://img.shields.io/badge/C++-20-blue.svg)](https://isocpp.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.16+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-archived-lightgrey.svg)]()
 
@@ -41,8 +41,8 @@ The name "arbitrage" reflects the original plan; the arbitrage part was never im
 
 ## 📋 Prerequisites
 
-- **C++23** compatible compiler (GCC 13+, Clang 17+, MSVC 2022+)
-- **CMake** 3.28 or higher
+- **C++20** compatible compiler (GCC 10+, Clang 12+, MSVC 2022+)
+- **CMake** 3.16 or higher
 - **libcurl** development libraries
 - **Google Test** framework for C++ testing
 
