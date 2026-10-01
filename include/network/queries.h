@@ -28,4 +28,10 @@ void find_tokens_across_dexes(const std::vector<RpcEndpoint>& rpc_endpoints, con
 // Function to show all DEXes
 void show_dexes(const std::vector<RpcEndpoint>& rpc_endpoints);
 
+// Function to show all known DEXes organized by blockchain
+void show_all_dexes_by_blockchain();
+
+// Function to show all pools across all DEXes in a blockchain
+void show_all_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& blockchain);
+
 #endif // QUERIES_H

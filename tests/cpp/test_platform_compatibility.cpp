@@ -10,6 +10,8 @@
 #include "utils/platform.h"
 #include <iostream>
 #include <string>
+#include <thread>
+#include <atomic>
 
 // Test fixture for platform compatibility tests
 class PlatformCompatibilityTest : public ::testing::Test {
@@ -155,11 +157,13 @@ TEST_F(PlatformCompatibilityTest, ThreadingCompatibility) {
     // Test basic threading (should work on all platforms)
     std::atomic<int> counter{0};
     
-    std::thread worker([&counter]() {
-        counter.fetch_add(1);
-    });
-    
-    worker.join();
+    {
+        std::thread worker([&counter]() {
+            counter.fetch_add(1);
+        });
+        
+        worker.join();
+    }
     EXPECT_EQ(counter.load(), 1);
 }
 

@@ -17,16 +17,16 @@
 #define ASSERT_EQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_EQ failed: " << (a) << " != " << (b) << " at line " << __LINE__ << std::endl; return false; }
 #define ASSERT_TRUE(a) if (!(a)) { std::cerr << "ASSERT_TRUE failed at line " << __LINE__ << std::endl; return false; }
 #define ASSERT_FALSE(a) if (a) { std::cerr << "ASSERT_FALSE failed at line " << __LINE__ << std::endl; return false; }
-#define ASSERT_STREQ(a, b) if ((a) != (b)) { std::cerr << "ASSERT_STREQ failed: " << (a) != (b) << " at line " << __LINE__ << std::endl; return false; }
+#define ASSERT_STREQ(a, b) if (std::string(a) != std::string(b)) { std::cerr << "ASSERT_STREQ failed: " << a << " != " << b << " at line " << __LINE__ << std::endl; return false; }
 
 // Include our blockchain structures and enums
-#include "../include/blockchain.h"
-#include "../include/dex_pools.h"
-#include "../include/dex_tokens.h"
-#include "../include/dex_stats.h"
+#include "../include/core/blockchain.h"
+#include "../include/dex/dex_pools.h"
+#include "../include/dex/dex_tokens.h"
+#include "../include/dex/dex_stats.h"
 #include "../include/interfaces/iblockchain_scanner.h"
 #include "../include/interfaces/irpc_client.h"
-#include "../include/rpc_core.h"
+#include "../include/network/rpc_core.h"
 
 // Mock blockchain data structures for testing
 namespace mock {

@@ -1,24 +1,43 @@
-# NeoZorKDEXArb - DEX Arbitrage Scanner
+# NeoZorKDEXArb - DEX Pool Scanner (archived prototype)
 
 [![C++](https://img.shields.io/badge/C++-23-blue.svg)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
-[![Tests](https://img.shields.io/badge/Tests-100%25%20passed-brightgreen.svg)]()
-[![Version](https://img.shields.io/badge/Version-1.0.7-blue.svg)]()
+[![Status](https://img.shields.io/badge/Status-archived-lightgrey.svg)]()
 
-A high-performance C++ console application for scanning, analyzing, and identifying arbitrage opportunities across decentralized exchanges (DEX) on multiple blockchains.
+> **ARCHIVED — prototype, no longer maintained (2026-09-30).**
+> This repository is kept for reference only. No further development, issue handling or
+> security updates are planned. It is not an arbitrage bot and must not be used to trade.
 
-## 🚀 Features
+A C++23 console tool that scans EVM chains for DEX factory contracts and pools through
+public JSON-RPC endpoints (`eth_getLogs`) and collects basic swap statistics.
+The name "arbitrage" reflects the original plan; the arbitrage part was never implemented.
 
-- **Multi-Blockchain Support**: Ethereum, BSC, Polygon, Fantom, Avalanche, Solana
-- **DEX Discovery**: Automatic detection of factory contracts and pools
-- **Real-time Scanning**: Multithreaded blockchain scanning with configurable ranges
-- **Free RPC Integration**: Uses only free, public RPC endpoints
-- **Cross-platform**: Windows, Linux, and macOS support
-- **Performance Monitoring**: Built-in statistics and performance metrics
-- **Configuration Management**: JSON-based configuration with automatic setup
-- **Comprehensive Testing**: 100% test coverage with 3 test suites (18+ tests)
+## What works / What does not
+
+| Area | Status |
+|------|--------|
+| Multi-threaded factory scan (`PairCreated` logs) over public JSON-RPC, EVM chains (Ethereum, BSC, Polygon, Fantom, Avalanche) | Works (prototype quality) |
+| Swap log statistics per pool (`eth_getLogs`) | Works (prototype quality) |
+| JSON config file, rate limiting per RPC endpoint, CLI flags | Works |
+| Arbitrage detection and execution (`src/core/arbitrage.cpp`) | Not implemented, stub |
+| Profit analysis (`src/core/profit_analyzer.cpp`) | Not implemented, stub |
+| Wallet (`src/utils/wallet.cpp`) | Not implemented, stub |
+| Solana | Not supported (name appears only in config and help output) |
+| Real-time / streaming monitoring | Not supported; scans are batch requests over a block range |
+
+## Known issues
+
+- The DEX catalog in `src/network/queries.cpp` (`show_all_dexes_by_blockchain`) and the known
+  address lists in `src/dex/dex_scanner.cpp` contain wrong and duplicated addresses (the same
+  address is listed for several different protocols; some are routers, not factories) and
+  non-AMM entries (1inch, dYdX, 0x, Kyber, Bancor, lending and other protocols). Treat the
+  catalog as unverified; check every address against the official deployment lists.
+- Some catalog addresses are visibly placeholders (repeated hex patterns).
+- Test counts, coverage figures and status reports in `docs/` and `tests/cpp/` were written
+  during development and are stale; they were not re-verified at archiving time.
+- The project was not built or re-tested when it was archived. The `scripts/build/` directory referenced in the build sections is not tracked in this repository; use plain CMake.
+- Public RPC endpoints in the config examples may no longer exist or may rate-limit.
 
 ## 📋 Prerequisites
 
@@ -49,9 +68,38 @@ cd vcpkg && ./bootstrap-vcpkg.bat
 
 ## 🛠️ Building
 
-### Using Container Runners (Recommended for Development)
+### Using Universal Build Script (Recommended)
 
-The project includes container runners for different environments:
+The project includes a comprehensive universal build script that supports all platforms:
+
+```bash
+# Make script executable
+chmod +x scripts/build/build-universal.sh
+
+# Interactive build (recommended for first-time users)
+./scripts/build/build-universal.sh
+
+# Quick build for specific platform
+./scripts/build/build-universal.sh --platform macos --build-type Release
+
+# Full build with tests and package
+./scripts/build/build-universal.sh --clean --test --package --verbose
+
+# Show help
+./scripts/build/build-universal.sh --help
+```
+
+**Features:**
+- **Multi-platform**: macOS, Linux, Alpine, Windows
+- **Multiple methods**: Native, Container, Cross-platform, Wine
+- **Interactive mode**: User-friendly menu-driven interface
+- **Automation ready**: Command-line options for CI/CD
+
+**📖 [Complete Build Guide](docs/getting-started/UNIVERSAL_BUILD_SCRIPT.md)**
+
+### Using Container Runners (Alternative)
+
+The project also includes container runners for different environments:
 
 ```bash
 # Make scripts executable
@@ -83,7 +131,7 @@ cmake --build . --config Release
 
 ## 🧪 Testing
 
-The project includes comprehensive C++ unit tests using Google Test framework with 100% success rate:
+The project includes comprehensive C++ unit tests using Google Test framework plus shell script testing:
 
 ```bash
 # Build and run all tests
@@ -100,14 +148,21 @@ ctest --output-on-failure
 ./NeoZorKDEXArbTests        # Basic functionality tests
 ./ModernResultTests          # Modern Result<T,E> class tests  
 ./ModernFormatTests          # Formatting utilities tests
+./test_universal_build_script # Universal build script tests
+
+# Test build scripts
+cd scripts/build
+./tests/test-universal-script.sh  # Test universal build script
 ```
 
 ### Test Results
-- **Total Test Suites**: 3
-- **Total Tests**: 18+
-- **Success Rate**: 100%
-- **Execution Time**: <0.01 seconds
-- **Coverage**: Modern utilities, core functionality, error handling
+The figures previously listed here were not verified and have been removed.
+
+### Build Script Testing
+- **Universal Build Script**: 12 comprehensive tests
+- **Execution Time**: <5 seconds
+- **Dependencies**: Bash shell only
+- **Platform**: Cross-platform compatible
 
 ### Using Build Scripts (Recommended)
 
@@ -117,7 +172,10 @@ The project includes organized build scripts in the `scripts/` directory:
 # Make scripts executable
 chmod +x scripts/**/*.sh
 
-# Modern build (recommended)
+# Universal build script (recommended for all users)
+./scripts/build/build-universal.sh
+
+# Modern build with vcpkg
 ./scripts/build/build-modern.sh
 
 # Multi-platform build
@@ -182,7 +240,6 @@ See [scripts/README.md](scripts/README.md) for detailed usage information.
 | Polygon | `polygon` | `./NeoZorKDEXArb -scan polygon 5000` |
 | Fantom | `fantom` | `./NeoZorKDEXArb -scan fantom 5000` |
 | Avalanche | `avalanche` | `./NeoZorKDEXArb -scan avalanche 5000` |
-| Solana | `solana` | `./NeoZorKDEXArb -showSCAN-CONFIG solana` |
 
 ### Available Flags
 
@@ -225,7 +282,7 @@ The application automatically creates a `neozork-config` file on first run:
 
 - **`neozork-config`**: Configuration and discovered DEX data
 - **`neozork-scan-stat`**: Performance statistics and metrics
-- **Console Output**: Color-coded real-time information
+- **Console Output**: Color-coded console information
 
 ## 🔧 Performance Optimization
 
@@ -258,31 +315,20 @@ DEXArb/
 ## 📚 Documentation
 
 - **[Documentation Index](docs/README.md)**: Complete documentation overview
-- **[Quick Start Guide](docs/QUICK_START.md)**: Get up and running in 5 minutes
-- **[Build and Usage Guide](docs/BUILD_AND_USAGE.md)**: Comprehensive setup and usage instructions
-- **[Project Description](docs/PROJECT_DESCRIPTION.md)**: Detailed technical overview and architecture
-
-## 🚧 Current Limitations
-
-- **Solana Support**: Limited to configuration display
-- **Arbitrage Execution**: Core logic implemented as stubs
-- **Wallet Integration**: Placeholder functions
-- **Profit Analysis**: Basic implementation
+- **[Quick Start Guide](docs/getting-started/QUICK_START.md)**: Get up and running in 5 minutes
+- **[Universal Build Script](docs/getting-started/UNIVERSAL_BUILD_SCRIPT.md)**: One script for all platforms
+- **[Build and Usage Guide](docs/getting-started/BUILD_AND_USAGE.md)**: Comprehensive setup and usage instructions
+- **[Project Description](docs/development/PROJECT_DESCRIPTION.md)**: Detailed technical overview and architecture
 
 ## 🔒 Security
 
-- **Read-only Operations**: All blockchain operations are read-only
-- **No Private Keys**: Application doesn't handle private keys
-- **Free RPC Only**: Uses only free, public RPC endpoints
-- **Rate Limiting**: Built-in protection against RPC rate limits
+- The scanner only issues read-only JSON-RPC calls.
+- The wallet module is a stub; do not pass real private keys to it.
+- Uses free public RPC endpoints subject to their own rate limits.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+The project is archived; contributions are not being accepted. Forks are welcome under the MIT license.
 
 ## 📄 License
 
@@ -292,22 +338,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For issues and questions:
 
-1. Check the [troubleshooting section](docs/BUILD_AND_USAGE.md#troubleshooting)
-2. Review the configuration file
-3. Verify RPC endpoint availability
-4. Check system resources and network connectivity
+1. **Build Issues**: Check [Universal Build Script Guide](docs/getting-started/UNIVERSAL_BUILD_SCRIPT.md#troubleshooting)
+2. **General Issues**: Check [Build and Usage Guide](docs/getting-started/BUILD_AND_USAGE.md#troubleshooting)
+3. Review the configuration file
+4. Verify RPC endpoint availability
+5. Check system resources and network connectivity
 
 ## 🔮 Roadmap
 
-- [ ] Complete arbitrage execution functionality
-- [ ] Enhanced Solana support
-- [ ] Wallet integration for automated trading
-- [ ] Advanced profit analysis and risk management
-- [ ] Web interface for data visualization
-- [ ] Real-time monitoring and alerts
+None. The project is archived.
 
 ---
 
 **Version**: 1.0.7  
-**Last Updated**: March 2025  
-**Author**: Rostyslav S.
+**Last Updated**: 2026-09-30 (archived)  
+**Author**: Rostyslav S.  
+**Build System**: Universal Build Script v1.0.7 ✅

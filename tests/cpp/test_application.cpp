@@ -354,7 +354,7 @@ TEST_F(ApplicationTest, ExecuteScan_UnicodeParameters) {
 }
 
 TEST_F(ApplicationTest, ExecuteShowDexes_UnicodeBlockchain) {
-    int result = app->execute_show_ddexes("эфириум");
+    int result = app->execute_show_dexes("эфириум");
     EXPECT_EQ(result, 0);
 }
 

@@ -60,11 +60,14 @@ TEST_F(MainStructuresTest, RpcEndpointValidation) {
     RpcEndpoint invalid_url("", 100);
     EXPECT_FALSE(invalid_url.is_valid());
     
-    RpcEndpoint invalid_limit("https://rpc.example.com", 0);
-    EXPECT_FALSE(invalid_limit.is_valid());
+    // Constructor automatically sets default limit for 0 or negative values
+    RpcEndpoint zero_limit("https://rpc.example.com", 0);
+    EXPECT_TRUE(zero_limit.is_valid());
+    EXPECT_EQ(zero_limit.request_limit, 10);
     
     RpcEndpoint negative_limit("https://rpc.example.com", -10);
-    EXPECT_FALSE(negative_limit.is_valid());
+    EXPECT_TRUE(negative_limit.is_valid());
+    EXPECT_EQ(negative_limit.request_limit, 10);
 }
 
 TEST_F(MainStructuresTest, RpcEndpointDefaultLimit) {

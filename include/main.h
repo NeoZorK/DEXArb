@@ -148,4 +148,43 @@ void show_help();
 // Function to display version information
 void show_version();
 
+// Function declarations for CLI operations
+void find_factory_contracts(const std::vector<RpcEndpoint>& rpc_endpoints, 
+                           BlockchainType blockchain, 
+                           uint64_t scan_range, 
+                           int thread_count, 
+                           std::mutex& mtx, 
+                           std::vector<DexInfo>& dex_list, 
+                           FunctionStats& stats);
+
+void update_config_with_dex(const std::vector<RpcEndpoint>& rpc_endpoints, 
+                           std::vector<DexInfo>& dex_list, 
+                           FunctionStats& stats);
+
+void save_scan_stats(const std::vector<std::pair<std::string, FunctionStats>>& stats_list);
+
+void show_scan_results(const std::vector<DexInfo>& dex_list);
+
+void show_scan_config();
+
+void show_scan_stats();
+
+std::vector<DexInfo> load_dexes_from_config();
+
+void show_dexes(const std::vector<RpcEndpoint>& rpc_endpoints);
+
+void show_all_tokens(const std::vector<RpcEndpoint>& rpc_endpoints);
+
+void show_pools(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_name);
+
+void show_tokens(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_name);
+
+void find_tokens_across_dexes(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& token_address);
+
+void find_token_in_dex(const std::vector<RpcEndpoint>& rpc_endpoints, const std::string& dex_name, const std::string& token_address);
+
+std::vector<RpcEndpoint> load_rpc_endpoints_from_config(const std::string& blockchain);
+
+int get_thread_count_from_config();
+
 #endif // MAIN_H

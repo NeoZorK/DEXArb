@@ -42,6 +42,9 @@ int Application::run(int argc, const char* argv[]) {
         case cli::CommandType::VERSION_CMD:
             return handle_version_command();
             
+        case cli::CommandType::EXAMPLES:
+            return handle_examples_command();
+            
         case cli::CommandType::SCAN:
             return handle_scan_command(cmd);
             
@@ -100,6 +103,11 @@ int Application::handle_help_command() {
 
 int Application::handle_version_command() {
     cli::HelpDisplay::show_version();
+    return 0;
+}
+
+int Application::handle_examples_command() {
+    cli::HelpDisplay::show_examples();
     return 0;
 }
 
@@ -213,15 +221,15 @@ bool Application::validate_find_parameters(const cli::ParsedCommand& cmd) {
 }
 
 void Application::log_error(std::string_view error_message) {
-    cli::HelpDisplay::show_error(error_message);
+    cli::HelpDisplay::show_error(std::string(error_message));
 }
 
 void Application::log_warning(std::string_view warning_message) {
-    cli::HelpDisplay::show_warning(warning_message);
+    cli::HelpDisplay::show_error(std::string(warning_message)); // Используем show_error вместо несуществующего show_warning
 }
 
 void Application::log_info(std::string_view info_message) {
-    cli::HelpDisplay::show_info(info_message);
+    cli::HelpDisplay::show_info(std::string(info_message));
 }
 
 } // namespace core
